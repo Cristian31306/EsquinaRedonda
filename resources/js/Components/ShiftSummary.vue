@@ -53,7 +53,7 @@ const formatTime = (date) => {
             </div>
             <div v-for="payment in shift.payments" :key="payment.id" class="flex justify-between mb-1">
                 <span>{{ payment.ticket?.vehicle?.plate || 'S/P' }}</span>
-                <span>${{ new Intl.NumberFormat().format(payment.amount) }}</span>
+                <span>{{ payment.payment_method === 'trasnferencia' ? '(T) ' : '' }}${{ new Intl.NumberFormat().format(payment.amount) }}</span>
             </div>
             <div v-if="shift.payments.length === 0" class="text-center py-2 italic opacity-50">
                 Sin movimientos registrados
@@ -61,17 +61,26 @@ const formatTime = (date) => {
         </div>
 
         <div class="space-y-1 pt-4 border-t border-black border-dashed">
-            <div class="flex justify-between text-xs font-black">
-                <span>TOTAL RECAUDADO:</span>
-                <span>${{ new Intl.NumberFormat().format(calculateTotal()) }}</span>
+            <div class="flex justify-between text-[9px] opacity-70">
+                <span>(+) TOTAL EFECTIVO:</span>
+                <span>${{ new Intl.NumberFormat().format(shift.total_cash) }}</span>
             </div>
-            <div class="flex justify-between text-xs font-black">
+            <div class="flex justify-between text-[9px] opacity-70">
+                <span>(+) TOTAL TRANSFERENCIA:</span>
+                <span>${{ new Intl.NumberFormat().format(shift.total_transfer) }}</span>
+            </div>
+            <div class="flex justify-between text-xs font-black pt-1 mb-2 border-t border-black/10">
+                <span>TOTAL RECAUDADO:</span>
+                <span>${{ new Intl.NumberFormat().format(shift.total_collected) }}</span>
+            </div>
+            
+            <div class="flex justify-between text-xs font-black pt-2 border-t border-black">
                 <span>DECLARADO EN CAJA:</span>
                 <span>${{ new Intl.NumberFormat().format(shift.closing_cash_declared || 0) }}</span>
             </div>
-            <div class="flex justify-between text-xs font-bold">
-                <span>DIFERENCIA:</span>
-                <span>${{ new Intl.NumberFormat().format((shift.closing_cash_declared || 0) - calculateTotal()) }}</span>
+            <div class="flex justify-between text-xs font-bold" :class="(shift.closing_cash_declared - shift.total_cash) < 0 ? 'text-red-600' : ''">
+                <span>DIFERENCIA (EFECTIVO):</span>
+                <span>${{ new Intl.NumberFormat().format((shift.closing_cash_declared || 0) - shift.total_cash) }}</span>
             </div>
         </div>
             <div class="border-t border-black text-center pt-2">

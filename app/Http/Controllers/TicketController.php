@@ -69,6 +69,8 @@ class TicketController extends Controller
             'user_id'    => auth()->id(),
         ]);
 
+        \App\Services\TelegramQueueService::processPending();
+
         return redirect()->route('tickets.entry')->with([
             'success'      => 'Vehículo registrado correctamente.',
             'print_ticket' => $ticket->load('vehicle'),
@@ -134,12 +136,13 @@ class TicketController extends Controller
         } else {
             $request->validate([
                 'amount' => 'required|numeric|min:0',
-                'method' => 'required|string',
+                'method' => 'required|string', // Permissive string for now to avoid 'in' rule errors
             ]);
         }
 
         try {
             $this->billingService->processPayment($ticket, $request->amount, $request->method ?? 'efectivo');
+            \App\Services\TelegramQueueService::processPending();
             return redirect()->route('tickets.exit')->with('success', 'Pago procesado y ticket cerrado.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);

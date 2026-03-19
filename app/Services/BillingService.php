@@ -27,21 +27,22 @@ class BillingService
             ->get()
             ->keyBy('concept');
 
-        // Estadía fija: día completo
-        if ($ticket->stay_type === 'fullday') {
+        // Margen de 2 horas (120 min) para estadías fijas
+        $minutes = $ticket->entry_time->diffInMinutes(Carbon::now());
+        $isWithinGracePeriod = $minutes < 120;
+
+        // Estadía fija: día completo (Solo si supera las 2 horas)
+        if ($ticket->stay_type === 'fullday' && !$isWithinGracePeriod) {
             return $rates['dia']->value ?? 0;
         }
 
-        // Estadía fija: noche
-        if ($ticket->stay_type === 'overnight') {
+        // Estadía fija: noche (Solo si supera las 2 horas)
+        if ($ticket->stay_type === 'overnight' && !$isWithinGracePeriod) {
             return $rates['noche']->value ?? $rates['dia']->value ?? 0;
         }
 
         // -- Tarifa normal por tiempo --
-        $entryTime = $ticket->entry_time;
-        $now = Carbon::now();
-        $minutes = $entryTime->diffInMinutes($now);
-
+        // (Esto se ejecuta si es normal o si es fija pero dentro del margen de 2 horas)
         if ($minutes <= 0) return 0;
 
         $total = 0;

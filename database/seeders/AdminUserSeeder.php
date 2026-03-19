@@ -18,6 +18,18 @@ class AdminUserSeeder extends Seeder
                 'name' => 'Administrador',
                 'password' => \Illuminate\Support\Facades\Hash::make('123456'),
                 'role' => 'admin',
+                'is_active' => true,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        \App\Models\User::updateOrCreate(
+            ['email' => 'juan'],
+            [
+                'name' => 'Juan Pérez',
+                'password' => \Illuminate\Support\Facades\Hash::make('123456'),
+                'role' => 'admin',
+                'is_active' => true,
                 'email_verified_at' => now(),
             ]
         );

@@ -13,7 +13,7 @@ class CashShift extends Model
 
     protected $fillable = ['user_id', 'start_time', 'end_time', 'opening_cash', 'closing_cash_declared', 'status'];
 
-    protected $appends = ['total_collected'];
+    protected $appends = ['total_collected', 'total_cash', 'total_transfer'];
 
     protected $casts = [
         'start_time' => 'datetime',
@@ -33,5 +33,15 @@ class CashShift extends Model
     public function getTotalCollectedAttribute()
     {
         return $this->payments()->sum('amount');
+    }
+
+    public function getTotalCashAttribute()
+    {
+        return $this->payments()->where('payment_method', 'efectivo')->sum('amount');
+    }
+
+    public function getTotalTransferAttribute()
+    {
+        return $this->payments()->where('payment_method', 'trasnferencia')->sum('amount');
     }
 }

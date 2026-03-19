@@ -54,6 +54,8 @@ class CashShiftController extends Controller
             'status' => 'open',
         ]);
 
+        \App\Services\TelegramQueueService::processPending();
+
         return back()->with('success', 'Turno abierto correctamente.');
     }
 
@@ -87,6 +89,8 @@ class CashShiftController extends Controller
 
         // Cargamos relaciones para el reporte
         $shift->load(['user', 'payments.ticket.vehicle']);
+
+        \App\Services\TelegramQueueService::processPending();
 
         return back()->with([
             'success' => 'Turno cerrado correctamente.',

@@ -12,7 +12,7 @@ class Ticket extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['vehicle_id', 'entry_time', 'exit_time', 'status', 'user_id'];
+    protected $fillable = ['vehicle_id', 'entry_time', 'exit_time', 'status', 'user_id', 'stay_type'];
 
     protected $casts = [
         'entry_time' => 'datetime',

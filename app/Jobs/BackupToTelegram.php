@@ -57,12 +57,15 @@ class BackupToTelegram implements ShouldQueue
             if ($shift) {
                 $message .= "🆔 *Turno:* #{$shift->id}\n";
                 $message .= "👤 *Responsable:* {$shift->user->name}\n";
-                $message .= "📅 *Inicio:* {$shift->start_time}\n";
-                $message .= "📅 *Fin:* {$shift->end_time}\n";
-                $message .= "💰 *Total Recaudado:* $" . number_format($shift->total_collected, 2) . "\n";
-                $message .= "💵 *Efectivo en Caja:* $" . number_format($shift->manual_cash_count, 2) . "\n";
-                $difference = $shift->manual_cash_count - $shift->total_collected;
-                $message .= "⚖️ *Diferencia:* $" . number_format($difference, 2) . "\n";
+                $message .= "📅 *Inicio:* " . $shift->start_time->format('d/m/Y H:i') . "\n";
+                $message .= "📅 *Fin:* " . $shift->end_time->format('d/m/Y H:i') . "\n\n";
+                $message .= "💰 *Detalle de Ingresos:*\n";
+                $message .= "💵 *Efectivo:* $" . number_format($shift->total_cash, 0, ',', '.') . "\n";
+                $message .= "💳 *Transferencia:* $" . number_format($shift->total_transfer, 0, ',', '.') . "\n";
+                $message .= "📊 *Total General:* $" . number_format($shift->total_collected, 0, ',', '.') . "\n\n";
+                $message .= "🏧 *Declarado (Efectivo):* $" . number_format($shift->closing_cash_declared, 0, ',', '.') . "\n";
+                $diff = $shift->closing_cash_declared - $shift->total_cash;
+                $message .= "⚖️ *Diferencia:* $" . number_format($diff, 0, ',', '.') . ($diff == 0 ? " ✅" : ($diff > 0 ? " ➕" : " ⚠️")) . "\n";
             }
         } else {
             $message .= "Respaldo manual de base de datos solicitado.";
@@ -70,14 +73,14 @@ class BackupToTelegram implements ShouldQueue
 
         foreach ($chatIdsArray as $chatId) {
             // Send Text Summary
-            Http::withoutVerifying()->post("https://api.telegram.org/bot{$token}/sendMessage", [
+            Http::timeout(3)->withoutVerifying()->post("https://api.telegram.org/bot{$token}/sendMessage", [
                 'chat_id' => $chatId,
                 'text' => $message,
                 'parse_mode' => 'Markdown',
             ]);
 
             // Send Document (Database)
-            Http::withoutVerifying()->attach(
+            Http::timeout(3)->withoutVerifying()->attach(
                 'document', file_get_contents($dbPath), 'database_backup_' . date('Y-m-d_H-i-s') . '.sqlite'
             )->post("https://api.telegram.org/bot{$token}/sendDocument", [
                 'chat_id' => $chatId,

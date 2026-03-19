@@ -7,14 +7,8 @@ const props = defineProps({
     shift: Object,
 });
 
-const calculateTotalExpected = () => {
-    const opening = parseFloat(props.shift.opening_cash);
-    const sales = props.shift.payments.reduce((acc, p) => acc + parseFloat(p.amount), 0);
-    return opening + sales;
-};
-
 const difference = props.shift.status === 'closed' 
-    ? (props.shift.closing_cash_declared - calculateTotalExpected()) 
+    ? (props.shift.closing_cash_declared - props.shift.total_cash) 
     : 0;
 
 const formatDate = (date) => {
@@ -83,22 +77,26 @@ const printReport = () => {
             </div>
 
             <!-- Money Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-white border border-slate-200 p-6 rounded-3xl shadow-sm">
-                    <p class="text-[8px] font-black text-indigo-400 uppercase tracking-widest mb-2">Ventas Registradas en Sistema</p>
-                    <h4 class="text-2xl font-black text-slate-900 tracking-tighter">${{ new Intl.NumberFormat().format(shift.payments.reduce((acc, p) => acc + parseFloat(p.amount), 0)) }}</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="bg-white border border-slate-200 p-5 rounded-3xl shadow-sm">
+                    <p class="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-2">Ventas Efectivo</p>
+                    <h4 class="text-xl font-black text-slate-900 tracking-tighter">${{ new Intl.NumberFormat().format(shift.total_cash) }}</h4>
                 </div>
-                <div class="bg-indigo-50 border border-indigo-100 p-6 rounded-3xl shadow-sm">
-                    <p class="text-[8px] font-black text-indigo-600 uppercase tracking-widest mb-2">Total Esperado en Caja</p>
-                    <h4 class="text-2xl font-black text-indigo-950 tracking-tighter">${{ new Intl.NumberFormat().format(shift.payments.reduce((acc, p) => acc + parseFloat(p.amount), 0)) }}</h4>
+                <div class="bg-white border border-slate-200 p-5 rounded-3xl shadow-sm">
+                    <p class="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-2">Ventas Transferencia</p>
+                    <h4 class="text-xl font-black text-slate-900 tracking-tighter">${{ new Intl.NumberFormat().format(shift.total_transfer) }}</h4>
                 </div>
-                <div class="bg-slate-900 text-white p-6 rounded-3xl shadow-2xl">
-                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2">Declarado por Op. (Recaudo)</p>
-                    <h4 class="text-2xl font-black tracking-tighter">${{ new Intl.NumberFormat().format(shift.closing_cash_declared || 0) }}</h4>
+                <div class="bg-indigo-50 border border-indigo-100 p-5 rounded-3xl shadow-sm">
+                    <p class="text-[7px] font-black text-indigo-600 uppercase tracking-widest mb-2">Efectivo Esperado</p>
+                    <h4 class="text-xl font-black text-indigo-950 tracking-tighter">${{ new Intl.NumberFormat().format(shift.total_cash) }}</h4>
                 </div>
-                <div class="p-6 rounded-3xl shadow-lg border" :class="difference < 0 ? 'bg-rose-50 border-rose-100 text-rose-600' : difference > 0 ? 'bg-indigo-50 border-indigo-100 text-indigo-600' : 'bg-emerald-50 border-emerald-100 text-emerald-600'">
-                    <p class="text-[8px] font-black uppercase tracking-widest mb-2">Balance (Diferencia)</p>
-                    <h4 class="text-2xl font-black tracking-tighter">
+                <div class="bg-slate-900 text-white p-5 rounded-3xl shadow-2xl">
+                    <p class="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-2">Declarado en Caja</p>
+                    <h4 class="text-xl font-black tracking-tighter">${{ new Intl.NumberFormat().format(shift.closing_cash_declared || 0) }}</h4>
+                </div>
+                <div class="p-5 rounded-3xl shadow-lg border" :class="difference < 0 ? 'bg-rose-50 border-rose-100 text-rose-600' : difference > 0 ? 'bg-indigo-50 border-indigo-100 text-indigo-600' : 'bg-emerald-50 border-emerald-100 text-emerald-600'">
+                    <p class="text-[7px] font-black uppercase tracking-widest mb-2">Balance (Diferencia)</p>
+                    <h4 class="text-xl font-black tracking-tighter">
                         {{ difference > 0 ? '+' : '' }}${{ new Intl.NumberFormat().format(difference) }}
                     </h4>
                 </div>
@@ -119,6 +117,7 @@ const printReport = () => {
                                 <th class="px-8 py-4 text-[9px] font-black uppercase text-slate-400 tracking-widest">Placa</th>
                                 <th class="px-8 py-4 text-[9px] font-black uppercase text-slate-400 tracking-widest">Categoría</th>
                                 <th class="px-8 py-4 text-[9px] font-black uppercase text-slate-400 tracking-widest">Hora Salida</th>
+                                <th class="px-8 py-4 text-[9px] font-black uppercase text-slate-400 tracking-widest">Medio Pago</th>
                                 <th class="px-8 py-4 text-[9px] font-black uppercase text-slate-400 tracking-widest text-right">Valor Pagado</th>
                             </tr>
                         </thead>
@@ -134,6 +133,11 @@ const printReport = () => {
                                 </td>
                                 <td class="px-8 py-4">
                                     <p class="text-xs font-black text-slate-900">{{ formatTime(payment.created_at) }}</p>
+                                </td>
+                                <td class="px-8 py-4">
+                                    <span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest" :class="payment.payment_method === 'efectivo' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-indigo-50 text-indigo-600 border border-indigo-100'">
+                                        {{ payment.payment_method }}
+                                    </span>
                                 </td>
                                 <td class="px-8 py-4 text-right">
                                     <span class="text-xs font-black text-slate-900 tracking-tighter">${{ new Intl.NumberFormat().format(payment.amount) }}</span>

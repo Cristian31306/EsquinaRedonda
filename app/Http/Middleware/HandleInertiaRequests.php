@@ -37,6 +37,7 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => session('success'),
                 'print_ticket' => session('print_ticket'),
+                'printShift' => session('printShift'),
             ],
         ];
     }
