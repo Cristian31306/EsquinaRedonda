@@ -31,7 +31,14 @@ winget install Laragon.Laragon OpenJS.NodeJS.LTS
 
 ### 1. Clonar el proyecto
 
+> [!TIP]
+> **Recomendación:** Se sugiere instalar el proyecto en `C:\laragon\www\EsquinaRedonda` para una mejor integración con Laragon.
+
 ```bash
+# Navegar a la carpeta www de Laragon (ejemplo)
+cd C:\laragon\www
+
+# Clonar el proyecto
 git clone https://github.com/Cristian31306/EsquinaRedonda.git
 cd EsquinaRedonda
 ```
@@ -204,13 +211,18 @@ Para que el servidor corra en el fondo sin ventanas que se puedan cerrar por err
 1.  Crea un archivo llamado `server_silent.vbs` en la carpeta raíz del proyecto y pega esto:
     ```vbs
     Set WshShell = CreateObject("WScript.Shell")
-    WshShell.CurrentDirectory = "C:\Users\CANAL ASESORES LTDA\Documents\Proyectos\EsquinaRedonda"
-    WshShell.Run """C:\Users\CANAL ASESORES LTDA\.config\herd-lite\bin\php.exe"" artisan serve --host=0.0.0.0 --port=8000", 0, False
+    ' Obtiene automáticamente la carpeta desde la que se ejecuta el script
+    strPath = CreateObject("Scripting.FileSystemObject").GetParentFolderName(WScript.ScriptFullName)
+    WshShell.CurrentDirectory = strPath
+    ' Ejecuta el servidor usando el comando php (debe estar en el PATH)
+    WshShell.Run "php artisan serve --host=0.0.0.0 --port=8000", 0, False
     ```
 
 2.  Registra la tarea en **PowerShell** (como administrador):
     ```powershell
-    $Action = New-ScheduledTaskAction -Execute 'wscript.exe' -Argument '"C:\Users\CANAL ASESORES LTDA\Documents\Proyectos\EsquinaRedonda\server_silent.vbs"'
+    # Define la ruta del proyecto (ajusta si lo instalaste en otro lugar)
+    $ProjectDir = "C:\laragon\www\EsquinaRedonda"
+    $Action = New-ScheduledTaskAction -Execute 'wscript.exe' -Argument "`"$ProjectDir\server_silent.vbs`""
     $Trigger = New-ScheduledTaskTrigger -AtLogOn
     Register-ScheduledTask -Action $Action -Trigger $Trigger -TaskName "EsquinaRedondaServer" -Description "Servidor POS Silencioso" -RunLevel Highest -Force
     ```
@@ -219,7 +231,7 @@ Para que el servidor corra en el fondo sin ventanas que se puedan cerrar por err
 Si prefieres un archivo manual, crea uno llamado `iniciar.bat` con:
 ```batch
 @echo off
-cd /d "C:\Users\CANAL ASESORES LTDA\Documents\Proyectos\EsquinaRedonda"
+cd /d "%~dp0"
 start /min php artisan serve --host=0.0.0.0 --port=8000
 timeout /t 3
 start "" "http://localhost:8000"
