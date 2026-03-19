@@ -72,20 +72,21 @@ class BackupToTelegram implements ShouldQueue
         }
 
         foreach ($chatIdsArray as $chatId) {
-            // Send Text Summary
-            Http::timeout(3)->withoutVerifying()->post("https://api.telegram.org/bot{$token}/sendMessage", [
-                'chat_id' => $chatId,
-                'text' => $message,
-                'parse_mode' => 'Markdown',
-            ]);
-
-            // Send Document (Database)
-            Http::timeout(3)->withoutVerifying()->attach(
+            // Send Document (Database) with the summary as caption
+            $response = Http::timeout(60)->withoutVerifying()->attach(
                 'document', file_get_contents($dbPath), 'database_backup_' . date('Y-m-d_H-i-s') . '.sqlite'
             )->post("https://api.telegram.org/bot{$token}/sendDocument", [
                 'chat_id' => $chatId,
-                'caption' => '📦 Respaldo de Base de Datos (SQLite)',
+                'caption' => mb_substr($message, 0, 1024),
+                'parse_mode' => 'Markdown',
             ]);
+
+            // If it failed because of API rate limits or similar, throw so it retries
+            // Http::post doesn't throw by default unless there is a connection timeout.
+            // But we should throw on 5xx or specific 4xx (like rate limited) to retry
+            if (!$response->successful() && $response->serverError()) {
+                $response->throw();
+            }
         }
     }
 }
