@@ -17,6 +17,14 @@ Instalar estas herramientas en el PC antes de continuar:
 
 > **Consejo:** Si usas **Laragon**, ya incluye PHP y Composer. Solo necesitas instalar Node.js por separado. SQLite ya está integrado en PHP.
 
+### 🔧 Instalación Rápida de Herramientas (Windows)
+
+Si estás en un PC nuevo, puedes instalar todo lo necesario ejecutando este comando en la terminal (**PowerShell** como Administrador):
+
+```powershell
+winget install Laragon.Laragon OpenJS.NodeJS.LTS
+```
+
 ---
 
 ## 🚀 Instalación Paso a Paso
@@ -174,8 +182,8 @@ EsquinaRedonda/
 **Error `php: command not found`**
 → Asegúrate de que Laragon o PHP estén en el PATH del sistema. Reinicia la terminal después de instalar.
 
-**Error de conexión a la base de datos**
-→ Verifica que MySQL esté corriendo en Laragon y que el nombre de la BD en `.env` sea correcto.
+**Error de base de datos**
+→ Verifica que el archivo `database/database.sqlite` exista y tenga permisos de escritura. Asegúrate de que `DB_CONNECTION=sqlite` esté en tu `.env`.
 
 **Página en blanco después de `npm run build`**
 → Ejecuta `php artisan config:clear && php artisan cache:clear`.
