@@ -227,6 +227,19 @@ Para que el servidor corra en el fondo sin ventanas que se puedan cerrar por err
     Register-ScheduledTask -Action $Action -Trigger $Trigger -TaskName "EsquinaRedondaServer" -Description "Servidor POS Silencioso" -RunLevel Highest -Force
     ```
 
+### 🛡️ Blindaje de la Tarea (Configuración de Robustez)
+
+Para asegurar que el servidor no se detenga por ahorro de energía o errores de Windows, realiza estos ajustes manuales en el **Programador de Tareas**:
+
+1.  **Pestaña "Condiciones" (Evitar apagados por energía):**
+    * **Desmarca** la casilla: `Iniciar la tarea solo si el equipo está conectado a la corriente alterna`.
+    * *Esto evita que el servidor se apague si el PC entra en modo batería o si hay un bajón de luz y el equipo pasa a usar la UPS.*
+
+2.  **Pestaña "Configuración" (Supervivencia y Reinicio):**
+    * **Marca** la casilla: `Ejecutar tarea lo antes posible si no hubo inicio programado`.
+    * **Marca** la casilla: `Si la tarea no se ejecuta, reiniciarla cada:` y establece **1 minuto** (intentar hasta 3 veces).
+    * **Desmarca** la casilla: `Detener la tarea si se ejecuta durante más de:` (esto evita que Windows "mate" el proceso automáticamente a los 3 días).
+
 ### Script de Inicio Rápido (.bat)
 Si prefieres un archivo manual, crea uno llamado `iniciar.bat` con:
 ```batch
