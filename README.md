@@ -198,13 +198,22 @@ EsquinaRedonda/
 Para que el sistema esté siempre activo y se inicie automáticamente en segundo plano al encender el PC:
 
 ### Inicio Automático Invisible (Recomendado)
-Pega este comando en tu **PowerShell** como administrador para registrar el servidor como una tarea automática de Windows:
 
-```powershell
-$Action = New-ScheduledTaskAction -Execute 'C:\Users\CANAL ASESORES LTDA\.config\herd-lite\bin\php.exe' -Argument 'artisan serve --host=0.0.0.0 --port=8000' -WorkingDirectory 'C:\Users\CANAL ASESORES LTDA\Documents\Proyectos\EsquinaRedonda'
-$Trigger = New-ScheduledTaskTrigger -AtLogOn
-Register-ScheduledTask -Action $Action -Trigger $Trigger -TaskName "EsquinaRedondaServer" -Description "Inicia el servidor POS en segundo plano" -RunLevel Highest
-```
+Para que el servidor corra en el fondo sin ventanas que se puedan cerrar por error:
+
+1.  Crea un archivo llamado `server_silent.vbs` en la carpeta raíz del proyecto y pega esto:
+    ```vbs
+    Set WshShell = CreateObject("WScript.Shell")
+    WshShell.CurrentDirectory = "C:\Users\CANAL ASESORES LTDA\Documents\Proyectos\EsquinaRedonda"
+    WshShell.Run "C:\Users\CANAL ASESORES LTDA\.config\herd-lite\bin\php.exe artisan serve --host=0.0.0.0 --port=8000", 0, False
+    ```
+
+2.  Registra la tarea en **PowerShell** (como administrador):
+    ```powershell
+    $Action = New-ScheduledTaskAction -Execute 'wscript.exe' -Argument '"C:\Users\CANAL ASESORES LTDA\Documents\Proyectos\EsquinaRedonda\server_silent.vbs"'
+    $Trigger = New-ScheduledTaskTrigger -AtLogOn
+    Register-ScheduledTask -Action $Action -Trigger $Trigger -TaskName "EsquinaRedondaServer" -Description "Servidor POS Silencioso" -RunLevel Highest -Force
+    ```
 
 ### Script de Inicio Rápido (.bat)
 Si prefieres un archivo manual, crea uno llamado `iniciar.bat` con:
