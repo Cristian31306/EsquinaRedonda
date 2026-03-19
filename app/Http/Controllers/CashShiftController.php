@@ -7,6 +7,7 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Inertia\Inertia;
+use App\Jobs\BackupToTelegram;
 
 class CashShiftController extends Controller
 {
@@ -80,6 +81,9 @@ class CashShiftController extends Controller
             'closing_cash_declared' => $request->closing_cash_declared,
             'status' => 'closed',
         ]);
+
+        // Dispatch Telegram Backup & Summary Report
+        BackupToTelegram::dispatch($shift->id);
 
         // Cargamos relaciones para el reporte
         $shift->load(['user', 'payments.ticket.vehicle']);

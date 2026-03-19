@@ -1,0 +1,88 @@
+<?php
+
+namespace App\Jobs;
+
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Http;
+use App\Models\Setting;
+use App\Models\CashShift;
+use Illuminate\Support\Facades\Log;
+
+class BackupToTelegram implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    public $tries = 50; // Multiple retries for offline scenarios
+    public $backoff = 60; // Wait 1 minute between retries
+
+    protected $shiftId;
+
+    /**
+     * Create a new job instance.
+     */
+    public function __construct($shiftId = null)
+    {
+        $this->shiftId = $shiftId;
+    }
+
+    /**
+     * Execute the job.
+     */
+    public function handle(): void
+    {
+        $token = Setting::where('key', 'telegram_bot_token')->value('value');
+        $chatIds = Setting::where('key', 'telegram_chat_ids')->value('value');
+
+        if (!$token || !$chatIds) {
+            Log::warning('Telegram backup skipped: Token or Chat IDs not configured.');
+            return;
+        }
+
+        $chatIdsArray = array_map('trim', explode(',', $chatIds));
+        $dbPath = database_path('database.sqlite');
+
+        if (!file_exists($dbPath)) {
+            Log::error('Telegram backup failed: database.sqlite not found.');
+            return;
+        }
+
+        $message = "📝 *Resumen de Cierre de Turno*\n\n";
+        
+        if ($this->shiftId) {
+            $shift = CashShift::find($this->shiftId);
+            if ($shift) {
+                $message .= "🆔 *Turno:* #{$shift->id}\n";
+                $message .= "👤 *Responsable:* {$shift->user->name}\n";
+                $message .= "📅 *Inicio:* {$shift->start_time}\n";
+                $message .= "📅 *Fin:* {$shift->end_time}\n";
+                $message .= "💰 *Total Recaudado:* $" . number_format($shift->total_collected, 2) . "\n";
+                $message .= "💵 *Efectivo en Caja:* $" . number_format($shift->manual_cash_count, 2) . "\n";
+                $difference = $shift->manual_cash_count - $shift->total_collected;
+                $message .= "⚖️ *Diferencia:* $" . number_format($difference, 2) . "\n";
+            }
+        } else {
+            $message .= "Respaldo manual de base de datos solicitado.";
+        }
+
+        foreach ($chatIdsArray as $chatId) {
+            // Send Text Summary
+            Http::withoutVerifying()->post("https://api.telegram.org/bot{$token}/sendMessage", [
+                'chat_id' => $chatId,
+                'text' => $message,
+                'parse_mode' => 'Markdown',
+            ]);
+
+            // Send Document (Database)
+            Http::withoutVerifying()->attach(
+                'document', file_get_contents($dbPath), 'database_backup_' . date('Y-m-d_H-i-s') . '.sqlite'
+            )->post("https://api.telegram.org/bot{$token}/sendDocument", [
+                'chat_id' => $chatId,
+                'caption' => '📦 Respaldo de Base de Datos (SQLite)',
+            ]);
+        }
+    }
+}
