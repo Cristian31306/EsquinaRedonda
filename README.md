@@ -1,6 +1,6 @@
 # 🅿️ Esquina Redonda · Sistema de Parqueadero
 
-Sistema de gestión de parqueadero desarrollado en **Laravel 11 + Vue.js 3 + Inertia.js + MySQL**.
+Sistema de gestión de parqueadero desarrollado en **Laravel 11 + Vue.js 3 + Inertia.js + SQLite**.
 
 ---
 
@@ -13,10 +13,9 @@ Instalar estas herramientas en el PC antes de continuar:
 | **PHP**                                | 8.2+                       | Viene incluido con Laragon                  |
 | **Composer**                           | 2.x                        | Viene incluido con Laragon                  |
 | **Node.js**                            | 18+                        | [nodejs.org](https://nodejs.org)            |
-| **MySQL**                              | 8.x                        | Viene incluido con Laragon                  |
 | **Laragon** _(recomendado en Windows)_ | Cualquier versión reciente | [laragon.org](https://laragon.org/download) |
 
-> **Consejo:** Si usas **Laragon**, ya incluye PHP, MySQL y Composer. Solo necesitas instalar Node.js por separado.
+> **Consejo:** Si usas **Laragon**, ya incluye PHP y Composer. Solo necesitas instalar Node.js por separado. SQLite ya está integrado en PHP.
 
 ---
 
@@ -29,17 +28,20 @@ git clone https://github.com/Cristian31306/EsquinaRedonda.git
 cd EsquinaRedonda
 ```
 
-### 2. Instalar dependencias de PHP
+### 2. Instalación rápida (Comando único)
+
+Ejecuta este comando en la terminal para instalar todo automáticamente (dependencias de PHP, JS, base de datos y compilación):
 
 ```bash
-composer install
+composer install && npm install && php artisan key:generate && php artisan migrate --seed && npm run build
 ```
-
-### 3. Instalar dependencias de JavaScript
-
-```bash
-npm install
-```
+O si prefieres ir paso a paso:
+1. `composer install`
+2. `npm install`
+3. `cp .env.example .env` (y configurar `DB_CONNECTION=sqlite`)
+4. `php artisan key:generate`
+5. `php artisan migrate --seed`
+6. `npm run build`
 
 ### 4. Configurar el archivo de entorno
 
@@ -47,18 +49,14 @@ npm install
 cp .env.example .env
 ```
 
-Abrir el archivo `.env` y ajustar la configuración de la base de datos:
+Abrir el archivo `.env` y asegúrate de que la conexión sea `sqlite`:
 
 ```env
 APP_NAME="Esquina Redonda"
 APP_URL=http://localhost
 
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=esquina_redonda
-DB_USERNAME=root
-DB_PASSWORD=          # Dejar vacío si usas Laragon por defecto
+DB_CONNECTION=sqlite
+# No necesitas configurar host, puerto, usuario ni contraseña para SQLite.
 ```
 
 ### 5. Generar la clave de la aplicación
@@ -67,15 +65,13 @@ DB_PASSWORD=          # Dejar vacío si usas Laragon por defecto
 php artisan key:generate
 ```
 
-### 6. Crear la base de datos
+### 5. Base de Datos (SQLite)
 
-En **Laragon**: clic derecho en el ícono de la bandeja → **Database** → crear una base de datos llamada `esquina_redonda`.
+El sistema utiliza **SQLite**, por lo que no necesitas instalar ni configurar un servidor de base de datos externo (como MySQL). 
 
-O desde MySQL en consola:
-
-```sql
-CREATE DATABASE esquina_redonda CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
+- El archivo de la base de datos se guarda en `database/database.sqlite`.
+- Si el archivo no existe, Laravel lo creará automáticamente al ejecutar las migraciones.
+- Asegúrate de que el archivo `database/database.sqlite` tenga permisos de escritura.
 
 ### 7. Ejecutar migraciones y datos iniciales
 
@@ -146,14 +142,10 @@ Para que otros equipos, tablets o celulares en la misma red WiFi accedan al sist
 
 ---
 
-## 🔄 Actualizar el Sistema (cuando hay cambios)
+Para actualizar el sistema con los últimos cambios, ejecuta este comando único:
 
 ```bash
-git pull
-composer install
-npm install
-php artisan migrate
-npm run build
+git pull && composer install && npm install && php artisan migrate --force && npm run build
 ```
 
 ---
