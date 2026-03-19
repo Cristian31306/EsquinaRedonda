@@ -161,16 +161,28 @@ watch(plateSearch, (val) => {
                     <div class="bg-indigo-950 rounded-[2.5rem] p-8 text-white shadow-2xl flex flex-col justify-between h-full space-y-6">
                         <div>
                             <!-- Badge de Mensualidad -->
-                            <div v-if="selectedTicket.stay_type === 'membership' || selectedTicket.has_active_membership" class="mb-4 flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-2">
-                                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                                <p class="text-[9px] font-black text-emerald-700 uppercase tracking-widest">Mensualidad Activa — Salida Libre</p>
+                            <div v-if="selectedTicket.stay_type === 'membership' || selectedTicket.has_active_membership" class="mb-4 space-y-2">
+                                <div class="flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-2">
+                                    <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                                    <p class="text-[9px] font-black text-emerald-700 uppercase tracking-widest">Mensualidad Activa — Salida Libre</p>
+                                </div>
+                                <!-- Alerta Vencimiento Próximo -->
+                                <div v-if="selectedTicket.membership_info && selectedTicket.membership_info.days_left <= 7" 
+                                    class="flex items-start gap-2 bg-amber-400 text-amber-950 rounded-xl px-4 py-3 shadow-lg shadow-amber-900/20 border border-white/20 animate-in zoom-in-95 duration-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 mt-0.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+                                    <div>
+                                        <p class="text-[9px] font-black uppercase tracking-tight">Vence en {{ selectedTicket.membership_info.days_left }} días</p>
+                                        <p class="text-[7px] font-bold opacity-80 uppercase leading-none mt-1">Recuerde al cliente renovar antes del {{ selectedTicket.membership_info.end_date }}</p>
+                                    </div>
+                                </div>
                             </div>
-                            <!-- Badge de Estadía Fija -->
                             <div v-else-if="selectedTicket.stay_type === 'overnight'" class="mb-4 flex items-center gap-2 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2">
-                                <p class="text-[9px] font-black text-indigo-700 uppercase tracking-widest">🌙 Estadía Nocturna — Tarifa Fija</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3 h-3 text-indigo-600"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" /></svg>
+                                <p class="text-[9px] font-black text-indigo-700 uppercase tracking-widest">Estadía Nocturna — Tarifa Fija</p>
                             </div>
                             <div v-else-if="selectedTicket.stay_type === 'fullday'" class="mb-4 flex items-center gap-2 bg-amber-50 border border-amber-100 rounded-xl px-4 py-2">
-                                <p class="text-[9px] font-black text-amber-700 uppercase tracking-widest">☀️ Día Completo — Tarifa Fija</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3 h-3 text-amber-600"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m.386-6.364 1.591 1.591M18.75 12a6.75 6.75 0 1 1-13.5 0 6.75 6.75 0 0 1 13.5 0Z" /></svg>
+                                <p class="text-[9px] font-black text-amber-700 uppercase tracking-widest">Día Completo — Tarifa Fija</p>
                             </div>
                             <p class="text-[8px] font-black uppercase tracking-[0.3em] opacity-60 mb-1">Monto de Liquidación</p>
                             <h4 v-if="selectedTicket.stay_type === 'membership' || selectedTicket.has_active_membership" class="text-6xl font-black tracking-tighter text-emerald-400">$0</h4>

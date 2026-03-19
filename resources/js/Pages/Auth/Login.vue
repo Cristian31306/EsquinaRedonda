@@ -19,7 +19,6 @@ defineProps({
 const form = useForm({
     email: '',
     password: '',
-    remember: false,
 });
 
 const submit = () => {
@@ -38,7 +37,7 @@ const submit = () => {
             <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Ingrese sus credenciales operativas</p>
         </div>
 
-        <form @submit.prevent="submit" class="space-y-6">
+        <form @submit.prevent="submit" class="space-y-6" autocomplete="off">
             <div class="space-y-2">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Usuario</label>
                 <input 
@@ -47,7 +46,8 @@ const submit = () => {
                     v-model="form.email"
                     required
                     autofocus
-                    autocomplete="username"
+                    autocomplete="off"
+                    name="user_email_field"
                     class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold text-slate-900 focus:border-indigo-950 focus:ring-0 transition-all placeholder:text-slate-300"
                     placeholder="admin"
                 />
@@ -61,7 +61,8 @@ const submit = () => {
                     type="password"
                     v-model="form.password"
                     required
-                    autocomplete="current-password"
+                    autocomplete="new-password"
+                    name="user_pass_field"
                     class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold text-slate-900 focus:border-indigo-950 focus:ring-0 transition-all placeholder:text-slate-300"
                     placeholder="••••••"
                 />

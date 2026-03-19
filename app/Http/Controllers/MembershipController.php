@@ -17,11 +17,16 @@ class MembershipController extends Controller
     public function index()
     {
         $memberships = Membership::with('vehicle')
-            ->orderByRaw("CASE WHEN end_date >= CURDATE() THEN 0 ELSE 1 END, end_date DESC")
+            ->orderByRaw("CASE WHEN end_date >= ? THEN 0 ELSE 1 END, end_date DESC", [now()->toDateString()])
             ->paginate(20);
+
+        $rates = \App\Models\Rate::where('concept', 'mensualidad')
+            ->where('is_active', true)
+            ->get();
 
         return Inertia::render('Memberships/Index', [
             'memberships' => $memberships,
+            'rates'       => $rates,
         ]);
     }
 
@@ -88,6 +93,9 @@ class MembershipController extends Controller
 
     public function destroy(Membership $membership)
     {
+        if (!auth()->user()->isAdmin()) {
+            abort(403);
+        }
         $membership->delete();
         return back()->with('success', 'Mensualidad cancelada.');
     }

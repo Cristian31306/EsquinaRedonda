@@ -10,6 +10,9 @@ class RateController extends Controller
 {
     public function index()
     {
+        if (!auth()->user()->isAdmin()) {
+            abort(403);
+        }
         return Inertia::render('Rates/Index', [
             'rates' => Rate::all()->groupBy('vehicle_type')
         ]);
@@ -17,6 +20,9 @@ class RateController extends Controller
 
     public function storeBulk(Request $request)
     {
+        if (!auth()->user()->isAdmin()) {
+            abort(403);
+        }
         $request->validate([
             'vehicle_type' => 'required|string',
             'rates' => 'required|array',
@@ -36,13 +42,18 @@ class RateController extends Controller
 
     public function destroyCategory($vehicleType)
     {
+        if (!auth()->user()->isAdmin()) {
+            abort(403);
+        }
         Rate::where('vehicle_type', $vehicleType)->delete();
         return back()->with('success', "Categoría {$vehicleType} eliminada.");
     }
 
     public function update(Request $request, Rate $rate)
-// ...
     {
+        if (!auth()->user()->isAdmin()) {
+            abort(403);
+        }
         $request->validate([
             'value' => 'required|numeric|min:0',
             'is_active' => 'required|boolean',
@@ -55,6 +66,9 @@ class RateController extends Controller
 
     public function destroy(Rate $rate)
     {
+        if (!auth()->user()->isAdmin()) {
+            abort(403);
+        }
         $rate->delete();
         return back()->with('success', 'Tarifa eliminada.');
     }

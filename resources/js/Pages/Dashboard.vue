@@ -18,6 +18,17 @@ const props = defineProps({
     inventory: Array,
     alerts: Array,
 });
+
+const searchQuery = ref('');
+const filteredInventory = ref([]);
+
+import { computed } from 'vue';
+const displayedInventory = computed(() => {
+    if (!searchQuery.value) return props.inventory.slice(0, 50);
+    return props.inventory.filter(t => 
+        t.vehicle.plate.toLowerCase().includes(searchQuery.value.toLowerCase())
+    ).slice(0, 50);
+});
 </script>
 
 <template>
@@ -103,6 +114,18 @@ const props = defineProps({
                             <div class="w-1.5 h-6 bg-indigo-950 rounded-full"></div>
                             <h3 class="text-xs font-black text-slate-900 uppercase tracking-widest">Vehículos en Sitio
                             </h3>
+                            <!-- Search Bar -->
+                            <div class="relative ml-4">
+                                <input 
+                                    v-model="searchQuery"
+                                    type="text" 
+                                    placeholder="BUSCAR PLACA..." 
+                                    class="pl-8 pr-4 py-1.5 bg-slate-50 border-none rounded-xl text-[9px] font-black uppercase tracking-widest focus:ring-2 focus:ring-indigo-950 w-40 placeholder:text-slate-300 transition-all"
+                                />
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3 h-3 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                </svg>
+                            </div>
                         </div>
                         <Link :href="route('tickets.exit')"
                             class="text-[9px] font-black text-indigo-950 uppercase tracking-widest hover:underline">
@@ -129,7 +152,7 @@ const props = defineProps({
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-50">
-                                <tr v-for="ticket in inventory" :key="ticket.id"
+                                <tr v-for="ticket in displayedInventory" :key="ticket.id"
                                     class="hover:bg-slate-50 transition-colors group">
                                     <td class="px-8 py-4">
                                         <div

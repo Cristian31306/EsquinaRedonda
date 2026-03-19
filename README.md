@@ -8,13 +8,13 @@ Sistema de gestión de parqueadero desarrollado en **Laravel 11 + Vue.js 3 + Ine
 
 Instalar estas herramientas en el PC antes de continuar:
 
-| Herramienta | Versión mínima | Descarga |
-|---|---|---|
-| **PHP** | 8.2+ | Viene incluido con Laragon |
-| **Composer** | 2.x | Viene incluido con Laragon |
-| **Node.js** | 18+ | [nodejs.org](https://nodejs.org) |
-| **MySQL** | 8.x | Viene incluido con Laragon |
-| **Laragon** *(recomendado en Windows)* | Cualquier versión reciente | [laragon.org](https://laragon.org/download) |
+| Herramienta                            | Versión mínima             | Descarga                                    |
+| -------------------------------------- | -------------------------- | ------------------------------------------- |
+| **PHP**                                | 8.2+                       | Viene incluido con Laragon                  |
+| **Composer**                           | 2.x                        | Viene incluido con Laragon                  |
+| **Node.js**                            | 18+                        | [nodejs.org](https://nodejs.org)            |
+| **MySQL**                              | 8.x                        | Viene incluido con Laragon                  |
+| **Laragon** _(recomendado en Windows)_ | Cualquier versión reciente | [laragon.org](https://laragon.org/download) |
 
 > **Consejo:** Si usas **Laragon**, ya incluye PHP, MySQL y Composer. Solo necesitas instalar Node.js por separado.
 
@@ -25,7 +25,7 @@ Instalar estas herramientas en el PC antes de continuar:
 ### 1. Clonar el proyecto
 
 ```bash
-git clone <URL_DEL_REPOSITORIO> EsquinaRedonda
+git clone https://github.com/Cristian31306/EsquinaRedonda.git
 cd EsquinaRedonda
 ```
 
@@ -72,6 +72,7 @@ php artisan key:generate
 En **Laragon**: clic derecho en el ícono de la bandeja → **Database** → crear una base de datos llamada `esquina_redonda`.
 
 O desde MySQL en consola:
+
 ```sql
 CREATE DATABASE esquina_redonda CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
@@ -83,6 +84,7 @@ php artisan migrate --seed
 ```
 
 Esto crea todas las tablas y registra:
+
 - ✅ Usuario administrador: `admin` / `123456`
 - ✅ Tarifas base para moto, carro y pesado
 
@@ -104,9 +106,9 @@ El sistema estará disponible en: **http://localhost:8000**
 
 ## 🔑 Acceso al Sistema
 
-| Campo | Valor |
-|---|---|
-| **Usuario** | `admin` |
+| Campo          | Valor    |
+| -------------- | -------- |
+| **Usuario**    | `admin`  |
 | **Contraseña** | `123456` |
 
 ---
@@ -124,20 +126,23 @@ Configura la impresora como impresora predeterminada del sistema para que el pro
 Para que otros equipos, tablets o celulares en la misma red WiFi accedan al sistema:
 
 1. Obtener la IP local del PC servidor:
-   ```
-   ipconfig   (en Windows)
-   ```
-   Buscar algo como `192.168.1.X`
+
+    ```
+    ipconfig   (en Windows)
+    ```
+
+    Buscar algo como `192.168.1.X`
 
 2. Iniciar el servidor escuchando en todas las interfaces:
-   ```bash
-   php artisan serve --host=0.0.0.0 --port=8000
-   ```
+
+    ```bash
+    php artisan serve --host=0.0.0.0 --port=8000
+    ```
 
 3. Desde cualquier otro dispositivo en la red, abrir el navegador e ir a:
-   ```
-   http://192.168.1.X:8000
-   ```
+    ```
+    http://192.168.1.X:8000
+    ```
 
 ---
 

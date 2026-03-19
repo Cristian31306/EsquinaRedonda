@@ -78,28 +78,32 @@ class BillingService
      */
     public function processPayment(Ticket $ticket, $amount, $method)
     {
-        $activeShift = CashShift::where('user_id', auth()->id())
-            ->where('status', 'open')
-            ->first();
+        return DB::transaction(function () use ($ticket, $amount, $method) {
+            // Solo requerir turno y crear pago si hay dinero de por medio
+            if ($amount > 0) {
+                $activeShift = CashShift::where('user_id', auth()->id())
+                    ->where('status', 'open')
+                    ->first();
 
-        if (!$activeShift) {
-            throw new \Exception('No hay un turno de caja abierto para este usuario.');
-        }
+                if (!$activeShift) {
+                    throw new \Exception('No hay un turno de caja abierto para este usuario.');
+                }
 
-        return DB::transaction(function () use ($ticket, $activeShift, $amount, $method) {
-            $payment = Payment::create([
-                'ticket_id'      => $ticket->id,
-                'cash_shift_id'  => $activeShift->id,
-                'amount'         => $amount,
-                'payment_method' => $method,
-            ]);
+                Payment::create([
+                    'ticket_id'      => $ticket->id,
+                    'cash_shift_id'  => $activeShift->id,
+                    'amount'         => $amount,
+                    'payment_method' => $method,
+                ]);
+            }
 
+            // Siempre actualizar el estado del ticket al finalizar el proceso
             $ticket->update([
                 'exit_time' => Carbon::now(),
                 'status'    => 'completed',
             ]);
 
-            return $payment;
+            return true;
         });
     }
 }

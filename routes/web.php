@@ -6,6 +6,7 @@ use App\Http\Controllers\CashShiftController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RateController;
 use App\Http\Controllers\MembershipController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -48,10 +49,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/memberships', [MembershipController::class, 'store'])->name('memberships.store');
     Route::delete('/memberships/{membership}', [MembershipController::class, 'destroy'])->name('memberships.destroy');
 
+    // Gestión de Usuarios (Administración avanzada)
+    Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+    Route::resource('users', UserController::class)->only(['index', 'store', 'update', 'destroy']);
+
     // Perfil de Usuario
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 require __DIR__.'/auth.php';

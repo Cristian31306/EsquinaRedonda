@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
+import ShiftSummary from '@/Components/ShiftSummary.vue';
 
 const props = defineProps({
     shift: Object,
@@ -23,6 +24,10 @@ const formatDate = (date) => {
 const formatTime = (date) => {
     return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
+
+const printReport = () => {
+    window.print();
+};
 </script>
 
 <template>
@@ -30,19 +35,19 @@ const formatTime = (date) => {
 
     <AuthenticatedLayout>
         <template #header>
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center no-print">
                 <div>
                     <h2 class="text-xl font-black tracking-tight text-slate-900 uppercase">Reporte de Auditoría</h2>
                     <p class="text-[8px] font-bold text-slate-400 uppercase tracking-[0.4em] mt-1">Cierre de Turno #{{ shift.id }}</p>
                 </div>
                 <div class="flex gap-4 no-print">
-                    <button @click="window.print()" class="px-6 py-2.5 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-800 transition-all shadow-lg">Imprimir Reporte</button>
-                    <Link :href="route('shifts.index')" class="px-6 py-2.5 bg-white border border-slate-200 text-slate-400 text-[9px] font-black uppercase tracking-widest rounded-xl hover:text-slate-900 transition-all">Volver</Link>
+                    <button @click="printReport" class="px-6 py-2.5 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-800 transition-all shadow-lg">Imprimir Ticket</button>
+                    <Link :href="route('shifts.history')" class="px-6 py-2.5 bg-white border border-slate-200 text-slate-400 text-[9px] font-black uppercase tracking-widest rounded-xl hover:text-slate-900 transition-all">Volver</Link>
                 </div>
             </div>
         </template>
 
-        <div class="space-y-8 pb-12">
+        <div class="space-y-8 pb-12 no-print">
             <!-- Header Info Card -->
             <div class="bg-indigo-950 rounded-[3rem] p-10 text-white shadow-2xl relative overflow-hidden">
                 <div class="absolute right-0 top-0 w-96 h-96 bg-white/5 rounded-full -mr-48 -mt-48 blur-3xl"></div>
@@ -166,6 +171,9 @@ const formatTime = (date) => {
                 </div>
             </div>
         </div>
+        
+        <!-- Resumen para Impresora Térmica -->
+        <ShiftSummary :shift="shift" />
     </AuthenticatedLayout>
 </template>
 

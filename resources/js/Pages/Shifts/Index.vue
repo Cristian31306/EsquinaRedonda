@@ -1,7 +1,8 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import ShiftSummary from '@/Components/ShiftSummary.vue';
+import { ref, nextTick } from 'vue';
 
 const props = defineProps({
     activeShift: Object,
@@ -9,6 +10,7 @@ const props = defineProps({
 
 const showOpenModal = ref(false);
 const showCloseModal = ref(false);
+const printData = ref(null);
 
 const openForm = useForm({});
 
@@ -26,8 +28,17 @@ const openShift = () => {
 
 const closeShift = () => {
     closeForm.post(route('shifts.close'), {
-        onSuccess: () => {
+        onSuccess: (page) => {
             showCloseModal.value = false;
+            // Capturar datos para imprimir si vienen en la respuesta
+            if (page.props.flash.printShift) {
+                printData.value = page.props.flash.printShift;
+                nextTick(() => {
+                    window.print();
+                    // Limpiar después de imprimir para no repetir si hay cambios de estado
+                    setTimeout(() => { printData.value = null; }, 1000);
+                });
+            }
             closeForm.reset();
         },
     });
@@ -166,4 +177,7 @@ const closeShift = () => {
             </div>
         </transition>
     </AuthenticatedLayout>
+
+    <!-- Resumen Imprimible -->
+    <ShiftSummary v-if="printData" :shift="printData" />
 </template>

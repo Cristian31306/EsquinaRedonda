@@ -25,12 +25,12 @@ const form = useForm({
 <template>
     <section>
         <header>
-            <h2 class="text-lg font-medium text-gray-900">
-                Profile Information
+            <h2 class="text-lg font-black text-slate-900 uppercase tracking-tight">
+                Información del Perfil
             </h2>
 
-            <p class="mt-1 text-sm text-gray-600">
-                Update your account's profile information and email address.
+            <p class="mt-1 text-sm text-slate-500 uppercase font-bold tracking-widest text-[10px]">
+                Actualice la información de perfil y la dirección de correo electrónico de su cuenta.
             </p>
         </header>
 
@@ -39,12 +39,12 @@ const form = useForm({
             class="mt-6 space-y-6"
         >
             <div>
-                <InputLabel for="name" value="Name" />
+                <InputLabel for="name" value="Nombre" class="uppercase text-[10px] font-black tracking-widest text-slate-400" />
 
                 <TextInput
                     id="name"
                     type="text"
-                    class="mt-1 block w-full"
+                    class="mt-1 block w-full bg-slate-50 border-0 rounded-2xl px-5 py-4 text-sm font-black text-slate-900 focus:ring-2 focus:ring-indigo-500/20"
                     v-model="form.name"
                     required
                     autofocus
@@ -55,12 +55,12 @@ const form = useForm({
             </div>
 
             <div>
-                <InputLabel for="email" value="Email" />
+                <InputLabel for="email" value="Email / Usuario" class="uppercase text-[10px] font-black tracking-widest text-slate-400" />
 
                 <TextInput
                     id="email"
-                    type="email"
-                    class="mt-1 block w-full"
+                    type="text"
+                    class="mt-1 block w-full bg-slate-50 border-0 rounded-2xl px-5 py-4 text-sm font-black text-slate-900 focus:ring-2 focus:ring-indigo-500/20"
                     v-model="form.email"
                     required
                     autocomplete="username"
@@ -71,14 +71,14 @@ const form = useForm({
 
             <div v-if="mustVerifyEmail && user.email_verified_at === null">
                 <p class="mt-2 text-sm text-gray-800">
-                    Your email address is unverified.
+                    Su dirección de correo electrónico no ha sido verificada.
                     <Link
                         :href="route('verification.send')"
                         method="post"
                         as="button"
                         class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     >
-                        Click here to re-send the verification email.
+                        Haga clic aquí para volver a enviar el correo electrónico de verificación.
                     </Link>
                 </p>
 
@@ -86,12 +86,12 @@ const form = useForm({
                     v-show="status === 'verification-link-sent'"
                     class="mt-2 text-sm font-medium text-green-600"
                 >
-                    A new verification link has been sent to your email address.
+                    Se ha enviado un nuevo enlace de verificación a su dirección de correo electrónico.
                 </div>
             </div>
 
             <div class="flex items-center gap-4">
-                <PrimaryButton :disabled="form.processing">Save</PrimaryButton>
+                <PrimaryButton :disabled="form.processing" class="px-10 py-3 bg-indigo-950 text-white font-black uppercase text-[10px] rounded-xl hover:bg-slate-900 transition-all tracking-widest shadow-lg shadow-indigo-100 border-0">Guardar Cambios</PrimaryButton>
 
                 <Transition
                     enter-active-class="transition ease-in-out"
@@ -101,9 +101,9 @@ const form = useForm({
                 >
                     <p
                         v-if="form.recentlySuccessful"
-                        class="text-sm text-gray-600"
+                        class="text-sm text-emerald-600 font-bold uppercase tracking-widest text-[10px]"
                     >
-                        Saved.
+                        Guardado.
                     </p>
                 </Transition>
             </div>

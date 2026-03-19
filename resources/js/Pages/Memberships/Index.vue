@@ -5,6 +5,7 @@ import { ref, computed } from 'vue';
 
 const props = defineProps({
     memberships: Object,
+    rates: Array,
 });
 
 const showModal = ref(false);
@@ -12,14 +13,33 @@ const today = new Date().toISOString().split('T')[0];
 
 const form = useForm({
     plate: '',
-    vehicle_type: 'moto',
+    vehicle_type: 'carro',
     start_date: today,
     end_date: '',
-    amount_paid: '',
+    amount_paid: 0,
     notes: '',
 });
 
-const vehicleTypes = ['moto', 'carro', 'pesado'];
+const vehicleTypes = ['carro', 'moto', 'pesado'];
+
+// Auto-calcular fecha de vencimiento (1 mes exacto)
+const calculateEndDate = (startDate) => {
+    const d = new Date(startDate + 'T00:00:00');
+    d.setMonth(d.getMonth() + 1);
+    return d.toISOString().split('T')[0];
+};
+
+// Auto-calcular monto según tarifa
+const updateAutoFields = () => {
+    form.end_date = calculateEndDate(form.start_date);
+    const rate = props.rates.find(r => r.vehicle_type === form.vehicle_type);
+    form.amount_paid = rate ? rate.value : 0;
+};
+
+// Vigilar cambios para mantener consistencia
+import { watch } from 'vue';
+watch(() => form.vehicle_type, updateAutoFields, { immediate: true });
+watch(() => form.start_date, updateAutoFields);
 
 const submit = () => {
     form.post(route('memberships.store'), {
@@ -27,7 +47,7 @@ const submit = () => {
             showModal.value = false;
             form.reset();
             form.start_date = today;
-            form.vehicle_type = 'moto';
+            updateAutoFields();
         },
     });
 };
@@ -39,7 +59,11 @@ const cancel = (id) => {
 };
 
 const isActive = (endDate) => {
-    return new Date(endDate) >= new Date(today);
+    if (!endDate) return false;
+    const end = new Date(endDate);
+    // Establecer al final del día local para evitar problemas de horas
+    end.setHours(23, 59, 59, 999);
+    return end >= new Date();
 };
 </script>
 
@@ -107,12 +131,14 @@ const isActive = (endDate) => {
                             </td>
                             <td class="px-8 py-4 text-center">
                                 <button
+                                    v-if="$page.props.auth.user.role === 'admin'"
                                     @click="cancel(m.id)"
                                     class="p-2 bg-slate-100 text-slate-400 rounded-xl hover:bg-rose-50 hover:text-rose-500 transition-all text-[9px] font-black uppercase tracking-widest"
                                     title="Cancelar mensualidad"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
                                 </button>
+                                <span v-else class="text-[8px] font-bold text-slate-300 uppercase italic">Solo Admin</span>
                             </td>
                         </tr>
                         <tr v-if="memberships.data.length === 0">
@@ -175,7 +201,8 @@ const isActive = (endDate) => {
                                     <input
                                         v-model="form.start_date"
                                         type="date"
-                                        class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-sm font-black text-slate-700 focus:ring-2 focus:ring-indigo-500/20"
+                                        readonly
+                                        class="w-full bg-slate-100 border-0 rounded-xl px-4 py-3 text-sm font-black text-slate-400 cursor-not-allowed uppercase"
                                         required
                                     />
                                 </div>
@@ -184,7 +211,8 @@ const isActive = (endDate) => {
                                     <input
                                         v-model="form.end_date"
                                         type="date"
-                                        class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-sm font-black text-slate-700 focus:ring-2 focus:ring-indigo-500/20"
+                                        readonly
+                                        class="w-full bg-slate-100 border-0 rounded-xl px-4 py-3 text-sm font-black text-slate-400 cursor-not-allowed uppercase"
                                         required
                                     />
                                     <p v-if="form.errors.end_date" class="mt-1 text-[9px] font-bold text-rose-500 uppercase">{{ form.errors.end_date }}</p>
@@ -193,14 +221,18 @@ const isActive = (endDate) => {
 
                             <div>
                                 <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Valor a Cobrar ($)</label>
-                                <input
-                                    v-model="form.amount_paid"
-                                    type="number"
-                                    class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-sm font-black text-slate-900 focus:ring-2 focus:ring-indigo-500/20"
-                                    placeholder="0"
-                                    required
-                                />
-                                <p class="mt-1 text-[8px] text-slate-400 font-bold">Este monto se registra en el turno de caja activo.</p>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-slate-400 text-sm">$</span>
+                                    <input
+                                        v-model="form.amount_paid"
+                                        type="number"
+                                        readonly
+                                        class="w-full bg-slate-100 border-0 rounded-xl pl-8 pr-4 py-3 text-sm font-black text-indigo-900 cursor-not-allowed"
+                                        placeholder="0"
+                                        required
+                                    />
+                                </div>
+                                <p class="mt-1 text-[8px] text-indigo-400 font-bold uppercase tracking-widest">Monto automático según tarifa de mensualidad.</p>
                             </div>
 
                             <div>

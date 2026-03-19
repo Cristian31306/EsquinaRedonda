@@ -19,17 +19,31 @@ class CashShiftController extends Controller
 
     public function history()
     {
-        $shifts = CashShift::with('user', 'payments')->orderBy('created_at', 'desc')->paginate(10);
+        // Traer turnos cerrados con paginación
+        $shifts = CashShift::where('status', 'closed')
+            ->with(['user', 'payments.ticket.vehicle'])
+            ->orderBy('end_time', 'desc')
+            ->paginate(15);
+
+        // Traer el turno abierto actualmente (si existe) para el Admin
+        $activeShift = CashShift::where('status', 'open')
+            ->with(['user', 'payments.ticket.vehicle'])
+            ->first();
+
         return Inertia::render('Shifts/History', [
-            'shifts' => $shifts
+            'shifts' => $shifts,
+            'activeShift' => $activeShift
         ]);
     }
 
     public function open(Request $request)
     {
-        $existingShift = CashShift::where('user_id', auth()->id())->where('status', 'open')->first();
+        // Verificar si hay CUALQUIER turno abierto en el sistema
+        $existingShift = CashShift::where('status', 'open')->first();
+        
         if ($existingShift) {
-            return back()->withErrors(['error' => 'Ya tienes un turno abierto.']);
+            $userName = $existingShift->user->name;
+            return back()->withErrors(['error' => "Ya hay un turno abierto por {$userName}. Debe cerrarse antes de abrir uno nuevo."]);
         }
 
         CashShift::create([
@@ -46,11 +60,19 @@ class CashShiftController extends Controller
     {
         $request->validate([
             'closing_cash_declared' => 'required|numeric|min:0',
+            'shift_id' => 'nullable|exists:cash_shifts,id'
         ]);
 
-        $shift = CashShift::where('user_id', auth()->id())->where('status', 'open')->first();
-        if (!$shift) {
-            return back()->withErrors(['error' => 'No hay un turno abierto para cerrar.']);
+        // Si se pasa shift_id y es admin, permitimos cerrar ese turno específico
+        if ($request->shift_id && auth()->user()->isAdmin()) {
+            $shift = CashShift::find($request->shift_id);
+        } else {
+            // De lo contrario, cerramos el turno del usuario actual
+            $shift = CashShift::where('user_id', auth()->id())->where('status', 'open')->first();
+        }
+
+        if (!$shift || $shift->status !== 'open') {
+            return back()->withErrors(['error' => 'No hay un turno abierto válido para cerrar.']);
         }
 
         $shift->update([
@@ -59,7 +81,13 @@ class CashShiftController extends Controller
             'status' => 'closed',
         ]);
 
-        return back()->with('success', 'Turno cerrado correctamente.');
+        // Cargamos relaciones para el reporte
+        $shift->load(['user', 'payments.ticket.vehicle']);
+
+        return back()->with([
+            'success' => 'Turno cerrado correctamente.',
+            'printShift' => $shift // Pasamos el turno cerrado para que el frontend lo imprima
+        ]);
     }
 
     public function show(CashShift $cashShift)

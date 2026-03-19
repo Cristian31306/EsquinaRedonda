@@ -72,7 +72,10 @@ class TicketController extends Controller
         return redirect()->route('tickets.entry')->with([
             'success'      => 'Vehículo registrado correctamente.',
             'print_ticket' => $ticket->load('vehicle'),
-            'membership'   => $activeMembership ? true : false,
+            'membership_info' => $activeMembership ? [
+                'end_date' => $activeMembership->end_date->toDateString(),
+                'days_left' => (int) Carbon::now()->diffInDays($activeMembership->end_date, false),
+            ] : null,
         ]);
     }
 
@@ -104,10 +107,17 @@ class TicketController extends Controller
 
             $ticket->duration_text = implode(' ', $parts);
 
-            // Verificar membresía activa para el badge en salida
-            $ticket->has_active_membership = Membership::where('vehicle_id', $ticket->vehicle_id)
+            // Verificar membresía activa para el badge en salida y avisos
+            $activeMembership = Membership::where('vehicle_id', $ticket->vehicle_id)
                 ->active()
-                ->exists();
+                ->first();
+            
+            $ticket->membership_info = $activeMembership ? [
+                'end_date' => $activeMembership->end_date->toDateString(),
+                'days_left' => (int) Carbon::now()->diffInDays($activeMembership->end_date, false),
+            ] : null;
+
+            $ticket->has_active_membership = $activeMembership ? true : false;
         });
 
         return response()->json($tickets);
