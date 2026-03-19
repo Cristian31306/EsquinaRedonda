@@ -190,3 +190,29 @@ EsquinaRedonda/
 
 **El ticket no imprime**
 → Verifica que la impresora esté como predeterminada y que el navegador tenga permisos de impresión.
+
+---
+
+## 🖥️ Configuración para Producción (Windows + Auto-inicio)
+
+Para que el sistema esté siempre activo y se inicie automáticamente en segundo plano al encender el PC:
+
+### Inicio Automático Invisible (Recomendado)
+Pega este comando en tu **PowerShell** como administrador para registrar el servidor como una tarea automática de Windows:
+
+```powershell
+$Action = New-ScheduledTaskAction -Execute 'C:\Users\CANAL ASESORES LTDA\.config\herd-lite\bin\php.exe' -Argument 'artisan serve --host=0.0.0.0 --port=8000' -WorkingDirectory 'C:\Users\CANAL ASESORES LTDA\Documents\Proyectos\EsquinaRedonda'
+$Trigger = New-ScheduledTaskTrigger -AtLogOn
+Register-ScheduledTask -Action $Action -Trigger $Trigger -TaskName "EsquinaRedondaServer" -Description "Inicia el servidor POS en segundo plano" -RunLevel Highest
+```
+
+### Script de Inicio Rápido (.bat)
+Si prefieres un archivo manual, crea uno llamado `iniciar.bat` con:
+```batch
+@echo off
+cd /d "C:\Users\CANAL ASESORES LTDA\Documents\Proyectos\EsquinaRedonda"
+start /min php artisan serve --host=0.0.0.0 --port=8000
+timeout /t 3
+start "" "http://localhost:8000"
+```
+Place it in `shell:startup` for automatic execution on login.
