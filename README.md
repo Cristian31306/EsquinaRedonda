@@ -263,4 +263,4 @@ git pull && composer install && npm install && php artisan migrate --force && np
 
 ---
 
-&copy; 2024 Esquina Redonda Premium - Sistema Profesional de Gestión de Parqueaderos.
+&copy; 2026 Esquina Redonda SyS - Sistema Profesional de Gestión de Parqueaderos.
