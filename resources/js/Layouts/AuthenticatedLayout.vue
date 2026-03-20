@@ -250,4 +250,16 @@ html, body {
   opacity: 0;
   transform: translateY(-10px);
 }
+
+.toast-enter-active, .toast-leave-active {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.toast-enter-from {
+  opacity: 0;
+  transform: translateX(100%);
+}
+.toast-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
 </style>

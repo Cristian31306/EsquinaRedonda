@@ -133,25 +133,24 @@ const setType = (type) => {
             </div>
         </template>
 
-        <div class="h-full flex flex-col items-center justify-center -mt-8"> <!-- Compensate layouts padding -->
-            <!-- Alerta de Membresía Detectada (En tiempo real) -->
-            <div v-if="membershipInfo"
-                class="mb-6 max-w-4xl w-full bg-emerald-50 border-2 border-emerald-200 rounded-3xl p-4 flex items-center justify-between animate-in fade-in zoom-in-95 duration-300">
-                <div class="flex items-center gap-4">
-                    <div
-                        class="w-10 h-10 bg-emerald-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                            stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                        </svg>
+        <div class="h-full flex flex-col items-center justify-center -mt-8 relative"> <!-- Compensate layouts padding -->
+            <!-- Notificación de Membresía (Toast Local) -->
+            <div class="fixed top-24 right-10 z-[60] w-80 space-y-3 pointer-events-none no-print">
+                <transition name="toast">
+                    <div v-if="membershipInfo" 
+                        class="p-4 bg-white border border-emerald-100 text-emerald-600 rounded-2xl flex items-center gap-4 shadow-[0_20px_50px_rgba(0,0,0,0.1)] animate-in slide-in-from-right duration-500 pointer-events-auto">
+                        <div class="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center font-black text-sm shadow-lg shadow-emerald-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-[10px] font-black uppercase tracking-widest">Abonado Detectado</p>
+                            <p class="text-[9px] font-bold text-slate-400 mt-0.5">Vence el {{ membershipInfo.end_date }} ({{ membershipInfo.days_left }} días)</p>
+                        </div>
+                        <button @click="membershipInfo = null" class="text-slate-300 hover:text-rose-500 transition-colors pointer-events-auto">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+                        </button>
                     </div>
-                    <div>
-                        <p class="text-[10px] font-black text-emerald-900 uppercase tracking-widest">Membresía Activa Detectada</p>
-                        <p class="text-xs font-bold text-emerald-700">Este vehículo es abonado. Vence el <span class="font-black underline">{{ membershipInfo.end_date }}</span> ({{ membershipInfo.days_left }} días restantes).</p>
-                    </div>
-                </div>
-                <div class="text-[8px] font-black text-emerald-400 uppercase tracking-widest mr-4">Abonado</div>
+                </transition>
             </div>
 
             <!-- Alerta de Membresía Próxima a Vencer (Después de guardar) -->
@@ -341,5 +340,17 @@ const setType = (type) => {
         margin: 0;
         size: auto;
     }
+}
+
+.toast-enter-active, .toast-leave-active {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.toast-enter-from {
+  opacity: 0;
+  transform: translateX(100%);
+}
+.toast-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
 }
 </style>
