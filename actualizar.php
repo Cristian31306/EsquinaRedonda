@@ -31,8 +31,8 @@ echo "\n\033[33mEjecutando migraciones de base de datos...\033[0m\n";
 ejecutar('php artisan migrate --force');
 
 // 5. Dependencias JS
-echo "\n\033[33mInstalando dependencias de NPM...\033[0m\n";
-ejecutar('npm install');
+echo "\n\033[33mInstalando dependencias de NPM (usando legacy-peer-deps)...\033[0m\n";
+ejecutar('npm install --legacy-peer-deps');
 
 // 6. Construir Assets
 echo "\n\033[33mConstruyendo assets para producción...\033[0m\n";
