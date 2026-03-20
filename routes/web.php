@@ -8,6 +8,7 @@ use App\Http\Controllers\RateController;
 use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\VehicleController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -51,6 +52,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/memberships/{membership}', [MembershipController::class, 'destroy'])->name('memberships.destroy');
 
     // Gestión de Usuarios (Administración avanzada)
+    Route::get('/vehicles/check/{plate}', [VehicleController::class, 'check'])->name('vehicles.check');
     Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
     Route::resource('users', UserController::class)->only(['index', 'store', 'update', 'destroy']);
 

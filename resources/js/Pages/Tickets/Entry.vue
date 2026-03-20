@@ -44,6 +44,46 @@ onMounted(() => {
     plateInput.value?.focus();
 });
 
+const isChecking = ref(false);
+const membershipInfo = ref(null);
+let debounceTimer = null;
+
+const checkVehicle = (plate) => {
+    if (debounceTimer) clearTimeout(debounceTimer);
+    
+    if (plate.length < 3) {
+        membershipInfo.value = null;
+        return;
+    }
+
+    debounceTimer = setTimeout(async () => {
+        isChecking.value = true;
+        try {
+            const response = await axios.get(route('vehicles.check', plate));
+            const data = response.data;
+            
+            if (data.exists && data.type) {
+                form.type = data.type;
+            }
+            
+            if (data.has_membership) {
+                membershipInfo.value = data.membership_info;
+                form.stay_type = null; // Default to Normal for members to avoid confusion
+            } else {
+                membershipInfo.value = null;
+            }
+        } catch (error) {
+            console.error('Error checking vehicle:', error);
+        } finally {
+            isChecking.value = false;
+        }
+    }, 500);
+};
+
+watch(() => form.plate, (newPlate) => {
+    checkVehicle(newPlate);
+});
+
 const submit = () => {
     errorMessage.value = '';
 
@@ -94,7 +134,27 @@ const setType = (type) => {
         </template>
 
         <div class="h-full flex flex-col items-center justify-center -mt-8"> <!-- Compensate layouts padding -->
-            <!-- Alerta de Membresía Próxima a Vencer -->
+            <!-- Alerta de Membresía Detectada (En tiempo real) -->
+            <div v-if="membershipInfo"
+                class="mb-6 max-w-4xl w-full bg-emerald-50 border-2 border-emerald-200 rounded-3xl p-4 flex items-center justify-between animate-in fade-in zoom-in-95 duration-300">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-10 h-10 bg-emerald-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                            stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black text-emerald-900 uppercase tracking-widest">Membresía Activa Detectada</p>
+                        <p class="text-xs font-bold text-emerald-700">Este vehículo es abonado. Vence el <span class="font-black underline">{{ membershipInfo.end_date }}</span> ({{ membershipInfo.days_left }} días restantes).</p>
+                    </div>
+                </div>
+                <div class="text-[8px] font-black text-emerald-400 uppercase tracking-widest mr-4">Abonado</div>
+            </div>
+
+            <!-- Alerta de Membresía Próxima a Vencer (Después de guardar) -->
             <div v-if="page.props.membership_info && page.props.membership_info.days_left <= 7"
                 class="mb-6 max-w-4xl w-full bg-amber-50 border-2 border-amber-200 rounded-3xl p-4 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-500">
                 <div class="flex items-center gap-4">
@@ -216,9 +276,12 @@ const setType = (type) => {
                             </div>
                         </div>
 
-                        <div v-if="errorMessage"
-                            class="bg-red-50 text-red-600 p-3 rounded-xl text-[10px] font-bold text-center border border-red-100 animate-in fade-in zoom-in-95 duration-200">
-                            {{ errorMessage }}
+                        <div v-if="errorMessage || Object.keys(form.errors).length > 0"
+                            class="bg-rose-50 text-rose-600 p-4 rounded-2xl text-[10px] font-bold text-center border border-rose-100 animate-in fade-in zoom-in-95 duration-200 space-y-1">
+                            <p v-if="errorMessage">{{ errorMessage }}</p>
+                            <div v-for="(error, field) in form.errors" :key="field">
+                                {{ error }}
+                            </div>
                         </div>
 
                         <button type="submit" :disabled="form.processing"

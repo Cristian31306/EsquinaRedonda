@@ -43,6 +43,15 @@ class MembershipController extends Controller
 
         $plate = strtoupper(trim($request->plate));
 
+        // Verificar duplicados de membresía activa
+        $hasActive = Membership::where('plate', $plate)
+            ->where('end_date', '>=', Carbon::today())
+            ->exists();
+
+        if ($hasActive) {
+            return back()->withErrors(['plate' => 'Este vehículo ya tiene una mensualidad activa y vigente.']);
+        }
+
         // Obtener o crear el vehículo
         $vehicle = Vehicle::firstOrCreate(
             ['plate' => $plate],
