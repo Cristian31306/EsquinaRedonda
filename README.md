@@ -43,20 +43,21 @@ git clone https://github.com/Cristian31306/EsquinaRedonda.git
 cd EsquinaRedonda
 ```
 
-### 2. Instalación rápida (Comando único)
+### 2. Instalación rápida (Script Automático)
 
-Ejecuta este comando en la terminal para instalar todo automáticamente (dependencias de PHP, JS, base de datos y compilación):
+Si estás en **Windows**, ejecuta este archivo para instalar las herramientas necesarias (Laragon, Node) y configurar el proyecto automáticamente:
 
 ```bash
-composer install && npm install && php artisan key:generate && php artisan migrate --seed && npm run build
+configurar.bat
 ```
-O si prefieres ir paso a paso:
-1. `composer install`
-2. `npm install`
-3. `cp .env.example .env` (y configurar `DB_CONNECTION=sqlite`)
-4. `php artisan key:generate`
-5. `php artisan migrate --seed`
-6. `npm run build`
+
+Si ya tienes las herramientas instaladas o estás en **Linux/Mac**, usa:
+
+```bash
+php instalar.php
+```
+
+---
 
 ### 4. Configurar el archivo de entorno
 
@@ -157,10 +158,10 @@ Para que otros equipos, tablets o celulares en la misma red WiFi accedan al sist
 
 ---
 
-Para actualizar el sistema con los últimos cambios, ejecuta este comando único:
+Para actualizar el sistema con los últimos cambios, ejecuta el script de actualización:
 
 ```bash
-git pull && composer install && npm install && php artisan migrate --force && npm run build
+php actualizar.php
 ```
 
 ---
@@ -255,7 +256,7 @@ Si necesitas detener o reiniciar los servicios:
 
 Para actualizar el sistema con los últimos cambios:
 ```bash
-git pull && composer install && npm install && php artisan migrate --force && npm run build
+php actualizar.php
 # Luego reinicia los servicios:
 .\nssm_bin\nssm.exe restart EsquinaRedondaServer
 .\nssm_bin\nssm.exe restart EsquinaRedondaQueue
