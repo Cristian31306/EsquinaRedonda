@@ -1,12 +1,16 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm, Link } from '@inertiajs/vue3';
+import { Head, useForm, Link, usePage } from '@inertiajs/vue3';
 import ShiftSummary from '@/Components/ShiftSummary.vue';
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, computed } from 'vue';
 
 const props = defineProps({
     activeShift: Object,
 });
+
+const page = usePage();
+const currentUser = computed(() => page.props.auth.user);
+const isMyShift = computed(() => props.activeShift && props.activeShift.user_id === currentUser.value.id);
 
 const showOpenModal = ref(false);
 const showCloseModal = ref(false);
@@ -16,6 +20,7 @@ const openForm = useForm({});
 
 const closeForm = useForm({
     closing_cash_declared: '',
+    shift_id: null,
 });
 
 const openShift = () => {
@@ -27,6 +32,10 @@ const openShift = () => {
 };
 
 const closeShift = () => {
+    if (!isMyShift.value && currentUser.value.role === 'admin') {
+        closeForm.shift_id = props.activeShift.id;
+    }
+
     closeForm.post(route('shifts.close'), {
         onSuccess: (page) => {
             showCloseModal.value = false;
@@ -60,24 +69,43 @@ const closeShift = () => {
 
         <div class="h-full flex flex-col space-y-8">
             <!-- Active Shift Status -->
-            <div v-if="activeShift" class="bg-indigo-950 rounded-[3rem] p-12 text-white shadow-2xl relative overflow-hidden">
+            <div v-if="activeShift" 
+                :class="isMyShift ? 'bg-indigo-950' : 'bg-slate-900 border-4 border-amber-500/30'"
+                class="bg-indigo-950 rounded-[3rem] p-12 text-white shadow-2xl relative overflow-hidden transition-all duration-500"
+            >
                 <div class="absolute right-0 top-0 w-96 h-96 bg-white/5 rounded-full -mr-48 -mt-48 blur-3xl"></div>
                 <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-12">
                     <div class="flex-1">
                         <div class="flex items-center gap-4 mb-4">
-                            <span class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.5)]"></span>
-                            <p class="text-[9px] font-black text-indigo-300 uppercase tracking-[0.3em]">Turno Activo en Curso</p>
+                            <span :class="isMyShift ? 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]' : 'bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.5)]'" 
+                                class="w-3 h-3 rounded-full animate-pulse"></span>
+                            <p class="text-[9px] font-black text-indigo-300 uppercase tracking-[0.3em]">
+                                {{ isMyShift ? 'Tu Turno Activo' : 'Caja Abierta por Otro Usuario' }}
+                            </p>
                         </div>
-                        <h3 class="text-4xl font-black tracking-tighter mb-2 italic">Operando Correctamente</h3>
-                        <p class="text-xs font-medium text-indigo-200 opacity-60">El sistema está registrando todos los movimientos de forma segura.</p>
+                        <h3 class="text-4xl font-black tracking-tighter mb-2 italic">
+                            {{ isMyShift ? 'Operando Correctamente' : 'Caja en Uso' }}
+                        </h3>
+                        <p v-if="!isMyShift" class="text-md font-black text-amber-400 uppercase tracking-widest mb-2">
+                             {{ activeShift.user?.name || 'Otro Usuario' }}
+                        </p>
+                        <p class="text-xs font-medium text-indigo-200 opacity-60">
+                            {{ isMyShift ? 'El sistema está registrando todos los movimientos de forma segura.' : 'No puedes abrir un nuevo turno hasta que el usuario actual cierre su sesión de caja.' }}
+                        </p>
                     </div>
                     
                     <button 
+                        v-if="isMyShift || currentUser.role === 'admin'"
                         @click="showCloseModal = true"
                         class="w-full md:w-auto px-10 py-5 bg-white text-indigo-950 text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-indigo-50 transition-all shadow-xl hover:-translate-y-1 active:translate-y-0"
                     >
-                        Entregar Turno / Cerrar Caja
+                        {{ isMyShift ? 'Entregar Turno / Cerrar Caja' : 'Cerrar Caja (Admin)' }}
                     </button>
+
+                    <div v-else class="w-full md:w-auto px-8 py-5 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 text-amber-500"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-white/40 italic">Caja Bloqueada</span>
+                    </div>
                 </div>
             </div>
 

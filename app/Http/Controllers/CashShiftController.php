@@ -14,7 +14,7 @@ class CashShiftController extends Controller
     public function index()
     {
         return Inertia::render('Shifts/Index', [
-            'activeShift' => CashShift::with('payments')->where('user_id', auth()->id())->where('status', 'open')->first()
+            'activeShift' => CashShift::with(['user', 'payments'])->where('status', 'open')->first()
         ]);
     }
 
