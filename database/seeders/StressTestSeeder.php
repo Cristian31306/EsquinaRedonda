@@ -15,6 +15,7 @@ class StressTestSeeder extends Seeder
 {
     public function run(): void
     {
+        set_time_limit(0); // This is a heavy seeder, disable timeout
         // Limpiar datos previos
         DB::statement('PRAGMA foreign_keys = OFF;');
         Payment::truncate();

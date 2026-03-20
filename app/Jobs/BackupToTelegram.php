@@ -34,6 +34,7 @@ class BackupToTelegram implements ShouldQueue
      */
     public function handle(): void
     {
+        set_time_limit(120); // Ensure each job has enough time to upload the database
         $token = Setting::where('key', 'telegram_bot_token')->value('value');
         $chatIds = Setting::where('key', 'telegram_chat_ids')->value('value');
 

@@ -14,13 +14,26 @@ class TelegramQueueService
      */
     public static function processPending()
     {
+        set_time_limit(120); // Allow up to 2 minutes for processing piggyback jobs
         try {
             // Buscamos trabajos que sean de BackupToTelegram en la tabla de jobs
-            $jobs = DB::table('jobs')
-                ->where('payload', 'like', '%BackupToTelegram%')
-                ->orderBy('id', 'asc')
-                ->limit(2) // Solo procesamos un par para no alargar mucho la espera del usuario
-                ->get();
+            // Solo procesamos los que NO están reservados
+            $jobs = DB::transaction(function () {
+                $jobs = DB::table('jobs')
+                    ->where('payload', 'like', '%BackupToTelegram%')
+                    ->whereNull('reserved_at')
+                    ->orderBy('id', 'asc')
+                    ->limit(2)
+                    ->get();
+
+                foreach ($jobs as $job) {
+                    DB::table('jobs')->where('id', $job->id)->update([
+                        'reserved_at' => now()->getTimestamp()
+                    ]);
+                }
+
+                return $jobs;
+            });
 
             foreach ($jobs as $jobData) {
                 $payload = json_decode($jobData->payload, true);

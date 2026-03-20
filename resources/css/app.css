@@ -1,3 +1,10 @@
 @tailwind base;
+
+@layer base {
+    b, strong {
+        display: inline;
+    }
+}
+
 @tailwind components;
 @tailwind utilities;

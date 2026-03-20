@@ -30,9 +30,13 @@ watch(() => page.props.print_ticket, async (newTicket) => {
     if (newTicket) {
         ticketToPrint.value = newTicket;
         await nextTick();
-        window.print();
-        // Opcional: limpiar después de un momento
-        setTimeout(() => { ticketToPrint.value = null; }, 1000);
+        
+        // Pequeña espera para asegurar carga de imágenes
+        setTimeout(() => {
+            window.print();
+            // Opcional: limpiar después de un momento
+            setTimeout(() => { ticketToPrint.value = null; }, 1000);
+        }, 500);
     }
 }, { immediate: true });
 

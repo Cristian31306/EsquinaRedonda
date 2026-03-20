@@ -200,53 +200,67 @@ EsquinaRedonda/
 
 ---
 
+---
+
 ## 🖥️ Configuración para Producción (Windows + Auto-inicio)
 
-Para que el sistema esté siempre activo y se inicie automáticamente en segundo plano al encender el PC:
+Para que el sistema esté siempre activo y se inicie automáticamente en segundo plano al encender el PC, utilizamos **NSSM** (Non-Sucking Service Manager). Esto garantiza que el servidor se reinicie automáticamente si falla o si el PC se reinicia.
 
-### Inicio Automático Invisible (Recomendado)
+### 1. Requisitos para el PC Servidor
+- **PHP** (v8.2+) y **Composer** instalados.
+- **Node.js** (v18+) instalado.
+- El proyecto debe estar en una carpeta permanente (ej. `C:\EsquinaRedonda`).
+- **NSSM**: Ya incluido en la carpeta `nssm_bin` del proyecto.
 
-Para que el servidor corra en el fondo sin ventanas que se puedan cerrar por error:
+### 2. Instalación de Servicios
+Abre una terminal (**PowerShell** o **CMD**) como **Administrador** y ejecuta los siguientes comandos desde la carpeta raíz del proyecto:
 
-1.  Crea un archivo llamado `server_silent.vbs` en la carpeta raíz del proyecto y pega esto:
-    ```vbs
-    Set WshShell = CreateObject("WScript.Shell")
-    ' Obtiene automáticamente la carpeta desde la que se ejecuta el script
-    strPath = CreateObject("Scripting.FileSystemObject").GetParentFolderName(WScript.ScriptFullName)
-    WshShell.CurrentDirectory = strPath
-    ' Ejecuta el servidor usando el comando php (debe estar en el PATH)
-    WshShell.Run "php artisan serve --host=0.0.0.0 --port=8000", 0, False
-    ```
-
-2.  Registra la tarea en **PowerShell** (como administrador):
-    ```powershell
-    # Define la ruta del proyecto (ajusta si lo instalaste en otro lugar)
-    $ProjectDir = "C:\laragon\www\EsquinaRedonda"
-    $Action = New-ScheduledTaskAction -Execute 'wscript.exe' -Argument "`"$ProjectDir\server_silent.vbs`""
-    $Trigger = New-ScheduledTaskTrigger -AtLogOn
-    Register-ScheduledTask -Action $Action -Trigger $Trigger -TaskName "EsquinaRedondaServer" -Description "Servidor POS Silencioso" -RunLevel Highest -Force
-    ```
-
-### 🛡️ Blindaje de la Tarea (Configuración de Robustez)
-
-Para asegurar que el servidor no se detenga por ahorro de energía o errores de Windows, realiza estos ajustes manuales en el **Programador de Tareas**:
-
-1.  **Pestaña "Condiciones" (Evitar apagados por energía):**
-    * **Desmarca** la casilla: `Iniciar la tarea solo si el equipo está conectado a la corriente alterna`.
-    * *Esto evita que el servidor se apague si el PC entra en modo batería o si hay un bajón de luz y el equipo pasa a usar la UPS.*
-
-2.  **Pestaña "Configuración" (Supervivencia y Reinicio):**
-    * **Marca** la casilla: `Ejecutar tarea lo antes posible si no hubo inicio programado`.
-    * **Marca** la casilla: `Si la tarea no se ejecuta, reiniciarla cada:` y establece **1 minuto** (intentar hasta 3 veces).
-    * **Desmarca** la casilla: `Detener la tarea si se ejecuta durante más de:` (esto evita que Windows "mate" el proceso automáticamente a los 3 días).
-
-### Script de Inicio Rápido (.bat)
-Si prefieres un archivo manual, crea uno llamado `iniciar.bat` con:
-```batch
-@echo off
-cd /d "%~dp0"
-start /min php artisan serve --host=0.0.0.0 --port=8000
-timeout /t 3
-start "" "http://localhost:8000"
+#### A. Servicio del Servidor (Interfaz Web)
+Este servicio mantiene activo el motor de Laravel en el puerto 8000.
+```powershell
+.\nssm_bin\nssm.exe install EsquinaRedondaServer (Get-Command php).Source "artisan serve --host=0.0.0.0 --port=8000"
+.\nssm_bin\nssm.exe set EsquinaRedondaServer AppDirectory (Get-Location).Path
+.\nssm_bin\nssm.exe start EsquinaRedondaServer
 ```
-Place it in `shell:startup` for automatic execution on login.
+
+#### B. Servicio de Procesamiento (Colas y Telegram)
+Este servicio es necesario para enviar notificaciones de Telegram y procesar tareas en segundo plano.
+```powershell
+.\nssm_bin\nssm.exe install EsquinaRedondaQueue (Get-Command php).Source "artisan queue:work"
+.\nssm_bin\nssm.exe set EsquinaRedondaQueue AppDirectory (Get-Location).Path
+.\nssm_bin\nssm.exe start EsquinaRedondaQueue
+```
+
+### 3. Apertura Automática del Navegador
+Si deseas que el navegador se abra automáticamente al iniciar sesión en Windows:
+1. Presiona `Win + R`, escribe `shell:startup` y presiona Enter.
+2. Crea un acceso directo a tu navegador (ej. Chrome) apuntando a `http://localhost:8000`.
+
+---
+
+## 📡 Acceso desde Otros Dispositivos
+Una vez instalado el servicio, cualquier dispositivo en la misma red WiFi puede entrar usando la IP del PC servidor:
+1. En el PC servidor, escribe `ipconfig` en la terminal para ver tu IP (ej. `192.168.1.50`).
+2. En tu celular o tablet, entra a: `http://192.168.1.50:8000`.
+
+---
+
+## 🛠️ Comandos de Mantenimiento
+Si necesitas detener o reiniciar los servicios:
+- **Estado:** `.\nssm_bin\nssm.exe status EsquinaRedondaServer`
+- **Reiniciar:** `.\nssm_bin\nssm.exe restart EsquinaRedondaServer`
+- **Eliminar:** `.\nssm_bin\nssm.exe remove EsquinaRedondaServer confirm`
+
+---
+
+Para actualizar el sistema con los últimos cambios:
+```bash
+git pull && composer install && npm install && php artisan migrate --force && npm run build
+# Luego reinicia los servicios:
+.\nssm_bin\nssm.exe restart EsquinaRedondaServer
+.\nssm_bin\nssm.exe restart EsquinaRedondaQueue
+```
+
+---
+
+&copy; 2024 Esquina Redonda Premium - Sistema Profesional de Gestión de Parqueaderos.

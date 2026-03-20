@@ -9,8 +9,12 @@ const ticketToPrint = ref(null);
 const handleReprint = async (ticket) => {
     ticketToPrint.value = ticket;
     await nextTick();
-    window.print();
-    setTimeout(() => { ticketToPrint.value = null; }, 1000);
+    
+    // Pequeña espera para asegurar carga de imágenes (especialmente .ico pesados)
+    setTimeout(() => {
+        window.print();
+        setTimeout(() => { ticketToPrint.value = null; }, 1000);
+    }, 500);
 };
 
 const props = defineProps({

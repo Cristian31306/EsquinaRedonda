@@ -54,6 +54,7 @@ const updatePassword = () => {
                     ref="currentPasswordInput"
                     v-model="form.current_password"
                     type="password"
+                    toggleable
                     class="mt-1 block w-full bg-slate-50 border-0 rounded-2xl px-5 py-4 text-sm font-black text-slate-900 focus:ring-2 focus:ring-indigo-500/20"
                     autocomplete="current-password"
                 />
@@ -72,6 +73,7 @@ const updatePassword = () => {
                     ref="passwordInput"
                     v-model="form.password"
                     type="password"
+                    toggleable
                     class="mt-1 block w-full bg-slate-50 border-0 rounded-2xl px-5 py-4 text-sm font-black text-slate-900 focus:ring-2 focus:ring-indigo-500/20"
                     autocomplete="new-password"
                 />
@@ -90,6 +92,7 @@ const updatePassword = () => {
                     id="password_confirmation"
                     v-model="form.password_confirmation"
                     type="password"
+                    toggleable
                     class="mt-1 block w-full bg-slate-50 border-0 rounded-2xl px-5 py-4 text-sm font-black text-slate-900 focus:ring-2 focus:ring-indigo-500/20"
                     autocomplete="new-password"
                 />

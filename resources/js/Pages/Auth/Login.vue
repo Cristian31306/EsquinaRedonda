@@ -56,11 +56,12 @@ const submit = () => {
 
             <div class="space-y-2">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Contraseña</label>
-                <input 
+                <TextInput 
                     id="password"
                     type="password"
                     v-model="form.password"
                     required
+                    toggleable
                     autocomplete="new-password"
                     name="user_pass_field"
                     class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold text-slate-900 focus:border-indigo-950 focus:ring-0 transition-all placeholder:text-slate-300"

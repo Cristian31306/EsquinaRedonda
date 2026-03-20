@@ -73,7 +73,7 @@ class TicketController extends Controller
 
         return redirect()->route('tickets.entry')->with([
             'success'      => 'Vehículo registrado correctamente.',
-            'print_ticket' => $ticket->load('vehicle'),
+            'print_ticket' => $ticket->load('vehicle', 'user'),
             'membership_info' => $activeMembership ? [
                 'end_date' => $activeMembership->end_date->toDateString(),
                 'days_left' => (int) Carbon::now()->diffInDays($activeMembership->end_date, false),

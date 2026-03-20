@@ -15,11 +15,11 @@ class DashboardController extends Controller
         
         $totalCollectedToday = Payment::whereDate('created_at', $today)->sum('amount');
         
-        $currentVehicles = Ticket::with('vehicle')
+        $currentVehicles = Ticket::with('vehicle', 'user')
             ->where('status', 'active')
             ->get();
 
-        $alerts = Ticket::with('vehicle')
+        $alerts = Ticket::with('vehicle', 'user')
             ->where('status', 'active')
             ->where('entry_time', '<', Carbon::now()->subHours(24))
             ->get();
