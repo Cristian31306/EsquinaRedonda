@@ -202,17 +202,19 @@
             </tr>
         </thead>
         <tbody>
-            @forelse($payments as $p)
-            <tr>
-                <td>{{ $p->created_at->format('d/m/Y H:i') }}</td>
-                <td><span class="badge">{{ $p->ticket->vehicle->plate ?? 'N/A' }}</span></td>
-                <td>{{ ucfirst($p->ticket->vehicle->type ?? 'N/A') }}</td>
-                <td>{{ ucfirst($p->payment_method ?? 'Efectivo') }}</td>
-                <td style="text-align:right;font-weight:900;">${{ number_format($p->amount, 0, ',', '.') }}</td>
-            </tr>
-            @empty
-            <tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px;">No hay cobros de tickets registrados en este periodo.</td></tr>
-            @endforelse
+            @if($payments->count() > 0)
+                @foreach($payments as $p)
+                <tr>
+                    <td>{{ $p->created_at->format('d/m/Y H:i') }}</td>
+                    <td><span class="badge">{{ $p->ticket->vehicle->plate ?? 'N/A' }}</span></td>
+                    <td>{{ ucfirst($p->ticket->vehicle->type ?? 'N/A') }}</td>
+                    <td>{{ ucfirst($p->payment_method ?? 'Efectivo') }}</td>
+                    <td style="text-align:right;font-weight:900;">${{ number_format($p->amount, 0, ',', '.') }}</td>
+                </tr>
+                @endforeach
+            @else
+                <tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px;">No hay cobros de tickets registrados en este periodo.</td></tr>
+            @endif
         </tbody>
         @if($payments->count() > 0)
         <tfoot>
