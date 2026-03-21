@@ -73,6 +73,8 @@ class GenerateTestData extends Command
                     'end_time' => ($isToday && $isEndFuture) ? null : $end,
                     'opening_cash' => 50000,
                     'status' => ($isToday && $isEndFuture) ? 'open' : 'closed',
+                    'created_at' => $start,
+                    'updated_at' => ($isToday && $isEndFuture) ? $start : $end,
                 ]);
 
                 // Cantidad de tickets según el día (más flujo lun-vie)
@@ -92,7 +94,9 @@ class GenerateTestData extends Command
                             'exit_time' => $entry->copy()->addHours(rand(1, 9)),
                             'status' => 'completed',
                             'stay_type' => 'membership',
-                            'user_id' => $user->id
+                            'user_id' => $user->id,
+                            'created_at' => $entry,
+                            'updated_at' => $entry,
                         ]);
                     } else {
                         // Ticket normal que genera pago
@@ -106,7 +110,9 @@ class GenerateTestData extends Command
                             'exit_time' => $exit,
                             'status' => 'completed',
                             'stay_type' => $stayType,
-                            'user_id' => $user->id
+                            'user_id' => $user->id,
+                            'created_at' => $entry,
+                            'updated_at' => $exit,
                         ]);
 
                         $amount = $this->calculateFakeAmount($ticket);
@@ -115,6 +121,8 @@ class GenerateTestData extends Command
                             'cash_shift_id' => $shift->id,
                             'amount' => $amount,
                             'payment_method' => $faker->randomElement(['efectivo', 'efectivo', 'efectivo', 'trasnferencia']),
+                            'created_at' => $exit, // El pago se registra a la hora de salida
+                            'updated_at' => $exit,
                         ]);
                     }
                 }
@@ -132,6 +140,8 @@ class GenerateTestData extends Command
                         'end_date' => $currentDate->copy()->addMonth(),
                         'amount_paid' => $price,
                         'cash_shift_id' => $shift->id,
+                        'created_at' => $start->copy()->addMinutes(10),
+                        'updated_at' => $start->copy()->addMinutes(10),
                     ]);
 
                     // El sistema requiere un ticket para el pago
@@ -141,7 +151,9 @@ class GenerateTestData extends Command
                         'exit_time' => $start->copy()->addMinutes(15),
                         'status' => 'completed',
                         'stay_type' => 'membership_payment',
-                        'user_id' => $user->id
+                        'user_id' => $user->id,
+                        'created_at' => $start->copy()->addMinutes(10),
+                        'updated_at' => $start->copy()->addMinutes(15),
                     ]);
 
                     Payment::create([
@@ -149,6 +161,8 @@ class GenerateTestData extends Command
                         'cash_shift_id' => $shift->id,
                         'amount' => $price,
                         'payment_method' => 'trasnferencia',
+                        'created_at' => $start->copy()->addMinutes(15),
+                        'updated_at' => $start->copy()->addMinutes(15),
                     ]);
                 }
 
