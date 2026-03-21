@@ -64,15 +64,14 @@ class ReportExport implements WithEvents, ShouldAutoSize
 
                 // Título en el encabezado
                 $sheet->getCell('C1')->setValue('ESQUINA REDONDA');
-                $sheet->getCell('C2')->setValue('Sistema de Gestión de Parqueaderos');
-                $sheet->getCell('C3')->setValue('Reporte de Ingresos — ' . $this->months[$this->month - 1] . ' ' . $this->year);
-                $sheet->getCell('C4')->setValue('Generado: ' . now()->format('Y-m-d H:i'));
+                $sheet->getCell('C2')->setValue('Reporte de Ingresos — ' . $this->months[$this->month - 1] . ' ' . $this->year);
+                $sheet->getCell('C3')->setValue('Generado: ' . now()->format('Y-m-d H:i'));
 
                 $sheet->getStyle('C1')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 18, 'color' => ['rgb' => $white], 'name' => 'Calibri'],
                     'alignment' => ['vertical' => Alignment::VERTICAL_CENTER],
                 ]);
-                $sheet->getStyle('C2:C4')->applyFromArray([
+                $sheet->getStyle('C2:C3')->applyFromArray([
                     'font' => ['size' => 9, 'color' => ['rgb' => 'a5b4fc']],
                     'alignment' => ['vertical' => Alignment::VERTICAL_CENTER],
                 ]);

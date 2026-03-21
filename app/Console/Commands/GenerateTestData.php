@@ -24,7 +24,7 @@ class GenerateTestData extends Command
         $faker = Faker::create('es_CO');
         $days = (int) $this->option('days');
         
-        $this->info("🚀 Iniciando simulación de 30 días de operación...");
+        $this->info("🚀 Iniciando simulación de {$days} días de operación...");
 
         $user = User::first();
         if (!$user) {
@@ -39,7 +39,6 @@ class GenerateTestData extends Command
 
         $this->ensureRatesExist();
 
-        // 1. Crear flota de vehículos recurrente
         $vehicles = [];
         for ($i = 0; $i < 40; $i++) {
             $type = $faker->randomElement(['carro', 'moto', 'pesado']);
@@ -47,12 +46,10 @@ class GenerateTestData extends Command
             $vehicles[] = Vehicle::firstOrCreate(['plate' => $plate], ['type' => $type]);
         }
 
-        // 2. Bucle de días
         for ($i = $days; $i >= 0; $i--) {
             $currentDate = Carbon::now()->subDays($i);
             $this->comment("📅 Procesando: " . $currentDate->toDateString());
 
-            // Simulamos 2 turnos por día
             $shifts = [
                 ['start' => '07:00:00', 'end' => '15:00:00'],
                 ['start' => '15:00:01', 'end' => '22:00:00']
@@ -67,72 +64,71 @@ class GenerateTestData extends Command
                 $isToday = $currentDate->isToday();
                 $isEndFuture = $end->isFuture();
                 
-                $shift = CashShift::create([
+                $shift = new CashShift([
                     'user_id' => $user->id,
                     'start_time' => $start,
                     'end_time' => ($isToday && $isEndFuture) ? null : $end,
                     'opening_cash' => 50000,
                     'status' => ($isToday && $isEndFuture) ? 'open' : 'closed',
-                    'created_at' => $start,
-                    'updated_at' => ($isToday && $isEndFuture) ? $start : $end,
                 ]);
+                $shift->created_at = $start;
+                $shift->updated_at = ($isToday && $isEndFuture) ? $start : $end;
+                $shift->save();
 
-                // Cantidad de tickets según el día (más flujo lun-vie)
                 $count = ($currentDate->isWeekend()) ? rand(15, 30) : rand(25, 55);
 
                 for ($t = 0; $t < $count; $t++) {
                     $v = $faker->randomElement($vehicles);
                     $entry = $start->copy()->addMinutes(rand(5, 470));
                     
-                    // Lógica de tipo de ticket
                     $randType = rand(1, 100);
                     if ($randType <= 10) { 
-                        // Es una mensualidad que ya existía (entra y sale gratis)
-                        Ticket::create([
+                        $ticket = new Ticket([
                             'vehicle_id' => $v->id,
                             'entry_time' => $entry,
                             'exit_time' => $entry->copy()->addHours(rand(1, 9)),
                             'status' => 'completed',
                             'stay_type' => 'membership',
-                            'user_id' => $user->id,
-                            'created_at' => $entry,
-                            'updated_at' => $entry,
+                            'user_id' => $user->id
                         ]);
+                        $ticket->created_at = $entry;
+                        $ticket->updated_at = $entry;
+                        $ticket->save();
                     } else {
-                        // Ticket normal que genera pago
                         $exit = $entry->copy()->addMinutes(rand(30, 600));
                         if ($exit->gt($end) && $shift->status == 'closed') $exit = $end;
 
                         $stayType = $faker->randomElement([null, 'overnight', 'fullday']);
-                        $ticket = Ticket::create([
+                        $ticket = new Ticket([
                             'vehicle_id' => $v->id,
                             'entry_time' => $entry,
                             'exit_time' => $exit,
                             'status' => 'completed',
                             'stay_type' => $stayType,
-                            'user_id' => $user->id,
-                            'created_at' => $entry,
-                            'updated_at' => $exit,
+                            'user_id' => $user->id
                         ]);
+                        $ticket->created_at = $entry;
+                        $ticket->updated_at = $exit;
+                        $ticket->save();
 
                         $amount = $this->calculateFakeAmount($ticket);
-                        Payment::create([
+                        $payment = new Payment([
                             'ticket_id' => $ticket->id,
                             'cash_shift_id' => $shift->id,
                             'amount' => $amount,
                             'payment_method' => $faker->randomElement(['efectivo', 'efectivo', 'efectivo', 'trasnferencia']),
-                            'created_at' => $exit, // El pago se registra a la hora de salida
-                            'updated_at' => $exit,
                         ]);
+                        $payment->created_at = $exit;
+                        $payment->updated_at = $exit;
+                        $payment->save();
                     }
                 }
 
-                // Simular venta de mensualidad (Venta de producto)
                 if (rand(1, 10) > 8) {
                     $mv = $faker->randomElement($vehicles);
                     $price = ($mv->type == 'carro') ? 160000 : 70000;
                     
-                    Membership::create([
+                    $membership = new Membership([
                         'vehicle_id' => $mv->id,
                         'plate' => $mv->plate,
                         'vehicle_type' => $mv->type,
@@ -140,30 +136,32 @@ class GenerateTestData extends Command
                         'end_date' => $currentDate->copy()->addMonth(),
                         'amount_paid' => $price,
                         'cash_shift_id' => $shift->id,
-                        'created_at' => $start->copy()->addMinutes(10),
-                        'updated_at' => $start->copy()->addMinutes(10),
                     ]);
+                    $membership->created_at = $start->copy()->addMinutes(10);
+                    $membership->updated_at = $start->copy()->addMinutes(10);
+                    $membership->save();
 
-                    // El sistema requiere un ticket para el pago
-                    $tMem = Ticket::create([
+                    $tMem = new Ticket([
                         'vehicle_id' => $mv->id,
                         'entry_time' => $start->copy()->addMinutes(10),
                         'exit_time' => $start->copy()->addMinutes(15),
                         'status' => 'completed',
                         'stay_type' => 'membership_payment',
-                        'user_id' => $user->id,
-                        'created_at' => $start->copy()->addMinutes(10),
-                        'updated_at' => $start->copy()->addMinutes(15),
+                        'user_id' => $user->id
                     ]);
+                    $tMem->created_at = $start->copy()->addMinutes(10);
+                    $tMem->updated_at = $start->copy()->addMinutes(15);
+                    $tMem->save();
 
-                    Payment::create([
+                    $payment = new Payment([
                         'ticket_id' => $tMem->id,
                         'cash_shift_id' => $shift->id,
                         'amount' => $price,
                         'payment_method' => 'trasnferencia',
-                        'created_at' => $start->copy()->addMinutes(15),
-                        'updated_at' => $start->copy()->addMinutes(15),
                     ]);
+                    $payment->created_at = $start->copy()->addMinutes(15);
+                    $payment->updated_at = $start->copy()->addMinutes(15);
+                    $payment->save();
                 }
 
                 if ($shift->status == 'closed') {
@@ -183,11 +181,11 @@ class GenerateTestData extends Command
     }
 
     private function ensureRatesExist() {
-        $data = [
+        $rates = [
             ['carro', 'hora', 5000], ['carro', 'dia', 25000], ['carro', 'noche', 15000], ['carro', 'mensualidad', 180000],
             ['moto', 'hora', 2000], ['moto', 'dia', 10000], ['moto', 'noche', 6000], ['moto', 'mensualidad', 70000],
         ];
-        foreach ($data as $r) {
+        foreach ($rates as $r) {
             Rate::firstOrCreate(['vehicle_type' => $r[0], 'concept' => $r[1]], ['value' => $r[2], 'is_active' => true]);
         }
     }

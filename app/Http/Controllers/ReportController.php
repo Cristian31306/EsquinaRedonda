@@ -9,7 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 class ReportController extends Controller
 {
@@ -61,16 +61,24 @@ class ReportController extends Controller
     {
         if (auth()->user()->role !== 'admin') abort(403);
 
+        // Aumentar memoria para reportes grandes
+        ini_set('memory_limit', '512M');
+        set_time_limit(300);
+
         $year  = $request->input('year', Carbon::now()->year);
         $month = $request->input('month', Carbon::now()->month);
 
-        $payments     = Payment::with('ticket.vehicle')->whereYear('created_at', $year)->whereMonth('created_at', $month)->get();
+        $payments     = Payment::with('ticket.vehicle')
+            ->whereYear('created_at', $year)
+            ->whereMonth('created_at', $month)
+            ->orderBy('created_at', 'asc')
+            ->get();
         $memberships  = Membership::whereYear('created_at', $year)->whereMonth('created_at', $month)->get();
 
         $totalTickets     = $payments->sum('amount');
         $totalMemberships = $memberships->sum('amount_paid');
 
-        $pdf = Pdf::loadView('reports.monthly-pdf', [
+        $pdf = PDF::loadView('reports.monthly-pdf', [
             'year'        => $year,
             'month'       => $month,
             'months'      => $this->months,
