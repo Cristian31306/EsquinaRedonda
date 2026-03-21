@@ -87,8 +87,6 @@ const submit = () => {
                     </form>
                 </div>
             </div>
-
-            </div>
         </div>
     </AuthenticatedLayout>
 </template>
