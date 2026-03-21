@@ -88,32 +88,6 @@ const submit = () => {
                 </div>
             </div>
 
-            <!-- Remote Access Summary -->
-            <div class="bg-gradient-to-br from-indigo-950 to-slate-900 rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden group">
-                <div class="absolute -right-20 -top-20 w-64 h-64 bg-white/5 rounded-full blur-3xl group-hover:bg-white/10 transition-all duration-500"></div>
-                
-                <div class="relative z-10">
-                    <h3 class="text-xl font-black uppercase tracking-widest mb-6">🛰️ Acceso Remoto (Recomendado)</h3>
-                    <div class="space-y-6">
-                        <p class="text-sm font-bold text-indigo-200 uppercase tracking-widest leading-relaxed">
-                            Para acceder al sistema desde cualquier lugar seguro, te sugerimos usar <span class="text-white border-b-2 border-indigo-500">Tailscale</span>.
-                        </p>
-                        <ul class="space-y-4">
-                            <li class="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-indigo-100/80">
-                                <div class="w-6 h-6 bg-white/10 rounded-lg flex items-center justify-center text-[10px]">1</div>
-                                Instala Tailscale en la PC del parqueadero.
-                            </li>
-                            <li class="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-indigo-100/80">
-                                <div class="w-6 h-6 bg-white/10 rounded-lg flex items-center justify-center text-[10px]">2</div>
-                                Instala Tailscale en tu celular.
-                            </li>
-                            <li class="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-indigo-100/80">
-                                <div class="w-6 h-6 bg-white/10 rounded-lg flex items-center justify-center text-[10px]">3</div>
-                                Entra a la IP de la PC desde tu celular. ¡Listo!
-                            </li>
-                        </ul>
-                    </div>
-                </div>
             </div>
         </div>
     </AuthenticatedLayout>
