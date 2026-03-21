@@ -240,18 +240,20 @@
             </tr>
         </thead>
         <tbody>
-            @forelse($memberships as $m)
-            <tr>
-                <td>{{ $m->created_at->format('d/m/Y H:i') }}</td>
-                <td><span class="badge">{{ $m->plate }}</span></td>
-                <td>{{ ucfirst($m->vehicle_type) }}</td>
-                <td>{{ $m->start_date->format('d/m/Y') }}</td>
-                <td>{{ $m->end_date->format('d/m/Y') }}</td>
-                <td style="text-align:right;font-weight:900;">${{ number_format($m->amount_paid, 0, ',', '.') }}</td>
-            </tr>
-            @empty
-            <tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:20px;">No hay mensualidades registradas en este periodo.</td></tr>
-            @endforelse
+            @if($memberships->count() > 0)
+                @foreach($memberships as $m)
+                <tr>
+                    <td>{{ $m->created_at->format('d/m/Y H:i') }}</td>
+                    <td><span class="badge">{{ $m->plate }}</span></td>
+                    <td>{{ ucfirst($m->vehicle_type) }}</td>
+                    <td>{{ $m->start_date->format('d/m/Y') }}</td>
+                    <td>{{ $m->end_date->format('d/m/Y') }}</td>
+                    <td style="text-align:right;font-weight:900;">${{ number_format($m->amount_paid, 0, ',', '.') }}</td>
+                </tr>
+                @endforeach
+            @else
+                <tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:20px;">No hay mensualidades registradas en este periodo.</td></tr>
+            @endif
         </tbody>
         @if($memberships->count() > 0)
         <tfoot>
