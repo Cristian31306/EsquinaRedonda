@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Contracts\Console\Kernel;
 
 $kernel = $app->make(Kernel::class);
+$kernel->bootstrap(); // <--- IMPORTANTE para que las Facades funcionen
 
 echo "\n--- LIMPIEZA DE BASE DE DATOS (ESQUINA REDONDA) ---\n";
 echo "Esta accion borrara TICKETS, PAGOS, MENSUALIDADES y TURNOS.\n";
