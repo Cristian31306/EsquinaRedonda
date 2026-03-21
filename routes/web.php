@@ -29,7 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/store', [TicketController::class, 'store'])->name('store');
         Route::get('/exit', [TicketController::class, 'exit'])->name('exit');
         Route::get('/search', [TicketController::class, 'search'])->name('search');
-        Route::post('/{ticket}/pay', [TicketController::class, 'pay'])->name('pay');
+        Route::post('/{ticket}/pay', [TicketController::class, 'pay'])->middleware('shift_open')->name('pay');
     });
 
     // Control de Caja (Turnos)
@@ -48,7 +48,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Mensualidades
     Route::get('/memberships', [MembershipController::class, 'index'])->name('memberships.index');
-    Route::post('/memberships', [MembershipController::class, 'store'])->name('memberships.store');
+    Route::post('/memberships', [MembershipController::class, 'store'])->middleware('shift_open')->name('memberships.store');
     Route::delete('/memberships/{membership}', [MembershipController::class, 'destroy'])->name('memberships.destroy');
 
     // Gestión de Usuarios (Administración avanzada)

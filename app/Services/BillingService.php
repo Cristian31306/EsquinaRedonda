@@ -87,7 +87,7 @@ class BillingService
                     ->first();
 
                 if (!$activeShift) {
-                    throw new \Exception('No hay un turno de caja abierto para este usuario.');
+                    throw new \Exception('Debe abrir caja antes de realizar esta operación de cobro.');
                 }
 
                 Payment::create([

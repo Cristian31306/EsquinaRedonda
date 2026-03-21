@@ -63,6 +63,12 @@ class MembershipController extends Controller
             ->where('status', 'open')
             ->first();
 
+        // El middleware shift_open garantiza que hay un turno activo, 
+        // pero por seguridad validamos aquí también si hay un monto a cobrar.
+        if (!$activeShift && $request->amount_paid > 0) {
+            return back()->withErrors(['error' => 'No hay un turno de caja abierto para registrar el pago.']);
+        }
+
         return DB::transaction(function () use ($request, $vehicle, $activeShift, $plate) {
             // Crear la membresía
             $membership = Membership::create([
@@ -72,12 +78,12 @@ class MembershipController extends Controller
                 'start_date'   => $request->start_date,
                 'end_date'     => $request->end_date,
                 'amount_paid'  => $request->amount_paid,
-                'cash_shift_id' => $activeShift?->id,
+                'cash_shift_id' => $activeShift->id,
                 'notes'        => $request->notes,
             ]);
 
-            // Registrar el pago en la caja si hay un turno abierto y hay monto
-            if ($activeShift && $request->amount_paid > 0) {
+            // Registrar el pago en la caja si hay monto
+            if ($request->amount_paid > 0) {
                 // Crear un ticket "membership" para ligar el pago
                 $ticket = Ticket::create([
                     'vehicle_id' => $vehicle->id,
