@@ -170,10 +170,6 @@ const isActive = (endDate) => {
                     <div class="p-10">
                         <h3 class="text-xl font-black text-slate-900 uppercase tracking-tight mb-1">Nueva Mensualidad</h3>
                         <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-8">Registrar acceso mensual y cobrar a caja</p>
-                        
-                        <div v-if="form.errors.error" class="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-2xl">
-                            <p class="text-[10px] font-black text-rose-600 uppercase tracking-wider text-center">{{ form.errors.error }}</p>
-                        </div>
 
                         <form @submit.prevent="submit" class="space-y-5">
                             <div class="grid grid-cols-2 gap-4">

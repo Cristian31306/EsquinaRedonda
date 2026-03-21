@@ -27,7 +27,7 @@ class EnsureCashShiftIsOpen
                 return response()->json(['error' => $message], 403);
             }
 
-            return back()->withErrors(['error' => $message]);
+            return back()->with('error', $message);
         }
 
         return $next($request);

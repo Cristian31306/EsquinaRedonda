@@ -66,7 +66,7 @@ class MembershipController extends Controller
         // El middleware shift_open garantiza que hay un turno activo, 
         // pero por seguridad validamos aquí también si hay un monto a cobrar.
         if (!$activeShift && $request->amount_paid > 0) {
-            return back()->withErrors(['error' => 'No hay un turno de caja abierto para registrar el pago.']);
+            return back()->with('error', 'No hay un turno de caja abierto para registrar el pago.');
         }
 
         return DB::transaction(function () use ($request, $vehicle, $activeShift, $plate) {

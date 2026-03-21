@@ -145,7 +145,7 @@ class TicketController extends Controller
             \App\Services\TelegramQueueService::processPending();
             return redirect()->route('tickets.exit')->with('success', 'Pago procesado y ticket cerrado.');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => $e->getMessage()]);
+            return back()->with('error', $e->getMessage());
         }
     }
 }
