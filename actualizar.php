@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Script de Automatización de Despliegue para Esquina Redonda
+ * Script de Automatización de Despliegue para ParkiApp
  * Uso: php actualizar.php
  */
 
@@ -11,7 +11,7 @@ function ejecutar($comando) {
 }
 
 echo "\n\033[34m====================================================\033[0m\n";
-echo "\033[34m    INICIANDO ACTUALIZACIÓN - ESQUINA REDONDA       \033[0m\n";
+echo "\033[34m    INICIANDO ACTUALIZACIÓN - PARKIAPP              \033[0m\n";
 echo "\033[34m====================================================\033[0m\n";
 
 // 1. Mantenimiento

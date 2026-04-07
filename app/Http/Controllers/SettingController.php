@@ -22,6 +22,7 @@ class SettingController extends Controller
         $data = $request->validate([
             'telegram_bot_token' => 'nullable|string',
             'telegram_chat_ids' => 'nullable|string',
+            'backup_time' => 'nullable|string',
         ]);
 
         foreach ($data as $key => $value) {
@@ -29,5 +30,10 @@ class SettingController extends Controller
         }
 
         return back()->with('success', 'Configuración actualizada correctamente.');
+    }
+    public function backupNow()
+    {
+        \App\Jobs\BackupToTelegram::dispatch();
+        return back()->with('success', 'Copia de seguridad encolada correctamente. Recibirás el archivo en Telegram en un momento.');
     }
 }

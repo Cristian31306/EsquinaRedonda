@@ -144,7 +144,7 @@ const formatCurrency = (val) => {
             
             <!-- Título especializado para Impresión -->
             <div class="hidden print-only">
-                <h1 class="text-2xl font-black uppercase text-center mb-2">Esquina Redonda - Reporte Mensual</h1>
+                <h1 class="text-2xl font-black uppercase text-center mb-2">ParkiApp - Reporte Mensual</h1>
                 <p class="text-center font-bold uppercase text-xs mb-8">{{ months[selectedMonth-1] }} {{ selectedYear }}</p>
             </div>
         </template>
@@ -220,7 +220,7 @@ const formatCurrency = (val) => {
             
             <!-- Aviso de Footer para Impresión -->
             <div class="hidden print-only mt-20 text-center border-t pt-10">
-                <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Esquina Redonda - Sistema de Gestión de Parqueaderos</p>
+                <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">ParkiApp - Sistema de Gestión de Parqueaderos</p>
                 <p class="text-[8px] font-bold text-slate-400 mt-2 italic">Reporte generado el {{ new Date().toLocaleString() }}</p>
             </div>
         </div>

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Script de limpieza de base de datos para Esquina Redonda
+ * Script de limpieza de base de datos para ParkiApp
  * Uso: php limpiarbd.php
  */
 
@@ -14,7 +14,7 @@ use Illuminate\Contracts\Console\Kernel;
 $kernel = $app->make(Kernel::class);
 $kernel->bootstrap(); // <--- IMPORTANTE para que las Facades funcionen
 
-echo "\n--- LIMPIEZA DE BASE DE DATOS (ESQUINA REDONDA) ---\n";
+echo "\n--- LIMPIEZA DE BASE DE DATOS (PARKIAPP) ---\n";
 echo "Esta accion borrara TICKETS, PAGOS, MENSUALIDADES y TURNOS.\n";
 echo "Se conservaran USUARIOS, TARIFAS y CONFIGURACION.\n\n";
 echo "Escribe 'SI' para continuar: ";

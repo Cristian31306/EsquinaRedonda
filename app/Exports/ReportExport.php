@@ -63,7 +63,7 @@ class ReportExport implements WithEvents, ShouldAutoSize
                 }
 
                 // Título en el encabezado
-                $sheet->getCell('C1')->setValue('ESQUINA REDONDA');
+                $sheet->getCell('C1')->setValue('PARKIAPP');
                 $sheet->getCell('C2')->setValue('Reporte de Ingresos — ' . $this->months[$this->month - 1] . ' ' . $this->year);
                 $sheet->getCell('C3')->setValue('Generado: ' . now()->format('Y-m-d H:i'));
 
@@ -227,7 +227,7 @@ class ReportExport implements WithEvents, ShouldAutoSize
                 // ========================================
                 $msRow += 2;
                 $sheet->mergeCells("A{$msRow}:G{$msRow}");
-                $sheet->getCell("A{$msRow}")->setValue('Esquina Redonda — Sistema de Gestión de Parqueaderos — ' . $this->months[$this->month - 1] . ' ' . $this->year);
+                $sheet->getCell("A{$msRow}")->setValue('ParkiApp — Sistema de Gestión de Parqueaderos — ' . $this->months[$this->month - 1] . ' ' . $this->year);
                 $sheet->getStyle("A{$msRow}")->applyFromArray([
                     'font' => ['italic' => true, 'size' => 8, 'color' => ['rgb' => '94a3b8']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],

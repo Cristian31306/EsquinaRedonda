@@ -168,9 +168,9 @@
 
     <!-- CABECERA -->
     <div class="header">
-        <img src="{{ public_path('LogoGrande.png') }}" alt="Logo Esquina Redonda">
+        <img src="{{ public_path('LogoGrande.png') }}" alt="Logo ParkiApp">
         <div class="header-text">
-            <h1>Esquina Redonda</h1>
+            <h1>ParkiApp</h1>
             <p>Sistema de Gestión de Parqueaderos</p>
         </div>
         <div class="report-meta">
@@ -267,7 +267,7 @@
 
     <!-- PIE DE PÁGINA -->
     <div class="footer">
-        Esquina Redonda &mdash; Sistema de Gestión de Parqueaderos &mdash; Reporte {{ $months[$month-1] }} {{ $year }}
+        ParkiApp &mdash; Sistema de Gestión de Parqueaderos &mdash; Reporte {{ $months[$month-1] }} {{ $year }}
     </div>
 </body>
 </html>

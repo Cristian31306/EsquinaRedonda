@@ -19,7 +19,7 @@ const formatTime = (date) => {
 <template>
     <div v-if="shift" class="print-summary p-8 bg-white text-black font-mono text-[10px] w-[80mm] mx-auto border border-dashed border-slate-300">
         <div class="text-center mb-6">
-            <h1 class="text-lg font-black uppercase tracking-tighter">Esquina Redonda</h1>
+            <h1 class="text-lg font-black uppercase tracking-tighter">ParkiApp</h1>
             <p class="uppercase text-[8px] font-bold tracking-widest">Resumen de Cierre de Caja</p>
         </div>
 

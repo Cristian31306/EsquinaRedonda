@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 :: Colores simples (simulados con echo)
 echo ====================================================
-echo    CONFIGURACION DE ENTORNO - ESQUINA REDONDA
+echo    CONFIGURACION DE ENTORNO - PARKIAPP
 echo ====================================================
 
 :: 1. Verificar si PHP existe

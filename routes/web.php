@@ -59,6 +59,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Configuración General
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+    Route::post('/settings/backup-now', [SettingController::class, 'backupNow'])->name('settings.backup-now');
 
     // Perfil de Usuario
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -85,9 +85,12 @@ class BackupToTelegram implements ShouldQueue
             // If it failed because of API rate limits or similar, throw so it retries
             // Http::post doesn't throw by default unless there is a connection timeout.
             // But we should throw on 5xx or specific 4xx (like rate limited) to retry
-            if (!$response->successful() && $response->serverError()) {
+            if (!$response->successful()) {
+                Log::error("Telegram API error (Chat ID: {$chatId}): " . $response->body());
                 $response->throw();
             }
         }
+
+        Log::info('Respaldo enviado exitosamente a Telegram.');
     }
 }

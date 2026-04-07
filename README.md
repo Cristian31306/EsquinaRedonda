@@ -1,4 +1,4 @@
-# 🅿️ Esquina Redonda · Sistema de Parqueadero
+# 🅿️ ParkiApp · Sistema de Parqueadero
 
 Sistema de gestión de parqueadero desarrollado en **Laravel 11 + Vue.js 3 + Inertia.js + SQLite**.
 
@@ -32,15 +32,15 @@ winget install Laragon.Laragon OpenJS.NodeJS.LTS
 ### 1. Clonar el proyecto
 
 > [!TIP]
-> **Recomendación:** Se sugiere instalar el proyecto en `C:\laragon\www\EsquinaRedonda` para una mejor integración con Laragon.
+> **Recomendación:** Se sugiere instalar el proyecto en `C:\laragon\www\ParkiApp` para una mejor integración con Laragon.
 
 ```bash
 # Navegar a la carpeta www de Laragon (ejemplo)
 cd C:\laragon\www
 
 # Clonar el proyecto
-git clone https://github.com/Cristian31306/EsquinaRedonda.git
-cd EsquinaRedonda
+git clone https://github.com/Cristian31306/ParkiApp.git
+cd ParkiApp
 ```
 
 ### 2. Instalación rápida (Script Automático)
@@ -68,7 +68,7 @@ cp .env.example .env
 Abrir el archivo `.env` y asegúrate de que la conexión sea `sqlite`:
 
 ```env
-APP_NAME="Esquina Redonda"
+APP_NAME="ParkiApp"
 APP_URL=http://localhost
 
 DB_CONNECTION=sqlite
@@ -169,7 +169,7 @@ php actualizar.php
 ## 📁 Estructura Resumida
 
 ```
-EsquinaRedonda/
+ParkiApp/
 ├── app/
 │   ├── Http/Controllers/     # Controladores (Tickets, Caja, Membresías...)
 │   ├── Models/               # Modelos (Vehicle, Ticket, Payment, Membership...)
@@ -210,7 +210,7 @@ Para que el sistema esté siempre activo y se inicie automáticamente en segundo
 ### 1. Requisitos para el PC Servidor
 - **PHP** (v8.2+) y **Composer** instalados.
 - **Node.js** (v18+) instalado.
-- El proyecto debe estar en una carpeta permanente (ej. `C:\EsquinaRedonda`).
+- El proyecto debe estar en una carpeta permanente (ej. `C:\ParkiApp`).
 - **NSSM**: Ya incluido en la carpeta `nssm_bin` del proyecto.
 
 ### 2. Instalación de Servicios
@@ -264,4 +264,4 @@ php actualizar.php
 
 ---
 
-&copy; 2026 Esquina Redonda SyS - Sistema Profesional de Gestión de Parqueaderos.
+&copy; 2026 ParkiApp SyS - Sistema Profesional de Gestión de Parqueaderos.

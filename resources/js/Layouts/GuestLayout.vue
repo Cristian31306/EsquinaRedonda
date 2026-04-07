@@ -14,7 +14,7 @@ import { Link } from '@inertiajs/vue3';
                         d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
                 </svg>
             </div>
-            <h1 class="text-2xl font-black text-slate-900 uppercase tracking-tighter">Esquina Redonda</h1>
+            <h1 class="text-2xl font-black text-slate-900 uppercase tracking-tighter">ParkiApp</h1>
             <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.4em] mt-1">Gestión de Parqueadero</p>
         </div>
 
@@ -24,6 +24,6 @@ import { Link } from '@inertiajs/vue3';
         </div>
 
         <p class="mt-8 text-[9px] font-bold text-slate-400 uppercase tracking-widest">&copy; {{ new Date().getFullYear()
-            }} Esquina Redonda</p>
+            }} ParkiApp</p>
     </div>
 </template>
