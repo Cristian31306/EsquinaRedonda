@@ -199,6 +199,9 @@ ParkiApp/
 **El ticket no imprime**
 → Verifica que la impresora esté como predeterminada y que el navegador tenga permisos de impresión.
 
+**El backup no llega a Telegram**
+→ Asegúrate de que el servicio **ParkiAppQueue** esté instalado y en estado 'Started'. Puedes revisar su estado con comando en la sección de mantenimiento.
+
 ---
 
 ---
@@ -219,17 +222,17 @@ Abre una terminal (**PowerShell** o **CMD**) como **Administrador** y ejecuta lo
 #### A. Servicio del Servidor (Interfaz Web)
 Este servicio mantiene activo el motor de Laravel en el puerto 8000.
 ```powershell
-.\nssm_bin\nssm.exe install EsquinaRedondaServer (Get-Command php).Source "artisan serve --host=0.0.0.0 --port=8000"
-.\nssm_bin\nssm.exe set EsquinaRedondaServer AppDirectory (Get-Location).Path
-.\nssm_bin\nssm.exe start EsquinaRedondaServer
+.\nssm_bin\nssm.exe install ParkiAppServer (Get-Command php).Source "artisan serve --host=0.0.0.0 --port=8000"
+.\nssm_bin\nssm.exe set ParkiAppServer AppDirectory (Get-Location).Path
+.\nssm_bin\nssm.exe start ParkiAppServer
 ```
 
 #### B. Servicio de Procesamiento (Colas y Telegram)
-Este servicio es necesario para enviar notificaciones de Telegram y procesar tareas en segundo plano.
+Este servicio es **obligatorio** para que los respaldos lleguen a Telegram y se procesen tareas en segundo plano.
 ```powershell
-.\nssm_bin\nssm.exe install EsquinaRedondaQueue (Get-Command php).Source "artisan queue:work"
-.\nssm_bin\nssm.exe set EsquinaRedondaQueue AppDirectory (Get-Location).Path
-.\nssm_bin\nssm.exe start EsquinaRedondaQueue
+.\nssm_bin\nssm.exe install ParkiAppQueue (Get-Command php).Source "artisan queue:work"
+.\nssm_bin\nssm.exe set ParkiAppQueue AppDirectory (Get-Location).Path
+.\nssm_bin\nssm.exe start ParkiAppQueue
 ```
 
 ### 3. Apertura Automática del Navegador
@@ -248,9 +251,9 @@ Una vez instalado el servicio, cualquier dispositivo en la misma red WiFi puede 
 
 ## 🛠️ Comandos de Mantenimiento
 Si necesitas detener o reiniciar los servicios:
-- **Estado:** `.\nssm_bin\nssm.exe status EsquinaRedondaServer`
-- **Reiniciar:** `.\nssm_bin\nssm.exe restart EsquinaRedondaServer`
-- **Eliminar:** `.\nssm_bin\nssm.exe remove EsquinaRedondaServer confirm`
+- **Estado:** `.\nssm_bin\nssm.exe status ParkiAppServer`
+- **Reiniciar:** `.\nssm_bin\nssm.exe restart ParkiAppServer`
+- **Eliminar:** `.\nssm_bin\nssm.exe remove ParkiAppServer confirm`
 
 ---
 
@@ -258,8 +261,8 @@ Para actualizar el sistema con los últimos cambios:
 ```bash
 php actualizar.php
 # Luego reinicia los servicios:
-.\nssm_bin\nssm.exe restart EsquinaRedondaServer
-.\nssm_bin\nssm.exe restart EsquinaRedondaQueue
+.\nssm_bin\nssm.exe restart ParkiAppServer
+.\nssm_bin\nssm.exe restart ParkiAppQueue
 ```
 
 ---
