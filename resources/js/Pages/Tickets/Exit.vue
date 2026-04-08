@@ -128,6 +128,7 @@ watch(plateSearch, (val) => {
 
                     <div class="flex-[2] relative w-full group">
                         <input ref="searchInput" v-model="plateSearch" @input="plateSearch = plateSearch.toUpperCase()"
+                            @keydown.enter="searchTicket"
                             type="text"
                             class="w-full text-center lg:text-left text-9xl font-black bg-transparent border-none text-indigo-950 focus:ring-0 placeholder:text-slate-100 uppercase tracking-tighter"
                             placeholder="PLACA" />

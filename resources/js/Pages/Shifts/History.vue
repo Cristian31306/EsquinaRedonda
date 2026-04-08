@@ -70,15 +70,15 @@ const reprint = (shift) => {
                                 <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
                                 <p class="text-[8px] font-black uppercase tracking-widest text-indigo-400">Turno en Curso</p>
                             </div>
-                            <h3 class="text-lg font-black tracking-tight uppercase">{{ activeShift.user.name }}</h3>
-                            <p class="text-[9px] font-bold text-indigo-200 mt-0.5 opacity-60">Iniciado: {{ new Date(activeShift.start_time).toLocaleString() }}</p>
+                            <h3 class="text-lg font-black tracking-tight uppercase">{{ activeShift.user?.name || 'Usuario no identificado' }}</h3>
+                            <p class="text-[9px] font-bold text-indigo-200 mt-0.5 opacity-60">Iniciado: {{ activeShift.start_time ? new Date(activeShift.start_time).toLocaleString() : 'N/A' }}</p>
                         </div>
                     </div>
                     
                     <div class="flex items-center gap-4">
                         <div class="text-right">
                             <p class="text-[8px] font-black uppercase text-indigo-400 mb-1">Ventas Actuales</p>
-                            <p class="text-xl font-black tracking-tighter">${{ new Intl.NumberFormat().format(activeShift.payments.reduce((acc, p) => acc + parseFloat(p.amount), 0)) }}</p>
+                            <p class="text-xl font-black tracking-tighter">${{ new Intl.NumberFormat().format((activeShift.payments || []).reduce((acc, p) => acc + parseFloat(p.amount), 0)) }}</p>
                         </div>
                         <button 
                             @click="openCloseAdmin(activeShift)"
@@ -124,9 +124,9 @@ const reprint = (shift) => {
                                 <td class="px-8 py-4">
                                     <div class="flex items-center gap-2">
                                         <div class="w-6 h-6 bg-slate-100 rounded-lg flex items-center justify-center text-[10px] font-black text-slate-400 group-hover:bg-indigo-950 group-hover:text-white transition-all">
-                                            {{ shift.user?.name?.substring(0,2).toUpperCase() }}
+                                            {{ shift.user?.name?.substring(0,2).toUpperCase() || 'S/R' }}
                                         </div>
-                                        <span class="text-[10px] font-black text-slate-900 uppercase tracking-tight">{{ shift.user?.name }}</span>
+                                        <span class="text-[10px] font-black text-slate-900 uppercase tracking-tight">{{ shift.user?.name || 'Sistema / Eliminado' }}</span>
                                     </div>
                                 </td>
                                 <td class="px-8 py-4 text-right">

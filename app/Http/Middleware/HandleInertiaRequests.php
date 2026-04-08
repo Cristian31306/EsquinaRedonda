@@ -32,7 +32,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ? $request->user()->load('tenant') : null,
             ],
             'flash' => [
                 'success' => session('success'),
@@ -40,6 +40,7 @@ class HandleInertiaRequests extends Middleware
                 'print_ticket' => session('print_ticket'),
                 'printShift' => session('printShift'),
             ],
+            'settings' => auth()->check() ? \App\Models\Setting::getAllCached() : collect(),
         ];
     }
 }

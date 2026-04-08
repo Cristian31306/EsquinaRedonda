@@ -8,11 +8,13 @@ use App\Models\Vehicle;
 use App\Models\User;
 use App\Models\Payment;
 
+use App\Traits\BelongsToTenant;
+
 class Ticket extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
-    protected $fillable = ['vehicle_id', 'entry_time', 'exit_time', 'status', 'user_id', 'stay_type'];
+    protected $fillable = ['vehicle_id', 'entry_time', 'exit_time', 'status', 'user_id', 'stay_type', 'tenant_id'];
 
     protected $casts = [
         'entry_time' => 'datetime',

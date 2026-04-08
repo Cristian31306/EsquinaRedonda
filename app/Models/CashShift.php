@@ -7,13 +7,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\User;
 use App\Models\Payment;
 
+use App\Traits\BelongsToTenant;
+
 class CashShift extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
     protected $fillable = ['user_id', 'start_time', 'end_time', 'opening_cash', 'closing_cash_declared', 'status'];
-
-    protected $appends = ['total_collected', 'total_cash', 'total_transfer'];
 
     protected $casts = [
         'start_time' => 'datetime',

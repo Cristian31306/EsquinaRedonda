@@ -14,15 +14,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+            \App\Http\Middleware\CheckTenantStatus::class,
         ]);
 
         $middleware->alias([
             'shift_open' => \App\Http\Middleware\EnsureCashShiftIsOpen::class,
         ]);
-    })
-    ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule) {
-        $backupTime = \App\Models\Setting::where('key', 'backup_time')->value('value') ?: '23:00';
-        $schedule->command('app:scheduled-backup')->dailyAt($backupTime);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -19,9 +19,18 @@ Route::get('/', function () {
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
     ]);
-});
+})->name('welcome');
 
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+
+// Páginas Legales (Cumplimiento Colombia)
+Route::get('/politica-privacidad', function () {
+    return Inertia::render('Legal/PrivacyPolicy');
+})->name('legal.privacy');
+
+Route::get('/terminos-condiciones', function () {
+    return Inertia::render('Legal/Terms');
+})->name('legal.terms');
 
 // Rutas Autenticadas
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -65,7 +74,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Configuración General
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
-    Route::post('/settings/backup-now', [SettingController::class, 'backupNow'])->name('settings.backup-now');
 
     // Perfil de Usuario
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -75,6 +83,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/export-excel', [App\Http\Controllers\ReportController::class, 'exportExcel'])->name('reports.excel');
     Route::get('/reports/export-pdf', [App\Http\Controllers\ReportController::class, 'exportPdf'])->name('reports.pdf');
+
+    // Portal Super Admin (Algorah Control)
+    Route::middleware([\App\Http\Middleware\EnsureUserIsSuperAdmin::class])->group(function () {
+        Route::get('/system-admin', [\App\Http\Controllers\SuperAdminController::class, 'index'])->name('admin.tenants.index');
+        Route::post('/system-admin/tenants', [\App\Http\Controllers\SuperAdminController::class, 'storeTenant'])->name('admin.tenants.store');
+        Route::patch('/system-admin/tenants/{tenant}', [\App\Http\Controllers\SuperAdminController::class, 'updateTenant'])->name('admin.tenants.update');
+        Route::patch('/system-admin/tenants/{tenant}/toggle', [\App\Http\Controllers\SuperAdminController::class, 'toggleStatus'])->name('admin.tenants.toggle');
+        
+        // Gestión de Usuarios por Empresa
+        Route::get('/system-admin/tenants/{tenant}/users', [\App\Http\Controllers\SuperAdminController::class, 'manageUsers'])->name('admin.tenants.users');
+        Route::post('/system-admin/tenants/{tenant}/users', [\App\Http\Controllers\SuperAdminController::class, 'addUser'])->name('admin.tenants.users.store');
+        Route::post('/system-admin/users/{user}/reset-password', [\App\Http\Controllers\SuperAdminController::class, 'resetUserPassword'])->name('admin.users.reset-password');
+        Route::delete('/system-admin/users/{user}', [\App\Http\Controllers\SuperAdminController::class, 'deleteUser'])->name('admin.users.delete');
+    });
 });
 
 require __DIR__.'/auth.php';

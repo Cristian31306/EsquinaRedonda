@@ -5,11 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\BelongsToTenant;
+
 class Vehicle extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
-    protected $fillable = ['plate', 'type', 'observation'];
+    protected $fillable = ['plate', 'type', 'observation', 'tenant_id'];
 
     /**
      * Set the vehicle's plate to uppercase.

@@ -69,13 +69,11 @@ class TicketController extends Controller
             'user_id'    => auth()->id(),
         ]);
 
-        \App\Services\TelegramQueueService::processPending();
-
         return redirect()->route('tickets.entry')->with([
             'success'      => 'Vehículo registrado correctamente.',
             'print_ticket' => $ticket->load('vehicle', 'user'),
             'membership_info' => $activeMembership ? [
-                'end_date' => $activeMembership->end_date->toDateString(),
+                'end_date' => $activeMembership->end_date instanceof \Carbon\Carbon ? $activeMembership->end_date->format('Y-m-d') : (string) $activeMembership->end_date,
                 'days_left' => (int) Carbon::now()->diffInDays($activeMembership->end_date, false),
             ] : null,
         ]);
@@ -90,12 +88,20 @@ class TicketController extends Controller
     {
         $plate = $request->query('plate');
 
-        $tickets = Ticket::with('vehicle')
-            ->whereHas('vehicle', function($q) use ($plate) {
+        $query = Ticket::with('vehicle')->where('status', 'active');
+
+        // Búsqueda por QR (ID de Ticket)
+        if (str_starts_with($plate, 'TKT-')) {
+            $ticketId = str_replace('TKT-', '', $plate);
+            $query->where('id', $ticketId);
+        } else {
+            // Búsqueda tradicional por placa
+            $query->whereHas('vehicle', function($q) use ($plate) {
                 $q->where('plate', 'like', "%{$plate}%");
-            })
-            ->where('status', 'active')
-            ->get();
+            });
+        }
+
+        $tickets = $query->get();
 
         $tickets->each(function($ticket) {
             $ticket->total = $this->billingService->calculateCurrentTotal($ticket);
@@ -115,7 +121,7 @@ class TicketController extends Controller
                 ->first();
             
             $ticket->membership_info = $activeMembership ? [
-                'end_date' => $activeMembership->end_date->toDateString(),
+                'end_date' => $activeMembership->end_date instanceof \Carbon\Carbon ? $activeMembership->end_date->format('Y-m-d') : (string) $activeMembership->end_date,
                 'days_left' => (int) Carbon::now()->diffInDays($activeMembership->end_date, false),
             ] : null;
 
@@ -142,7 +148,6 @@ class TicketController extends Controller
 
         try {
             $this->billingService->processPayment($ticket, $request->amount, $request->method ?? 'efectivo');
-            \App\Services\TelegramQueueService::processPending();
             return redirect()->route('tickets.exit')->with('success', 'Pago procesado y ticket cerrado.');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());

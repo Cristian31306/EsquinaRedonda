@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
@@ -33,20 +34,41 @@ class UserController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|max:255|unique:' . User::class,
+            'email' => 'required|string|max:255',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => 'required|in:admin,usuario',
         ]);
 
+        $email = $request->email;
+        $tenant = auth()->user()->tenant;
+
+        if (!str_contains($email, '@') && $tenant) {
+            $domain = str_replace('-', '', $tenant->slug);
+            $email .= '@' . $domain . '.com';
+        }
+
+        // Restricción de Plan Básico: Máximo 3 usuarios
+        if ($tenant->plan === 'basico') {
+            $userCount = User::withoutGlobalScopes()->where('tenant_id', $tenant->id)->count();
+            if ($userCount >= 3) {
+                return back()->with('error', 'Tu Plan Básico está limitado a 3 usuarios. Contacta al soporte para subir a Plan Pro.');
+            }
+        }
+
+        if (User::withoutGlobalScopes()->where('email', $email)->exists()) {
+            return back()->with('error', 'El correo ' . $email . ' ya existe.');
+        }
+
         User::create([
             'name' => $request->name,
-            'email' => $request->email,
+            'email' => $email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
+            'tenant_id' => $tenant->id,
             'is_active' => true,
         ]);
 
-        return redirect()->route('users.index')->with('success', 'Usuario creado correctamente.');
+        return redirect()->route('users.index')->with('success', "Usuario creado como {$email}");
     }
 
     public function update(Request $request, User $user): RedirectResponse

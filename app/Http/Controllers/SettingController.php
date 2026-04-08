@@ -10,7 +10,7 @@ class SettingController extends Controller
 {
     public function index()
     {
-        $settings = Setting::all()->pluck('value', 'key');
+        $settings = Setting::getAllCached();
         
         return Inertia::render('Settings/Index', [
             'settings' => $settings
@@ -20,9 +20,13 @@ class SettingController extends Controller
     public function update(Request $request)
     {
         $data = $request->validate([
-            'telegram_bot_token' => 'nullable|string',
-            'telegram_chat_ids' => 'nullable|string',
-            'backup_time' => 'nullable|string',
+            'business_name' => 'nullable|string|max:255',
+            'business_nit' => 'nullable|string|max:50',
+            'business_address' => 'nullable|string|max:255',
+            'business_phone' => 'nullable|string|max:50',
+            'is_iva_responsible' => 'nullable|string|max:10',
+            'business_schedule' => 'nullable|string|max:255',
+            'ticket_footer' => 'nullable|string|max:500',
         ]);
 
         foreach ($data as $key => $value) {
@@ -30,10 +34,5 @@ class SettingController extends Controller
         }
 
         return back()->with('success', 'Configuración actualizada correctamente.');
-    }
-    public function backupNow()
-    {
-        \App\Jobs\BackupToTelegram::dispatch();
-        return back()->with('success', 'Copia de seguridad encolada correctamente. Recibirás el archivo en Telegram en un momento.');
     }
 }

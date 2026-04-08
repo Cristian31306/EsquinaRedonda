@@ -169,7 +169,10 @@ const getRoleLabel = (role) => {
                             </div>
                             <div class="space-y-1">
                                 <label class="inline-block text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Email / Usuario</label>
-                                <input v-model="form.email" type="text" class="w-full bg-slate-50 border-0 rounded-2xl px-5 py-4 text-sm font-black text-slate-900 focus:ring-2 focus:ring-indigo-500/20" required />
+                                <input v-model="form.email" type="text" class="w-full bg-slate-50 border-0 rounded-2xl px-5 py-4 text-sm font-black text-slate-900 focus:ring-2 focus:ring-indigo-500/20" required placeholder="usuario" />
+                                <p class="px-2 text-[8px] font-bold text-indigo-400 uppercase tracking-widest leading-loose mt-1">
+                                    Tip: Solo escribe el nombre (ej: juan). Se guardará como juan@{{ ($page.props.auth.user.tenant?.slug || 'empresa').replace(/-/g, '') }}.com
+                                </p>
                             </div>
                         </div>
 

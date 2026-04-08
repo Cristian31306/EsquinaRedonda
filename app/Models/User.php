@@ -7,26 +7,29 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+use App\Traits\BelongsToTenant;
+
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    use HasFactory, Notifiable, BelongsToTenant;
+    
     protected $fillable = [
         'name',
         'email',
         'password',
         'role',
         'is_active',
+        'tenant_id',
     ];
 
     public function isAdmin()
     {
-        return $this->role === 'admin';
+        return $this->role === 'admin' || $this->role === 'super_admin';
+    }
+
+    public function isSuperAdmin()
+    {
+        return $this->role === 'super_admin';
     }
 
     /**

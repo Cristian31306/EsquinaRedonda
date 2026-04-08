@@ -6,14 +6,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
+use App\Traits\BelongsToTenant;
+
 class Membership extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
     protected $fillable = [
         'vehicle_id', 'plate', 'vehicle_type',
         'start_date', 'end_date', 'amount_paid',
         'cash_shift_id', 'notes',
+        'tenant_id',
     ];
 
     protected $casts = [

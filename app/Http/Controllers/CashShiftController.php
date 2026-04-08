@@ -7,7 +7,6 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Inertia\Inertia;
-use App\Jobs\BackupToTelegram;
 
 class CashShiftController extends Controller
 {
@@ -22,13 +21,15 @@ class CashShiftController extends Controller
     {
         // Traer turnos cerrados con paginación
         $shifts = CashShift::where('status', 'closed')
-            ->with(['user', 'payments.ticket.vehicle'])
+            ->with(['user'])
+            ->withSum('payments as total_collected', 'amount')
             ->orderBy('end_time', 'desc')
             ->paginate(15);
 
         // Traer el turno abierto actualmente (si existe) para el Admin
         $activeShift = CashShift::where('status', 'open')
-            ->with(['user', 'payments.ticket.vehicle'])
+            ->with(['user'])
+            ->withSum('payments as total_collected', 'amount')
             ->first();
 
         return Inertia::render('Shifts/History', [
@@ -54,7 +55,6 @@ class CashShiftController extends Controller
             'status' => 'open',
         ]);
 
-        \App\Services\TelegramQueueService::processPending();
 
         return back()->with('success', 'Turno abierto correctamente.');
     }
@@ -84,13 +84,8 @@ class CashShiftController extends Controller
             'status' => 'closed',
         ]);
 
-        // Dispatch Telegram Backup & Summary Report
-        BackupToTelegram::dispatch($shift->id);
-
         // Cargamos relaciones para el reporte
         $shift->load(['user', 'payments.ticket.vehicle']);
-
-        \App\Services\TelegramQueueService::processPending();
 
         return back()->with([
             'success' => 'Turno cerrado correctamente.',

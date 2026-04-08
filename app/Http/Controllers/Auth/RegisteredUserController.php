@@ -37,10 +37,19 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        $tenant = \App\Models\Tenant::create([
+            'name' => 'Parqueadero de ' . $request->name,
+            'slug' => \Illuminate\Support\Str::slug($request->name . '-' . uniqid()),
+            'status' => 'active',
+            'plan' => 'cloud',
+        ]);
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'admin',
+            'tenant_id' => $tenant->id,
         ]);
 
         event(new Registered($user));

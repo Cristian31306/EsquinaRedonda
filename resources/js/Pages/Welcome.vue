@@ -35,6 +35,7 @@ const form = useForm({
     email: '',
     phone: '',
     description: '',
+    accept_terms: false,
 });
 
 const submitContact = () => {
@@ -209,10 +210,8 @@ const submitContact = () => {
                                 <ShieldCheck class="w-6 h-6" />
                             </div>
                             <div>
-                                <h4 class="text-xl font-bold mb-2">Backup Inteligente (Telegram)</h4>
-                                <p class="text-slate-600">Reciba copias de seguridad automáticas en su celular. Sus
-                                    datos
-                                    siempre estarán a salvo.</p>
+                                <h4 class="text-xl font-bold mb-2">Base de Datos en la Nube</h4>
+                                <p class="text-slate-600">Tecnología MySQL hospedada en servidores de alto rendimiento. Sus datos siempre estarán a salvo contra robos físicos de equipos.</p>
                             </div>
                         </div>
                     </div>
@@ -249,96 +248,128 @@ const submitContact = () => {
         </section>
 
         <!-- Pricing Section -->
-        <section class="py-24 bg-white">
-            <div class="max-w-7xl mx-auto px-6">
+        <section class="py-24 bg-white overflow-hidden relative">
+            <div class="absolute top-0 right-0 w-72 h-72 bg-sky-50 rounded-full blur-3xl -mr-32 -mt-32"></div>
+            <div class="max-w-7xl mx-auto px-6 relative z-10">
                 <div class="text-center mb-20">
-                    <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 mb-6 text-center">Elija el Plan que mejor
-                        se adapte
-                    </h2>
-                    <p class="text-lg text-slate-500 text-center">Soluciones flexibles diseñadas por Algorah para cada
-                        necesidad.</p>
+                    <h2 class="text-4xl lg:text-5xl font-extrabold text-slate-900 mb-6 text-center">Inversión Inteligente para su Negocio</h2>
+                    <p class="text-lg text-slate-500 text-center max-w-2xl mx-auto">Soluciones escalables diseñadas por Algorah para cada nivel de operación. Sin costos ocultos.</p>
                 </div>
 
                 <div class="grid lg:grid-cols-2 gap-10 max-w-5xl mx-auto">
-                    <!-- WEB PLAN -->
-                    <div
-                        class="relative bg-slate-900 text-white rounded-[3rem] p-12 shadow-2xl border-4 border-sky-500 lg:scale-105 transition-transform">
-                        <div
-                            class="absolute -top-6 left-1/2 -translate-x-1/2 px-6 py-2 bg-sky-500 rounded-full font-bold text-sm tracking-widest text-slate-900 border-4 border-white">
-                            MÁS RECOMENDADO
-                        </div>
+                    <!-- PLAN BÁSICO -->
+                    <div class="bg-slate-50 rounded-[3.5rem] p-12 border border-slate-200 hover:shadow-2xl transition-all duration-500 group relative">
                         <div class="mb-10 text-left">
-                            <span
-                                class="text-sky-400 font-bold uppercase tracking-widest text-sm mb-4 block text-left">Plan
-                                Cloud (SaaS)</span>
-                            <h3 class="text-3xl font-bold mb-6 text-left">Control Total a Distancia</h3>
-                            <div class="flex items-baseline gap-2 mb-2 text-left">
-                                <span class="text-5xl font-black text-white">$480.000</span>
-                                <span class="text-slate-400">/ Anual</span>
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-400 group-hover:text-sky-600 transition-colors shadow-sm">
+                                    <Zap class="w-5 h-5" />
+                                </div>
+                                <span class="text-slate-500 font-black uppercase tracking-[0.3em] text-[10px]">Plan Básico</span>
                             </div>
-                            <p class="text-slate-400 text-sm italic text-left">Vea cuánto dinero hay en caja desde su
-                                celular.
-                            </p>
+                            <h3 class="text-3xl font-black mb-6 text-slate-900">Eficiencia Esencial</h3>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-baseline gap-2">
+                                    <span class="text-5xl font-black text-slate-900 tracking-tighter">$35.000</span>
+                                    <span class="text-slate-500 font-bold uppercase tracking-widest text-[10px]">/ Mensual</span>
+                                </div>
+                                <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-100">
+                                    Anual: $399.000 <span class="opacity-60 ml-1">(-5% Desc)</span>
+                                </div>
+                            </div>
+                            <p class="text-slate-500 text-sm mt-6 leading-relaxed">Perfecto para parqueaderos independientes que buscan control total con una inversión mínima.</p>
                         </div>
 
-                        <ul class="space-y-6 mb-12 text-left">
-                            <li class="flex items-start gap-4 text-left">
-                                <div
-                                    class="shrink-0 w-6 h-6 bg-sky-500/20 text-sky-400 rounded-lg flex items-center justify-center">
-                                    <Smartphone class="w-4 h-4" />
-                                </div>
-                                <div class="text-left">
-                                    <span class="font-bold">Dueño Ausente:</span> Monitoreo en tiempo real sin estar
-                                    presente.
-                                </div>
-                            </li>
-                            <li class="flex items-start gap-4 text-left">
-                                <div
-                                    class="shrink-0 w-6 h-6 bg-sky-500/20 text-sky-400 rounded-lg flex items-center justify-center">
-                                    <ShieldCheck class="w-4 h-4" />
-                                </div>
-                                <span class="text-left">Datos seguros en la nube contra robos físicos de PC.</span>
-                            </li>
-                            <li class="flex items-start gap-4 text-left">
-                                <div
-                                    class="shrink-0 w-6 h-6 bg-sky-500/20 text-sky-400 rounded-lg flex items-center justify-center">
-                                    <RefreshCw class="w-4 h-4" />
-                                </div>
-                                <span class="text-left"><b>Nuevas funciones permanentes</b> incluidas.</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- LOCAL PLAN -->
-                    <div class="bg-slate-50 rounded-[3rem] p-12 border border-slate-200">
-                        <div class="mb-10 text-left">
-                            <span
-                                class="text-slate-500 font-bold uppercase tracking-widest text-sm mb-4 block text-left">Instalación
-                                Local</span>
-                            <h3 class="text-3xl font-bold mb-6 text-slate-800 text-left">Licencia Vitalicia</h3>
-                            <div class="flex items-baseline gap-2 mb-2 text-left">
-                                <span class="text-5xl font-black text-slate-900">$500.000</span>
-                                <span class="text-slate-500">/ Pago Único</span>
-                            </div>
-                            <p class="text-slate-400 text-sm italic text-left">Cómprelo una vez y úselo para siempre.
-                            </p>
-                        </div>
-
-                        <ul class="space-y-6 mb-12 text-left">
-                            <li class="flex items-start gap-4 text-left">
-                                <div
-                                    class="shrink-0 w-6 h-6 bg-slate-200 text-slate-600 rounded-lg flex items-center justify-center">
+                        <ul class="space-y-6 mb-12">
+                            <li class="flex items-center gap-4">
+                                <div class="w-6 h-6 bg-white rounded-lg flex items-center justify-center text-sky-600 shadow-sm border border-slate-100">
                                     <Check class="w-4 h-4" />
                                 </div>
-                                <span class="text-left">Funciona perfectamente <b>sin internet</b>.</span>
+                                <span class="text-sm font-bold text-slate-700">Hasta <b>3 Usuarios</b> de sistema</span>
                             </li>
-                            <li class="flex items-start gap-4 text-left border-t pt-6">
-                                <div class="text-sm font-bold text-slate-700 leading-tight text-left">
-                                    Mantenimiento Anual: <span class="text-sky-600">$200.000</span><br>
-                                    Visita Técnica Física: <span class="text-sky-600">$60.000</span>
+                            <li class="flex items-center gap-4">
+                                <div class="w-6 h-6 bg-white rounded-lg flex items-center justify-center text-sky-600 shadow-sm border border-slate-100">
+                                    <Check class="w-4 h-4" />
                                 </div>
+                                <span class="text-sm font-bold text-slate-700">Control de entradas y salidas</span>
+                            </li>
+                            <li class="flex items-center gap-4">
+                                <div class="w-6 h-6 bg-white rounded-lg flex items-center justify-center text-sky-600 shadow-sm border border-slate-100">
+                                    <Check class="w-4 h-4" />
+                                </div>
+                                <span class="text-sm font-bold text-slate-700">Módulo de Auditoría y Caja</span>
                             </li>
                         </ul>
+                        
+                        <a href="https://wa.me/573213758945?text=Hola! Quiero empezar con el Plan Básico de ParkiApp" target="_blank" class="block w-full py-5 bg-white border-2 border-slate-200 text-slate-900 rounded-3xl font-black text-xs uppercase tracking-[0.2em] text-center hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all shadow-sm">
+                            Empezar Básico
+                        </a>
+                    </div>
+
+                    <!-- PLAN PRO -->
+                    <div class="bg-slate-900 rounded-[3.5rem] p-12 border-4 border-sky-500 shadow-2xl lg:scale-105 transition-transform duration-500 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-sky-500/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+                        
+                        <div class="absolute top-8 right-8">
+                            <span class="px-5 py-2 bg-sky-500 text-slate-950 rounded-full text-[9px] font-black uppercase tracking-[0.2em] shadow-lg">Más Potente</span>
+                        </div>
+
+                        <div class="mb-10 text-left relative z-10">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-sky-500/20 rounded-xl flex items-center justify-center text-sky-400 shadow-sm border border-sky-500/30">
+                                    <ShieldCheck class="w-5 h-5" />
+                                </div>
+                                <span class="text-sky-400 font-black uppercase tracking-[0.3em] text-[10px]">Plan Profesional</span>
+                            </div>
+                            <h3 class="text-3xl font-black mb-6 text-white">Dominio Total</h3>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-baseline gap-2">
+                                    <span class="text-5xl font-black text-white tracking-tighter">$50.000</span>
+                                    <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">/ Mensual</span>
+                                </div>
+                                <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-sky-500 text-slate-950 rounded-full text-[10px] font-black uppercase tracking-widest">
+                                    Anual: $570.000 <span class="opacity-70 ml-1">(-5% Desc)</span>
+                                </div>
+                            </div>
+                            <p class="text-slate-400 text-sm mt-6 leading-relaxed">Para negocios de alto tráfico que requieren usuarios ilimitados y soporte prioritario 24/7.</p>
+                        </div>
+
+                        <ul class="space-y-6 mb-12 relative z-10">
+                            <li class="flex items-center gap-4">
+                                <div class="w-6 h-6 bg-sky-500 text-slate-950 rounded-lg flex items-center justify-center shadow-lg">
+                                    <Check class="w-4 h-4" />
+                                </div>
+                                <span class="text-sm font-bold text-white">Usuarios <b>ILIMITADOS</b></span>
+                            </li>
+                            <li class="flex items-center gap-4">
+                                <div class="w-6 h-6 bg-sky-500/20 text-sky-400 rounded-lg flex items-center justify-center border border-sky-500/30">
+                                    <Check class="w-4 h-4" />
+                                </div>
+                                <span class="text-sm font-bold text-slate-200">Soporte Técnico de <b>Algorah</b></span>
+                            </li>
+                            <li class="flex items-center gap-4">
+                                <div class="w-6 h-6 bg-sky-500/20 text-sky-400 rounded-lg flex items-center justify-center border border-sky-500/30">
+                                    <Check class="w-4 h-4" />
+                                </div>
+                                <span class="text-sm font-bold text-slate-200">Personalización de Marca incluida</span>
+                            </li>
+                        </ul>
+                        
+                        <a href="https://wa.me/573213758945?text=Hola! Me interesa el Plan PRO de ParkiApp para mi negocio" target="_blank" class="relative z-10 block w-full py-5 bg-sky-500 hover:bg-sky-400 text-slate-950 rounded-3xl font-black text-xs uppercase tracking-[0.2em] text-center transition-all shadow-xl shadow-sky-500/20">
+                            Activar Plan PRO
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Trust Badge -->
+                <div class="mt-20 flex flex-col items-center gap-6">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Hospedado y Respaldado por</p>
+                    <div class="flex items-center gap-8 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                        <div class="flex items-center gap-2">
+                            <ShieldCheck class="w-5 h-5 text-indigo-600" />
+                            <span class="text-xl font-black tracking-tighter text-slate-800">Cifrado de Alta Seguridad</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -417,7 +448,22 @@ const submitContact = () => {
                                     class="w-full px-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:ring-4 focus:ring-sky-100 focus:border-sky-500 transition-all outline-none resize-none"
                                     required></textarea>
                             </div>
-                            <button :disabled="form.processing" type="submit"
+
+                            <!-- Habeas Data Checkbox -->
+                            <div class="flex items-start gap-3 px-2">
+                                <input 
+                                    v-model="form.accept_terms" 
+                                    type="checkbox" 
+                                    id="habeas_data" 
+                                    required
+                                    class="mt-1 w-5 h-5 rounded-lg border-slate-200 text-sky-600 focus:ring-sky-500 transition-all"
+                                >
+                                <label for="habeas_data" class="text-[11px] font-bold text-slate-500 leading-tight">
+                                    Acepto la <Link :href="route('legal.privacy')" class="text-sky-600 hover:underline">Política de Tratamiento de Datos</Link> y los <Link :href="route('legal.terms')" class="text-sky-600 hover:underline">Términos del Servicio</Link> (Habeas Data - Ley 1581 de 2012).
+                                </label>
+                            </div>
+
+                            <button :disabled="form.processing || !form.accept_terms" type="submit"
                                 class="w-full py-5 bg-sky-600 hover:bg-sky-700 text-white rounded-2xl font-bold text-lg shadow-xl shadow-sky-200 transition-all flex items-center justify-center gap-3">
                                 <span v-if="form.processing">Enviando...</span>
                                 <span v-else class="flex items-center gap-2">Enviar Mensaje
@@ -447,8 +493,14 @@ const submitContact = () => {
                     <div class="text-center md:text-right">
                         <div class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Creado con ❤️ por
                         </div>
-                        <div class="text-3xl font-black text-slate-900 tracking-tighter">Algorah<span
+                        <div class="text-3xl font-black text-slate-900 tracking-tighter mb-6">Algorah<span
                                 class="text-sky-600">.</span></div>
+                        
+                        <div class="flex flex-col md:flex-row items-center md:justify-end gap-6">
+                            <Link :href="route('legal.privacy')" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-sky-600 transition-colors">Privacidad</Link>
+                            <Link :href="route('legal.terms')" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-sky-600 transition-colors">Términos</Link>
+                            <a href="https://www.sic.gov.co" target="_blank" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-indigo-600 transition-colors">SuperIndustria (SIC)</a>
+                        </div>
                     </div>
                 </div>
 

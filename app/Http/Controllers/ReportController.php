@@ -97,8 +97,8 @@ class ReportController extends Controller
 
     private function getMonthlyIncome($year): array
     {
-        $payments    = Payment::selectRaw('strftime("%m", created_at) as month, SUM(amount) as total')->whereYear('created_at', $year)->groupBy('month')->pluck('total', 'month')->all();
-        $memberships = Membership::selectRaw('strftime("%m", created_at) as month, SUM(amount_paid) as total')->whereYear('created_at', $year)->groupBy('month')->pluck('total', 'month')->all();
+        $payments    = Payment::selectRaw('DATE_FORMAT(created_at, "%m") as month, SUM(amount) as total')->whereYear('created_at', $year)->groupBy('month')->pluck('total', 'month')->all();
+        $memberships = Membership::selectRaw('DATE_FORMAT(created_at, "%m") as month, SUM(amount_paid) as total')->whereYear('created_at', $year)->groupBy('month')->pluck('total', 'month')->all();
 
         $data = [];
         for ($i = 1; $i <= 12; $i++) {
@@ -110,8 +110,8 @@ class ReportController extends Controller
 
     private function getDailyIncome($year, $month): array
     {
-        $payments    = Payment::selectRaw('strftime("%d", created_at) as day, SUM(amount) as total')->whereYear('created_at', $year)->whereMonth('created_at', $month)->groupBy('day')->pluck('total', 'day')->all();
-        $memberships = Membership::selectRaw('strftime("%d", created_at) as day, SUM(amount_paid) as total')->whereYear('created_at', $year)->whereMonth('created_at', $month)->groupBy('day')->pluck('total', 'day')->all();
+        $payments    = Payment::selectRaw('DATE_FORMAT(created_at, "%d") as day, SUM(amount) as total')->whereYear('created_at', $year)->whereMonth('created_at', $month)->groupBy('day')->pluck('total', 'day')->all();
+        $memberships = Membership::selectRaw('DATE_FORMAT(created_at, "%d") as day, SUM(amount_paid) as total')->whereYear('created_at', $year)->whereMonth('created_at', $month)->groupBy('day')->pluck('total', 'day')->all();
 
         $daysInMonth = Carbon::create($year, $month)->daysInMonth;
         $labels = [];
@@ -127,8 +127,8 @@ class ReportController extends Controller
 
     private function getAvailableYears(): array
     {
-        $pYears = Payment::selectRaw('strftime("%Y", created_at) as year')->distinct()->pluck('year');
-        $mYears = Membership::selectRaw('strftime("%Y", created_at) as year')->distinct()->pluck('year');
+        $pYears = Payment::selectRaw('DATE_FORMAT(created_at, "%Y") as year')->distinct()->pluck('year');
+        $mYears = Membership::selectRaw('DATE_FORMAT(created_at, "%Y") as year')->distinct()->pluck('year');
         return $pYears->merge($mYears)->unique()->sort()->values()->all() ?: [Carbon::now()->year];
     }
 

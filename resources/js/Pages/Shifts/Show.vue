@@ -2,20 +2,43 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import ShiftSummary from '@/Components/ShiftSummary.vue';
+import { computed } from 'vue';
 
 const props = defineProps({
     shift: Object,
 });
 
-const difference = props.shift.status === 'closed' 
-    ? (props.shift.closing_cash_declared - props.shift.total_cash) 
-    : 0;
+const payments = computed(() => props.shift?.payments || []);
+
+const totalCash = computed(() => {
+    return payments.value
+        .filter(p => p.payment_method === 'efectivo')
+        .reduce((acc, p) => acc + parseFloat(p.amount), 0);
+});
+
+const totalTransfer = computed(() => {
+    return payments.value
+        .filter(p => p.payment_method === 'trasnferencia')
+        .reduce((acc, p) => acc + parseFloat(p.amount), 0);
+});
+
+const totalCollected = computed(() => {
+    return payments.value.reduce((acc, p) => acc + parseFloat(p.amount), 0);
+});
+
+const difference = computed(() => {
+    return props.shift?.status === 'closed' 
+        ? ((props.shift?.closing_cash_declared || 0) - totalCash.value) 
+        : 0;
+});
 
 const formatDate = (date) => {
+    if (!date) return 'N/A';
     return new Date(date).toLocaleDateString();
 };
 
 const formatTime = (date) => {
+    if (!date) return '--:--';
     return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 
@@ -32,7 +55,7 @@ const printReport = () => {
             <div class="flex justify-between items-center no-print">
                 <div>
                     <h2 class="text-xl font-black tracking-tight text-slate-900 uppercase">Reporte de Auditoría</h2>
-                    <p class="text-[8px] font-bold text-slate-400 uppercase tracking-[0.4em] mt-1">Cierre de Turno #{{ shift.id }}</p>
+                    <p class="text-[8px] font-bold text-slate-400 uppercase tracking-[0.4em] mt-1">Cierre de Turno #{{ shift?.id }}</p>
                 </div>
                 <div class="flex gap-4 no-print">
                     <button @click="printReport" class="px-6 py-2.5 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-800 transition-all shadow-lg">Imprimir Ticket</button>
@@ -49,7 +72,7 @@ const printReport = () => {
                 <div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-12">
                     <div>
                         <p class="text-[9px] font-black text-indigo-300 uppercase tracking-widest mb-3">Responsable</p>
-                        <h3 class="text-2xl font-black tracking-tight">{{ shift.user.name }}</h3>
+                        <h3 class="text-2xl font-black tracking-tight">{{ shift.user?.name || 'Usuario no identificado' }}</h3>
                         <p class="text-[10px] font-bold text-indigo-200 uppercase tracking-[0.2em] mt-1">Administrador de Turno</p>
                     </div>
                     <div>
@@ -80,15 +103,15 @@ const printReport = () => {
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div class="bg-white border border-slate-200 p-5 rounded-3xl shadow-sm">
                     <p class="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-2">Ventas Efectivo</p>
-                    <h4 class="text-xl font-black text-slate-900 tracking-tighter">${{ new Intl.NumberFormat().format(shift.total_cash) }}</h4>
+                    <h4 class="text-xl font-black text-slate-900 tracking-tighter">${{ new Intl.NumberFormat().format(totalCash) }}</h4>
                 </div>
                 <div class="bg-white border border-slate-200 p-5 rounded-3xl shadow-sm">
                     <p class="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-2">Ventas Transferencia</p>
-                    <h4 class="text-xl font-black text-slate-900 tracking-tighter">${{ new Intl.NumberFormat().format(shift.total_transfer) }}</h4>
+                    <h4 class="text-xl font-black text-slate-900 tracking-tighter">${{ new Intl.NumberFormat().format(totalTransfer) }}</h4>
                 </div>
                 <div class="bg-indigo-50 border border-indigo-100 p-5 rounded-3xl shadow-sm">
                     <p class="text-[7px] font-black text-indigo-600 uppercase tracking-widest mb-2">Efectivo Esperado</p>
-                    <h4 class="text-xl font-black text-indigo-950 tracking-tighter">${{ new Intl.NumberFormat().format(shift.total_cash) }}</h4>
+                    <h4 class="text-xl font-black text-indigo-950 tracking-tighter">${{ new Intl.NumberFormat().format(totalCash) }}</h4>
                 </div>
                 <div class="bg-slate-900 text-white p-5 rounded-3xl shadow-2xl">
                     <p class="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-2">Declarado en Caja</p>
@@ -107,7 +130,7 @@ const printReport = () => {
                 <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center">
                     <h3 class="text-xs font-black text-slate-900 uppercase tracking-widest">Detalle de Transacciones</h3>
                     <span class="text-[9px] font-black text-indigo-600 bg-indigo-50 px-4 py-1.5 rounded-full uppercase tracking-widest">
-                        Total Vehículos: {{ shift.payments.length }}
+                        Total Vehículos: {{ payments.length }}
                     </span>
                 </div>
                 <div class="overflow-x-auto">
@@ -122,7 +145,7 @@ const printReport = () => {
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-50">
-                            <tr v-for="payment in shift.payments" :key="payment.id" class="hover:bg-slate-50 transition-colors">
+                            <tr v-for="payment in payments" :key="payment.id" class="hover:bg-slate-50 transition-colors">
                                 <td class="px-8 py-4">
                                     <div class="inline-block px-3 py-1 bg-slate-900 text-white rounded-md font-black text-xs tracking-widest">
                                         {{ payment.ticket?.vehicle?.plate || '---' }}
@@ -143,17 +166,17 @@ const printReport = () => {
                                     <span class="text-xs font-black text-slate-900 tracking-tighter">${{ new Intl.NumberFormat().format(payment.amount) }}</span>
                                 </td>
                             </tr>
-                            <tr v-if="shift.payments.length === 0">
-                                <td colspan="4" class="px-8 py-20 text-center text-slate-300">
+                            <tr v-if="payments.length === 0">
+                                <td colspan="5" class="px-8 py-20 text-center text-slate-300">
                                     <p class="text-[9px] font-black uppercase tracking-[0.3em]">Sin actividad económica en este turno</p>
                                 </td>
                             </tr>
                         </tbody>
-                        <tfoot class="bg-slate-900 text-white">
+                        <tfoot v-if="payments.length > 0" class="bg-slate-900 text-white">
                             <tr>
-                                <td colspan="3" class="px-8 py-4 text-[9px] font-black uppercase tracking-widest text-right opacity-50">Total Recaudado</td>
+                                <td colspan="4" class="px-8 py-4 text-[9px] font-black uppercase tracking-widest text-right opacity-50">Total Recaudado</td>
                                 <td class="px-8 py-4 text-right">
-                                    <span class="text-lg font-black tracking-tighter">${{ new Intl.NumberFormat().format(shift.payments.reduce((acc, p) => acc + parseFloat(p.amount), 0)) }}</span>
+                                    <span class="text-lg font-black tracking-tighter">${{ new Intl.NumberFormat().format(totalCollected) }}</span>
                                 </td>
                             </tr>
                         </tfoot>

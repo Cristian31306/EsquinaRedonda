@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Ticket;
 use App\Models\CashShift;
 
+use App\Traits\BelongsToTenant;
+
 class Payment extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
-    protected $fillable = ['ticket_id', 'cash_shift_id', 'amount', 'payment_method'];
+    protected $fillable = ['ticket_id', 'cash_shift_id', 'amount', 'payment_method', 'tenant_id'];
 
     public function ticket()
     {
