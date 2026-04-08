@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ParkiApp - Presentación Corporativa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #38bdf8;
+            --primary-dark: #0ea5e9;
+            --secondary: #2dd4bf;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --glass: rgba(255, 255, 255, 0.03);
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        .slides-container {
+            height: 100vh;
+            overflow-y: auto;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        section {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Ambient Background */
+        .ambient-light {
+            position: absolute;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(80px);
+            pointer-events: none;
+        }
+
+        .light-1 {
+            top: -10%;
+            left: -10%;
+        }
+
+        .light-2 {
+            bottom: -10%;
+            right: -10%;
+            background: radial-gradient(circle, rgba(45, 212, 191, 0.1) 0%, transparent 70%);
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            pointer-events: none;
+        }
+
+        section.active .fade-in {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .delay-1 {
+            transition-delay: 0.2s;
+        }
+
+        .delay-2 {
+            transition-delay: 0.4s;
+        }
+
+        .delay-3 {
+            transition-delay: 0.6s;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 4.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 3rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: var(--primary);
+        }
+
+        p {
+            font-size: 1.25rem;
+            color: var(--text-dim);
+            max-width: 800px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        /* Glass Cards */
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 900px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .feature-card {
+            background: var(--glass);
+            backdrop-filter: blur(8px);
+            padding: 2.5rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            text-align: center;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .icon-box {
+            width: 64px;
+            height: 64px;
+            background: rgba(56, 189, 248, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: var(--primary);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        /* Pricing Tags */
+        .pricing-container {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .pricing-card {
+            background: var(--glass);
+            border-radius: 32px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            flex: 1;
+            min-width: 320px;
+            max-width: 420px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pricing-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+            flex-grow: 1;
+        }
+
+        .pricing-card li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .pricing-card li i,
+        .pricing-card li svg {
+            flex-shrink: 0;
+            width: 18px;
+            height: 18px;
+            margin-top: 0.2rem;
+            color: var(--primary);
+        }
+
+        .pricing-card.featured {
+            border: 2px solid var(--primary);
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .price {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin: 1.5rem 0;
+            color: #fff;
+        }
+
+        .price span {
+            font-size: 1rem;
+            color: var(--text-dim);
+            font-weight: 400;
+        }
+
+        .support-tag {
+            background: rgba(45, 212, 191, 0.1);
+            color: var(--secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 999px;
+            font-size: 0.875rem;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        /* Navigation Dots */
+        .nav-dots {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: var(--primary);
+            transform: scale(1.5);
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        /* Footer Info */
+        .footer {
+            margin-top: 3rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* Badge */
+        .badge {
+            background: var(--primary);
+            color: var(--bg);
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .pricing-card {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ambient-light light-1"></div>
+    <div class="ambient-light light-2"></div>
+
+    <div class="nav-dots">
+        <div class="dot active" onclick="scrollToSlide(0)"></div>
+        <div class="dot" onclick="scrollToSlide(1)"></div>
+        <div class="dot" onclick="scrollToSlide(2)"></div>
+        <div class="dot" onclick="scrollToSlide(3)"></div>
+        <div class="dot" onclick="scrollToSlide(4)"></div>
+        <div class="dot" onclick="scrollToSlide(5)"></div>
+        <div class="dot" onclick="scrollToSlide(6)"></div>
+        <div class="dot" onclick="scrollToSlide(7)"></div>
+    </div>
+
+    <div class="slides-container" id="container">
+        <!-- SLIDE 1: PORTADA -->
+        <section class="active">
+            <h1 class="fade-in">ParkiApp</h1>
+            <p class="fade-in delay-1" style="font-size: 1.5rem; color: var(--primary); font-weight: 600;">Transforme su
+                parqueadero en un negocio inteligente</p>
+            <div style="margin-top: 2rem;" class="fade-in delay-2">
+                <img src="img/hero.png" alt="ParkiApp Interface"
+                    style="max-width: 500px; max-height: 40vh; object-fit: contain; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);">
+            </div>
+            <div class="footer fade-in delay-3">Gestión Eficiente · Control Total · Seguridad</div>
+        </section>
+
+        <!-- SLIDE 2: EL PROBLEMA -->
+        <section>
+            <h2 class="fade-in">¿Su negocio tiene estos problemas?</h2>
+            <div class="grid">
+                <div class="feature-card fade-in delay-1">
+                    <div class="icon-box"><i data-lucide="trending-down"></i></div>
+                    <h3>Fugas de dinero</h3>
+                    <p>Errores humanos en el cálculo manual que generan pérdidas silenciosas todos los días.</p>
+                </div>
+                <div class="feature-card fade-in delay-2">
+                    <div class="icon-box"><i data-lucide="shield-alert"></i></div>
+                    <h3>Falta de Control de Caja</h3>
+                    <p>Incertidumbre en los cierres de turno. ¿Está entrando realmente todo el dinero que debería?</p>
+                </div>
+                <div class="feature-card fade-in delay-3">
+                    <div class="icon-box"><i data-lucide="user-x"></i></div>
+                    <h3>Imagen Informal</h3>
+                    <p>La falta de un ticket profesional genera desconfianza y posibles reclamos de sus clientes.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 3: LA SOLUCIÓN -->
+        <section>
+            <h2 class="fade-in">La Solución: ParkiApp</h2>
+            <div class="card fade-in delay-1">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center;">
+                    <div>
+                        <p style="text-align: left; margin-bottom: 1.5rem; color: #fff;">
+                            Un sistema diseñado para simplificar su operación, eliminar errores y maximizar sus
+                            ganancias desde el primer día.
+                        </p>
+                        <ul style="list-style: none; text-align: left; color: var(--text-dim);">
+                            <li style="margin-bottom: 1rem;"><i data-lucide="zap"
+                                    style="color: var(--secondary); vertical-align: middle; margin-right: 0.5rem; width: 20px;"></i>
+                                <b>Sencillez Extrema:</b> Su personal aprenderá a usarlo en breve.
+                            </li>
+                            <li style="margin-bottom: 1rem;"><i data-lucide="lock"
+                                    style="color: var(--secondary); vertical-align: middle; margin-right: 0.5rem; width: 20px;"></i>
+                                <b>Control de Ingresos:</b> Evite que se "pierdan" registros entre turnos.
+                            </li>
+                            <li style="margin-bottom: 1rem;"><i data-lucide="bar-chart-3"
+                                    style="color: var(--secondary); vertical-align: middle; margin-right: 0.5rem; width: 20px;"></i>
+                                Reportes de auditoría y cierres de caja en tiempo real.</li>
+                            <li style="margin-bottom: 1rem;"><i data-lucide="users"
+                                    style="color: var(--secondary); vertical-align: middle; margin-right: 0.5rem; width: 20px;"></i>
+                                Gestión profesional de mensualidades y membresías.</li>
+                        </ul>
+                    </div>
+                    <div style="text-align: center;">
+                        <i data-lucide="laptop"
+                            style="width: 200px; height: 200px; color: var(--primary); opacity: 0.8;"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 4: CARACTERÍSTICAS TÉCNICAS -->
+        <section>
+            <h2 class="fade-in">Tecnología de Vanguardia</h2>
+            <div class="grid">
+                <div class="feature-card fade-in delay-1">
+                    <div class="icon-box"><i data-lucide="printer"></i></div>
+                    <h3>Impresión Térmica</h3>
+                    <p>Tickets profesionales con logo de su empresa para cada cliente.</p>
+                </div>
+                <div class="feature-card fade-in delay-2">
+                    <div class="icon-box"><i data-lucide="shield-check"></i></div>
+                    <h3>Backup Inteligente</h3>
+                    <p><b>Su base de datos siempre segura en su propio Telegram.</b> Copias automáticas diarias.</p>
+                </div>
+                <div class="feature-card fade-in delay-3">
+                    <div class="icon-box"><i data-lucide="smartphone"></i></div>
+                    <h3>Multi-dispositivo</h3>
+                    <p>Acceda desde tablets, celulares o cualquier computador conectado a su red o internet.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 5: MODELOS DE INVERSIÓN -->
+        <section>
+            <h2 class="fade-in">Escoja su Plan Ideal</h2>
+            <div class="pricing-container fade-in delay-1">
+                <div class="pricing-card featured">
+                    <div class="badge">Más Vendido</div>
+                    <div class="support-tag" style="background: rgba(56, 189, 248, 0.1); color: var(--primary);">Dueño Ausente: Control Total</div>
+                    <h3>Plan Cloud (Web)</h3>
+                    <div class="price">$480.000 <span>Al Año</span></div>
+                    <ul>
+                        <li><i data-lucide="smartphone" style="color: var(--primary);"></i> <span><b>Vea su caja en tiempo real desde su celular sin estar en el sitio.</b></span></li>
+                        <li><i data-lucide="shield-check"></i> <span>Datos seguros en la nube (Protegido contra robos de PC)</span></li>
+                        <li><i data-lucide="refresh-cw"></i> <span>Nuevas funciones constantes incluidas</span></li>
+                        <li><i data-lucide="check"></i> <span>Soporte técnico 24/7 permanente e incluido</span></li>
+                    </ul>
+                </div>
+
+                <!-- PLAN LOCAL -->
+                <div class="pricing-card">
+                    <div class="support-tag">Instalación Local</div>
+                    <h3>Plan Vitalicio</h3>
+                    <div class="price">$500.000 <span>Pago Único</span></div>
+                    <ul>
+                        <li><i data-lucide="check"></i> <span>Licencia de por vida (Solo para ese PC)</span></li>
+                        <li><i data-lucide="check"></i> <span>Funciona sin conexión a internet</span></li>
+                        <li><i data-lucide="shield-alert"></i> <span>Soporte técnico (6 meses gratis)*</span></li>
+                        <li style="margin-top: 0.25rem; opacity: 0.6; font-size: 0.8rem; display: block;">
+                            <small>*Limitado a corrección de errores, no incluye nuevas funciones.</small>
+                        </li>
+                        <li style="margin-top: 0.75rem; color: var(--primary); font-weight: 500;">
+                            <i data-lucide="calendar"></i> <span>Mantenimiento Anual: $200.000</span>
+                        </li>
+                        <li style="color: var(--secondary); font-weight: 500;">
+                            <i data-lucide="map-pin"></i> <span>Visita Técnica Física: $60.000</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE: COMPARATIVA ESTRATÉGICA -->
+        <section>
+            <h2 class="fade-in">La decisión inteligente</h2>
+            <div class="card fade-in delay-1" style="max-width: 1000px; padding: 0; overflow: hidden; border-radius: 20px;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 1.1rem;">
+                    <thead>
+                        <tr style="background: rgba(56, 189, 248, 0.1);">
+                            <th style="padding: 1.5rem;">Característica</th>
+                            <th style="padding: 1.5rem;">Plan Vitalicio</th>
+                            <th style="padding: 1.5rem; color: var(--primary);">Plan Cloud (Web)</th>
+                        </tr>
+                    </thead>
+                    <tbody style="color: var(--text-dim);">
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 1.2rem 1.5rem;">Ubicación de Datos</td>
+                            <td style="padding: 1.2rem 1.5rem;">Solo en el PC del sitio</td>
+                            <td style="padding: 1.2rem 1.5rem; color: #fff;">Nube (Seguro contra robo de PC)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 1.2rem 1.5rem;">Acceso Remoto</td>
+                            <td style="padding: 1.2rem 1.5rem;">No disponible</td>
+                            <td style="padding: 1.2rem 1.5rem; color: #fff;">Sí (Desde cualquier lugar)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 1.2rem 1.5rem;">Nuevas Funciones</td>
+                            <td style="padding: 1.2rem 1.5rem;">Solo corrección de errores</td>
+                            <td style="padding: 1.2rem 1.5rem; color: #fff;">Actualizaciones constantes</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 1.2rem 1.5rem;">Soporte Técnico</td>
+                            <td style="padding: 1.2rem 1.5rem;">6 Meses incluidos</td>
+                            <td style="padding: 1.2rem 1.5rem; color: #fff;">Permanente e incluido</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SLIDE 7: HARDWARE (IMPRESORAS) -->
+        <section>
+            <h2 class="fade-in">Opciones de Impresoras</h2>
+            <div class="grid" style="max-width: 900px;">
+                <div class="feature-card fade-in delay-1">
+                    <img src="img/printer58.png" alt="58mm Printer"
+                        style="width: 200px; margin-bottom: 1rem; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));">
+                    <h3>Referencia Sugerida (58mm)</h3>
+                    <div class="price" style="font-size: 2rem;">~$120.000</div>
+                    <p style="font-size: 1rem;">Económica, compacta e ideal para espacios reducidos.</p>
+                </div>
+                <div class="feature-card fade-in delay-2">
+                    <img src="img/printer80.png" alt="80mm Printer"
+                        style="width: 200px; margin-bottom: 1rem; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));">
+                    <h3>Referencia Sugerida (80mm)</h3>
+                    <div class="price" style="font-size: 2rem;">~$250.000</div>
+                    <p style="font-size: 1rem;">Industrial, con corte automático y mayor velocidad.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 7: CONTACTO -->
+        <section>
+            <h1 class="fade-in">¡Deje de perder dinero hoy mismo!</h1>
+            <p class="fade-in delay-1" style="font-size: 1.5rem; margin-top: 1rem;">Agende su demostración gratuita y
+                vea ParkiApp en acción.</p>
+
+            <div class="card fade-in delay-2" style="margin-top: 3rem; text-align: center; max-width: 600px;">
+                <p style="color: #fff; font-weight: 600; margin-bottom: 1rem;">Impulse su negocio con:</p>
+                <div
+                    style="font-size: 3rem; font-weight: 700; color: var(--primary); text-shadow: 0 0 20px rgba(56, 189, 248, 0.3);">
+                    ParkiApp</div>
+                <p style="margin-top: 1rem; font-size: 1.1rem; color: var(--secondary);">Eficiencia · Rapidez · Control
+                    Total</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Slide Navigation Logic
+        const container = document.getElementById('container');
+        const sections = document.querySelectorAll('section');
+        const dots = document.querySelectorAll('.dot');
+
+        container.addEventListener('scroll', () => {
+            const index = Math.round(container.scrollTop / window.innerHeight);
+
+            dots.forEach(dot => dot.classList.remove('active'));
+            dots[index].classList.add('active');
+
+            sections.forEach(section => section.classList.remove('active'));
+            sections[index].classList.add('active');
+        });
+
+        function scrollToSlide(index) {
+            container.scrollTo({
+                top: index * window.innerHeight,
+                behavior: 'smooth'
+            });
+        }
+    </script>
+</body>
+
+</html>
