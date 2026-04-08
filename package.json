@@ -19,6 +19,7 @@
     },
     "dependencies": {
         "chart.js": "^4.5.1",
+        "lucide-vue-next": "^1.0.0",
         "ziggy-js": "^2.6.2"
     }
 }

@@ -9,13 +9,19 @@ use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\VehicleController;
+use App\Http\Controllers\ContactController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// Redirección inicial al Login
+// Página de Inicio (Landing Page)
 Route::get('/', function () {
-    return redirect()->route('login');
+    return Inertia::render('Welcome', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+    ]);
 });
+
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 
 // Rutas Autenticadas
 Route::middleware(['auth', 'verified'])->group(function () {
