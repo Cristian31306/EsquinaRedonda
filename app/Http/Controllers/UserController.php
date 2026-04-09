@@ -47,12 +47,10 @@ class UserController extends Controller
             $email .= '@' . $domain . '.com';
         }
 
-        // Restricción de Plan Básico: Máximo 3 usuarios
-        if ($tenant->plan === 'basico') {
-            $userCount = User::withoutGlobalScopes()->where('tenant_id', $tenant->id)->count();
-            if ($userCount >= 3) {
-                return back()->with('error', 'Tu Plan Básico está limitado a 3 usuarios. Contacta al soporte para subir a Plan Pro.');
-            }
+        // Restricción de Plan: Validar límite de usuarios
+        $userCount = User::withoutGlobalScopes()->where('tenant_id', $tenant->id)->count();
+        if ($userCount >= $tenant->max_users) {
+            return back()->with('error', "Tu plan actual está limitado a {$tenant->max_users} usuarios. Sube al Plan Profesional para usuarios ilimitados.");
         }
 
         if (User::withoutGlobalScopes()->where('email', $email)->exists()) {

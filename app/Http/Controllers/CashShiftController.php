@@ -19,6 +19,11 @@ class CashShiftController extends Controller
 
     public function history()
     {
+        $tenant = auth()->user()->tenant;
+        if (!$tenant || !$tenant->canAccessAuditing()) {
+            return redirect()->route('dashboard')->with('error', 'El módulo de Auditoría Histórica es exclusivo para el Plan Profesional. ¡Crezca hoy mismo!');
+        }
+
         // Traer turnos cerrados con paginación
         $shifts = CashShift::where('status', 'closed')
             ->with(['user'])

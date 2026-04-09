@@ -3,13 +3,6 @@ import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
-    server: {
-        host: '0.0.0.0',
-        cors: true,
-        hmr: {
-            host: '127.0.0.1',
-        },
-    },
     plugins: [
         laravel({
             input: 'resources/js/app.js',
@@ -24,4 +17,7 @@ export default defineConfig({
             },
         }),
     ],
+    optimizeDeps: {
+        include: ['lucide-vue-next'],
+    },
 });

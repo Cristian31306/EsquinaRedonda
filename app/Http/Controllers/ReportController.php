@@ -50,6 +50,11 @@ class ReportController extends Controller
     {
         if (auth()->user()->role !== 'admin') abort(403);
 
+        $tenant = auth()->user()->tenant;
+        if (!$tenant || !$tenant->canExportReports()) {
+            return back()->with('error', 'La exportación a Excel solo está disponible en el Plan Profesional. ¡Sube de plan para desbloquearla!');
+        }
+
         $year  = $request->input('year', Carbon::now()->year);
         $month = $request->input('month', Carbon::now()->month);
         $name  = "Reporte_{$this->months[$month - 1]}_{$year}.xlsx";
@@ -60,6 +65,11 @@ class ReportController extends Controller
     public function exportPdf(Request $request)
     {
         if (auth()->user()->role !== 'admin') abort(403);
+
+        $tenant = auth()->user()->tenant;
+        if (!$tenant || !$tenant->canExportReports()) {
+            return back()->with('error', 'La exportación a PDF es una función exclusiva del Plan Profesional. Contacta a soporte para activarla.');
+        }
 
         // Aumentar memoria para reportes grandes
         ini_set('memory_limit', '512M');
