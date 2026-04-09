@@ -31,11 +31,11 @@ class TelegramBackupCommand extends Command
     {
         $this->info('Iniciando proceso de backup...');
 
-        $database = env('DB_DATABASE');
-        $username = env('DB_USERNAME');
-        $password = env('DB_PASSWORD');
-        $host = env('DB_HOST', '127.0.0.1');
-        $port = env('DB_PORT', '3306');
+        $database = config('database.connections.mysql.database');
+        $username = config('database.connections.mysql.username');
+        $password = config('database.connections.mysql.password');
+        $host = config('database.connections.mysql.host', '127.0.0.1');
+        $port = config('database.connections.mysql.port', '3306');
 
         $date = Carbon::now()->format('Y-m-d_H-i-s');
         $sqlFileName = "backup_{$database}_{$date}.sql";
@@ -75,16 +75,17 @@ class TelegramBackupCommand extends Command
 
         // Enviar a Telegram
         $this->info('Enviando a Telegram...');
-        $botToken = env('TELEGRAM_BOT_TOKEN');
-        $chatId = env('TELEGRAM_CHAT_ID');
+        $botToken = config('services.telegram.bot_token');
+        $chatId = config('services.telegram.chat_id');
 
         if (!$botToken || !$chatId) {
-            $this->error('Faltan credenciales de Telegram en el archivo .env');
+            $this->error('Faltan credenciales de Telegram en el archivo .env o en el caché de config.');
             return Command::FAILURE;
         }
 
         $url = "https://api.telegram.org/bot{$botToken}/sendDocument";
-        $caption = "🔒 Backup Automático DB\n🗄 App: " . env('APP_NAME') . "\n📅 Fecha: " . Carbon::now()->format('d/M/Y H:i A') . "\n📦 DB: {$database}";
+        $appName = config('app.name');
+        $caption = "🔒 Backup Automático DB\n🗄 App: {$appName}\n📅 Fecha: " . Carbon::now()->format('d/M/Y H:i A') . "\n📦 DB: {$database}";
 
         $response = Http::attach(
             'document', file_get_contents($zipPath), $zipFileName
