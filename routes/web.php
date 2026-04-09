@@ -10,6 +10,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\SupportController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -83,6 +84,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/export-excel', [App\Http\Controllers\ReportController::class, 'exportExcel'])->name('reports.excel');
     Route::get('/reports/export-pdf', [App\Http\Controllers\ReportController::class, 'exportPdf'])->name('reports.pdf');
+
+    // Gestión de Soporte Técnico (Tickets)
+    Route::group(['prefix' => 'support', 'as' => 'support.'], function () {
+        Route::get('/', [SupportController::class, 'index'])->name('index');
+        Route::get('/create', [SupportController::class, 'create'])->name('create');
+        Route::post('/', [SupportController::class, 'store'])->name('store');
+        Route::get('/{ticket}', [SupportController::class, 'show'])->name('show');
+        Route::post('/{ticket}/reply', [SupportController::class, 'reply'])->name('reply');
+        Route::patch('/{ticket}/close', [SupportController::class, 'close'])->name('close');
+    });
 
     // Portal Super Admin (Algorah Control)
     Route::middleware([\App\Http\Middleware\EnsureUserIsSuperAdmin::class])->group(function () {
