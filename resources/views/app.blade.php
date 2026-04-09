@@ -4,10 +4,27 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <!-- Favicon -->
-        <link rel="icon" type="image/png" href="/favicon.png">
+        <link rel="icon" type="image/x-icon" href="/favicon.ico">
+        
+        <!-- PWA Meta tags -->
+        <link rel="manifest" href="/manifest.json">
+        <meta name="theme-color" content="#0284c7">
+        <link rel="apple-touch-icon" href="/favicon.png">
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
+
+        <!-- PWA Service Worker Registration -->
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js').then(registration => {
+                        console.log('PWA ServiceWorker registrado correctamente:', registration.scope);
+                    }).catch(error => {
+                        console.log('Fallo al registrar PWA ServiceWorker:', error);
+                    });
+                });
+            }
+        </script>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
