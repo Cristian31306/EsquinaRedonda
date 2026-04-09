@@ -37,7 +37,7 @@ class TelegramBackupCommand extends Command
         $host = config('database.connections.mysql.host', '127.0.0.1');
         $port = config('database.connections.mysql.port', '3306');
 
-        $date = Carbon::now()->format('Y-m-d_H-i-s');
+        $date = Carbon::now('America/Bogota')->format('Y-m-d_H-i-s');
         $sqlFileName = "backup_{$database}_{$date}.sql";
         $zipFileName = "{$sqlFileName}.zip";
 
@@ -85,7 +85,7 @@ class TelegramBackupCommand extends Command
 
         $url = "https://api.telegram.org/bot{$botToken}/sendDocument";
         $appName = config('app.name');
-        $caption = "🔒 Backup Automático DB\n🗄 App: {$appName}\n📅 Fecha: " . Carbon::now()->format('d/M/Y H:i A') . "\n📦 DB: {$database}";
+        $caption = "🔒 Backup Automático DB\n🗄 App: {$appName}\n📅 Fecha: " . Carbon::now('America/Bogota')->format('d/M/Y H:i A') . "\n📦 DB: {$database}";
 
         $response = Http::attach(
             'document', file_get_contents($zipPath), $zipFileName
