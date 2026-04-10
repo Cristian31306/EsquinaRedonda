@@ -187,7 +187,7 @@ watch(() => page.props.flash, (newFlash) => {
                             :class="[route().current('support.*') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
                             class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.712 4.33a.75.75 0 0 1 .712.755V18a3.375 3.375 0 0 1-3.375 3.375H4.5A3.375 3.375 0 0 1 1.125 18V5.085a.75.75 0 0 1 .712-.755 41.13 41.13 0 0 1 14.875 0Zm0 0A2.25 2.25 0 0 0 14.485 2.13a41.147 41.147 0 0 0-11.22 0A2.25 2.25 0 0 0 1.125 4.33M16.712 4.33V18a3.375 3.375 0 0 1-3.375 3.375H4.5A3.375 3.375 0 0 1 1.125 18V5.085a.75.75 0 0 1 .712-.755m14.875 0A40.867 40.867 0 0 1 22.5 5.25v2.247" /></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a.75.75 0 0 1-1.074-.765 5.99 5.99 0 0 1 .723-2.482C3.236 15.89 2 14.12 2 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" /></svg>
                             <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Soporte Técnico</span>
                         </Link>
                     </div>
