@@ -13,21 +13,21 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         \App\Models\User::updateOrCreate(
-            ['email' => 'admin'],
+            ['email' => 'durancristian31306@gmail.com'],
             [
-                'name' => 'Administrador',
-                'password' => \Illuminate\Support\Facades\Hash::make('123456'),
-                'role' => 'admin',
+                'name' => 'Cristian',
+                'password' => \Illuminate\Support\Facades\Hash::make('Cristian_5732988$'),
+                'role' => 'super_admin',
                 'is_active' => true,
                 'email_verified_at' => now(),
             ]
         );
 
         \App\Models\User::updateOrCreate(
-            ['email' => 'juan'],
+            ['email' => 'admin'],
             [
-                'name' => 'Juan Pérez',
-                'password' => \Illuminate\Support\Facades\Hash::make('123456'),
+                'name' => 'Administrador',
+                'password' => \Illuminate\Support\Facades\Hash::make('admin123'),
                 'role' => 'admin',
                 'is_active' => true,
                 'email_verified_at' => now(),

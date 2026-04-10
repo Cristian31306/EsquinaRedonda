@@ -8,10 +8,11 @@ use App\Models\Ticket;
 use App\Models\CashShift;
 
 use App\Traits\BelongsToTenant;
+use App\Traits\HasUuid;
 
 class Payment extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use HasFactory, BelongsToTenant, HasUuid;
 
     protected $fillable = ['ticket_id', 'cash_shift_id', 'amount', 'payment_method', 'tenant_id'];
 

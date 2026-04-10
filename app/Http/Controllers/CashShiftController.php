@@ -64,7 +64,7 @@ class CashShiftController extends Controller
         return back()->with('success', 'Turno abierto correctamente.');
     }
 
-    public function close(Request $request)
+    public function close(Request $request, \App\Services\SyncService $syncService)
     {
         $request->validate([
             'closing_cash_declared' => 'required|numeric|min:0',
@@ -89,8 +89,16 @@ class CashShiftController extends Controller
             'status' => 'closed',
         ]);
 
+        // Sincronización mandatoria al cierre
+        $syncResult = $syncService->push();
+
         // Cargamos relaciones para el reporte
         $shift->load(['user', 'payments.ticket.vehicle']);
+
+        $successMsg = 'Turno cerrado correctamente.';
+        if (!$syncResult['success']) {
+            $successMsg .= ' (Nota: Sincronización en la nube pendiente por falla de conexión)';
+        }
 
         return back()->with([
             'success' => 'Turno cerrado correctamente.',

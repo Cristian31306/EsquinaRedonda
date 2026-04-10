@@ -10,3 +10,5 @@ Artisan::command('inspire', function () {
 // Programar backup automático de seguridad extrema cada 4 horas
 use Illuminate\Support\Facades\Schedule;
 Schedule::command('backup:telegram')->everyFourHours();
+// Sincronización automática de ParkiApp cada 5 minutos (Seguro de vida de datos)
+Schedule::job(new \App\Jobs\SyncDataJob)->everyFiveMinutes();

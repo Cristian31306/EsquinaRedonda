@@ -9,10 +9,11 @@ use Illuminate\Notifications\Notifiable;
 
 use App\Traits\BelongsToTenant;
 
+use App\Traits\HasUuid;
+
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, BelongsToTenant;
-    
+    use HasFactory, Notifiable, BelongsToTenant, HasUuid;
     protected $fillable = [
         'name',
         'email',

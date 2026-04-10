@@ -15,7 +15,7 @@
 
         <!-- PWA Service Worker Registration -->
         <script>
-            if ('serviceWorker' in navigator) {
+            if ('serviceWorker' in navigator && window.location.hostname !== '127.0.0.1' && window.location.hostname !== 'localhost') {
                 window.addEventListener('load', () => {
                     navigator.serviceWorker.register('/sw.js').then(registration => {
                         console.log('PWA ServiceWorker registrado correctamente:', registration.scope);

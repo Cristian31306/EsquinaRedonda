@@ -1,9 +1,50 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import axios from 'axios';
 
 const page = usePage();
 const showingNavigationDropdown = ref(false);
+
+// Lógica de Sincronización
+const lastSync = ref(localStorage.getItem('last_sync_at') || 'Sin datos');
+const syncStatus = ref('idle'); // idle, syncing, success, error
+
+const runManualSync = async () => {
+    if (syncStatus.value === 'syncing') return;
+    
+    syncStatus.value = 'syncing';
+    try {
+        // Nota: En la versión final, el token se manejaría de forma segura
+        // Por ahora simulamos la llamada al endpoint de sincronización local
+        const response = await axios.post('/api/v1/sync/now', {}, {
+            headers: {
+                'Authorization': `Bearer ${page.props.auth.user?.tenant?.api_token}`
+            }
+        });
+        
+        if (response.data.success) {
+            lastSync.value = response.data.synced_at;
+            localStorage.setItem('last_sync_at', lastSync.value);
+            syncStatus.value = 'success';
+        } else {
+            syncStatus.value = 'error';
+        }
+    } catch (error) {
+        console.error('Sync failed:', error);
+        syncStatus.value = 'error';
+    } finally {
+        setTimeout(() => syncStatus.value = 'idle', 3000);
+    }
+};
+
+onMounted(() => {
+    // Verificar si venimos de un cierre de turno exitoso para actualizar UI
+    if (page.props.flash?.success?.includes('Turno cerrado')) {
+        lastSync.value = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        localStorage.setItem('last_sync_at', lastSync.value);
+    }
+});
 
 watch(() => page.props.flash, (newFlash) => {
     if (newFlash && (newFlash.success || newFlash.error)) {
@@ -69,7 +110,7 @@ watch(() => page.props.flash, (newFlash) => {
                     </div>
                 </div>
 
-                <!-- Group 2: Administración (Solo Admins) -->
+                <!-- Group 2: Administración -->
                 <div v-if="$page.props.auth.user?.role === 'admin'">
                     <p class="hidden lg:block text-[9px] font-black text-indigo-300 uppercase px-4 mb-2 tracking-[0.2em] opacity-70">Administración</p>
                     <div class="space-y-1">
@@ -82,32 +123,12 @@ watch(() => page.props.flash, (newFlash) => {
                             <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Panel</span>
                         </Link>
                         <Link 
-                            v-if="$page.props.auth.user?.role === 'admin'"
-                            :href="route('reports.index')" 
-                            :class="[route().current('reports.index') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
-                            class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200 group relative"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
-                            <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Reportes</span>
-                            <span v-if="$page.props.auth.user?.tenant?.plan === 'basico'" class="hidden lg:block absolute right-4 text-[7px] font-black bg-emerald-500 text-white px-1.5 py-0.5 rounded-md shadow-lg">PRO</span>
-                        </Link>
-                        <Link 
                             :href="route('shifts.index')" 
                             :class="[route().current('shifts.index') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
                             class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200 group"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75l2.25 2.25" /></svg>
                             <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Caja</span>
-                        </Link>
-                        <Link 
-                            v-if="$page.props.auth.user?.role === 'admin'"
-                            :href="route('shifts.history')" 
-                            :class="[route().current('shifts.history') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
-                            class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200 group relative"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .415.162.791.425 1.066.262.275.612.446.996.446.384 0 .734-.171.996-.446.263-.275.425-.651.425-1.066 0-.231-.035-.454-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25c.754 0 1.41.374 1.8 1.02m-5.8 0A2.251 2.251 0 0 0 13.5 2.25c.754 0 1.41.374 1.8 1.02m0 0c.13.204.26.417.39.639" /></svg>
-                            <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Auditoría</span>
-                            <span v-if="$page.props.auth.user?.tenant?.plan === 'basico'" class="hidden lg:block absolute right-4 text-[7px] font-black bg-emerald-500 text-white px-1.5 py-0.5 rounded-md shadow-lg">PRO</span>
                         </Link>
                         <Link 
                             :href="route('memberships.index')" 
@@ -118,25 +139,6 @@ watch(() => page.props.flash, (newFlash) => {
                             <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Mensualidades</span>
                         </Link>
                         <Link 
-                            v-if="$page.props.auth.user?.role === 'admin'"
-                            :href="route('rates.index')" 
-                            :class="[route().current('rates.index') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
-                            class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200 group"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.659A2.25 2.25 0 0 0 9.568 3Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" /></svg>
-                            <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Tarifas</span>
-                        </Link>
-                        <Link 
-                            v-if="$page.props.auth.user?.role === 'admin'"
-                            :href="route('users.index')" 
-                            :class="[route().current('users.index') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
-                            class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200 group"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
-                            <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Usuarios</span>
-                        </Link>
-                        <Link 
-                            v-if="$page.props.auth.user?.role === 'admin'"
                             :href="route('settings.index')" 
                             :class="[route().current('settings.index') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
                             class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200 group"
@@ -147,7 +149,7 @@ watch(() => page.props.flash, (newFlash) => {
                     </div>
                 </div>
 
-                <!-- Group 3: Algorah Global (Super Admin Only) -->
+                <!-- Group 3: Algorah Global -->
                 <div v-if="$page.props.auth.user?.role === 'super_admin'">
                     <p class="hidden lg:block text-[9px] font-black text-sky-300 uppercase px-4 mb-2 tracking-[0.2em] opacity-70">Control Algorah</p>
                     <div class="space-y-1">
@@ -158,24 +160,6 @@ watch(() => page.props.flash, (newFlash) => {
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>
                             <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Control Maestro</span>
-                        </Link>
-                    </div>
-                </div>
-
-                <!-- Group 4: Soporte y Ayuda -->
-                <div v-if="$page.props.auth.user?.role === 'admin' || $page.props.auth.user?.role === 'super_admin'">
-                    <p class="hidden lg:block text-[9px] font-black text-indigo-300 uppercase px-4 mb-2 tracking-[0.2em] opacity-70">Ayuda</p>
-                    <div class="space-y-1">
-                        <Link 
-                            :href="route('support.index')" 
-                            :class="[route().current('support.*') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
-                            class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200 group"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 10.606l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Soporte</span>
                         </Link>
                     </div>
                 </div>
@@ -199,6 +183,29 @@ watch(() => page.props.flash, (newFlash) => {
         <main class="flex-1 flex flex-col min-w-0 bg-slate-50 relative">
             <!-- Header: High Contrast -->
             <header v-if="$slots.header" class="h-20 bg-white shadow-sm flex items-center px-10 z-40 no-print border-b border-slate-200">
+                <!-- Sync Status Widget -->
+                <div class="mr-6 hidden md:flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-inner">
+                    <div class="flex flex-col text-right">
+                        <span class="text-[8px] font-black uppercase tracking-widest text-slate-400 leading-none">Última Sincronización</span>
+                        <span class="text-[10px] font-bold text-slate-700 mt-0.5">{{ lastSync }}</span>
+                    </div>
+                    <button 
+                        @click="runManualSync"
+                        :disabled="syncStatus === 'syncing'"
+                        class="p-1.5 rounded-lg transition-all duration-300"
+                        :class="[
+                            syncStatus === 'syncing' ? 'bg-indigo-100 text-indigo-500 animate-spin' : 
+                            syncStatus === 'success' ? 'bg-emerald-100 text-emerald-600' :
+                            syncStatus === 'error' ? 'bg-rose-100 text-rose-600' :
+                            'bg-white text-slate-400 hover:text-indigo-600 hover:shadow-md'
+                        ]"
+                        title="Sincronizar ahora"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                        </svg>
+                    </button>
+                </div>
                 <div class="flex-1">
                     <slot name="header" />
                 </div>

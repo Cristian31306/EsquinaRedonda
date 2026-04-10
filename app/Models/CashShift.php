@@ -8,10 +8,11 @@ use App\Models\User;
 use App\Models\Payment;
 
 use App\Traits\BelongsToTenant;
+use App\Traits\HasUuid;
 
 class CashShift extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use HasFactory, BelongsToTenant, HasUuid;
 
     protected $fillable = ['user_id', 'start_time', 'end_time', 'opening_cash', 'closing_cash_declared', 'status'];
 

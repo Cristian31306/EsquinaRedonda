@@ -1,0 +1,78 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\Ticket;
+use App\Models\Vehicle;
+use App\Models\Payment;
+use App\Models\CashShift;
+use App\Models\Rate;
+use App\Models\Membership;
+
+class SyncController extends Controller
+{
+    /**
+     * PUSH: Recibe datos de la app local y los guarda/actualiza en la nube.
+     */
+    public function push(Request $request)
+    {
+        $tenant = $request->get('current_tenant');
+        $payload = $request->all();
+
+        DB::beginTransaction();
+        try {
+            // 1. Sincronizar Vehículos primero (dependencia de tickets)
+            if (isset($payload['vehicles'])) {
+                foreach ($payload['vehicles'] as $data) {
+                    Vehicle::updateOrCreate(['id' => $data['id']], array_merge($data, ['tenant_id' => $tenant->id]));
+                }
+            }
+
+            // 2. Sincronizar Turnos de Caja
+            if (isset($payload['cash_shifts'])) {
+                foreach ($payload['cash_shifts'] as $data) {
+                    CashShift::updateOrCreate(['id' => $data['id']], array_merge($data, ['tenant_id' => $tenant->id]));
+                }
+            }
+
+            // 3. Sincronizar Tickets
+            if (isset($payload['tickets'])) {
+                foreach ($payload['tickets'] as $data) {
+                    Ticket::updateOrCreate(['id' => $data['id']], array_merge($data, ['tenant_id' => $tenant->id]));
+                }
+            }
+
+            // 4. Sincronizar Pagos
+            if (isset($payload['payments'])) {
+                foreach ($payload['payments'] as $data) {
+                    Payment::updateOrCreate(['id' => $data['id']], array_merge($data, ['tenant_id' => $tenant->id]));
+                }
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Sincronización PUSH exitosa.', 'synced_at' => now()]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Error en sincronización: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * PULL: Envía datos actualizados desde la nube hacia la app local.
+     */
+    public function pull(Request $request)
+    {
+        $tenant = $request->get('current_tenant');
+
+        return response()->json([
+            'rates'       => Rate::where('tenant_id', $tenant->id)->get(),
+            'memberships' => Membership::where('tenant_id', $tenant->id)->active()->get(),
+            'settings'    => DB::table('settings')->where('tenant_id', $tenant->id)->get(),
+            'pulled_at'   => now()
+        ]);
+    }
+}

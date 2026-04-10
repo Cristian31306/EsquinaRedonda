@@ -9,10 +9,11 @@ use App\Models\User;
 use App\Models\Payment;
 
 use App\Traits\BelongsToTenant;
+use App\Traits\HasUuid;
 
 class Ticket extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use HasFactory, BelongsToTenant, HasUuid;
 
     protected $fillable = ['vehicle_id', 'entry_time', 'exit_time', 'status', 'user_id', 'stay_type', 'tenant_id'];
 

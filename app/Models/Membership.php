@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
 use App\Traits\BelongsToTenant;
+use App\Traits\HasUuid;
 
 class Membership extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use HasFactory, BelongsToTenant, HasUuid;
 
     protected $fillable = [
         'vehicle_id', 'plate', 'vehicle_type',

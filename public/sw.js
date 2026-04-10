@@ -38,8 +38,13 @@ self.addEventListener('fetch', event => {
             }
             return response;
         }).catch(() => {
-            // Si no hay red, buscar en el cache la versión offline guardada
-            return caches.match(event.request);
+            return caches.match(event.request).then(response => {
+                if (response) return response;
+                
+                // Si no hay red ni cache, fallamos de forma que el navegador muestre su error estándar
+                // en lugar de un error de "TypeError" del Service Worker.
+                return fetch(event.request);
+            });
         })
     );
 });

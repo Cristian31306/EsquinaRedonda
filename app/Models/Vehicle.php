@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Traits\BelongsToTenant;
+use App\Traits\HasUuid;
 
 class Vehicle extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use HasFactory, BelongsToTenant, HasUuid;
 
     protected $fillable = ['plate', 'type', 'observation', 'tenant_id'];
 
