@@ -34,6 +34,10 @@ Route::get('/terminos-condiciones', function () {
 })->name('legal.terms');
 
 // Rutas Autenticadas
+// Rutas de Configuración Inicial (Desktop)
+Route::get('/setup', [\App\Http\Controllers\SetupController::class, 'index'])->name('setup.index');
+Route::post('/setup', [\App\Http\Controllers\SetupController::class, 'store'])->name('setup.store');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     
     // Dashboard Administrativo

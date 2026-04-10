@@ -16,11 +16,15 @@ class NativeAppServiceProvider extends ServiceProvider implements ProvidesPhpIni
     {
         if (! $this->app->runningInConsole()) {
             try {
+                // Detectar si la app local tiene el token de sincronización
+                $isConfigured = \Illuminate\Support\Facades\DB::table('settings')->where('key', 'tenant_sync_token')->exists();
+                $initialUrl = $isConfigured ? url('/dashboard') : url('/setup');
+
                 Window::open()
                     ->title('ParkiApp - Gestión de Parqueadero')
                     ->width(1200)
                     ->height(800)
-                    ->url(url('/dashboard'))
+                    ->url($initialUrl)
                     ->showDevTools(false);
             } catch (\Exception $e) {
                 // Silenciamos el error si no estamos en entorno NativePHP

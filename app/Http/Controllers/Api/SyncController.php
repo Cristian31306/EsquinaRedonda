@@ -69,9 +69,11 @@ class SyncController extends Controller
         $tenant = $request->get('current_tenant');
 
         return response()->json([
+            'tenant'      => $tenant,
             'rates'       => Rate::where('tenant_id', $tenant->id)->get(),
             'memberships' => Membership::where('tenant_id', $tenant->id)->active()->get(),
             'settings'    => DB::table('settings')->where('tenant_id', $tenant->id)->get(),
+            'users'       => DB::table('users')->where('tenant_id', $tenant->id)->where('is_active', true)->select('id', 'name', 'email', 'password', 'role', 'tenant_id')->get(),
             'pulled_at'   => now()
         ]);
     }

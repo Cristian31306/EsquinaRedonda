@@ -18,9 +18,11 @@ class SyncService
 
     public function __construct()
     {
-        // En producción, estas variables vendrían del archivo .env o configuración
-        $this->baseUrl = config('app.cloud_url', 'https://tu-vps-contabo.com/api/v1');
-        $this->token = config('app.tenant_token');
+        // En escritorio, buscamos el token en la base de datos local primero
+        $dbToken = DB::table('settings')->where('key', 'tenant_sync_token')->value('value');
+        
+        $this->baseUrl = config('app.cloud_url', 'https://parkiapp.algorah.bond/api/v1');
+        $this->token = $dbToken ?? config('app.tenant_token');
     }
 
     /**
@@ -73,14 +75,41 @@ class SyncService
             if ($response->successful()) {
                 $data = $response->json();
                 
-                // Actualizar Tarifas Locales
-                if (isset($data['rates'])) {
-                    foreach ($data['rates'] as $rate) {
-                        DB::table('rates')->updateOrInsert(['id' => $rate['id']], $rate);
+                DB::beginTransaction();
+                try {
+                    // Actualizar Datos de Empresa
+                    if (isset($data['tenant'])) {
+                        DB::table('tenants')->updateOrInsert(['id' => $data['tenant']['id']], $data['tenant']);
                     }
-                }
 
-                return ['success' => true, 'message' => 'Datos globales actualizados.'];
+                    // Actualizar Usuarios (Fundamental para Login Local)
+                    if (isset($data['users'])) {
+                        foreach ($data['users'] as $user) {
+                            DB::table('users')->updateOrInsert(['id' => $user['id']], $user);
+                        }
+                    }
+
+                    // Actualizar Tarifas Locales
+                    if (isset($data['rates'])) {
+                        foreach ($data['rates'] as $rate) {
+                            DB::table('rates')->updateOrInsert(['id' => $rate['id']], $rate);
+                        }
+                    }
+
+                    // Actualizar Ajustes
+                    if (isset($data['settings'])) {
+                        foreach ($data['settings'] as $setting) {
+                            // No sobreescribir el token local si ya existe (evitar bucle)
+                            DB::table('settings')->updateOrInsert(['id' => $setting['id']], (array)$setting);
+                        }
+                    }
+
+                    DB::commit();
+                    return ['success' => true, 'message' => 'Sincronización completa: Usuarios, Tarifas y Ajustes actualizados.'];
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    return ['success' => false, 'message' => 'Error al guardar datos locales: ' . $e->getMessage()];
+                }
             }
 
             return ['success' => false, 'message' => 'Error al descargar datos.'];
