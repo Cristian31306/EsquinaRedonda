@@ -84,7 +84,8 @@ watch(() => page.props.flash, (newFlash) => {
 
             <!-- Nav -->
             <nav class="flex-1 px-3 lg:px-4 py-4 space-y-6 overflow-y-auto no-scrollbar">
-                <!-- Operación -->
+                
+                <!-- MENU OPERARIO Y ADMIN (OPERACIÓN) -->
                 <div v-if="$page.props.auth.user?.role !== 'super_admin'">
                     <p class="hidden lg:block text-[9px] font-black text-indigo-300 uppercase px-4 mb-2 tracking-[0.2em] opacity-70">Operación</p>
                     <div class="space-y-1">
@@ -102,40 +103,13 @@ watch(() => page.props.flash, (newFlash) => {
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" /></svg>
                             <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Salidas</span>
                         </Link>
-                    </div>
-                </div>
-
-                <!-- Administración -->
-                <div v-if="$page.props.auth.user?.role === 'admin' || $page.props.auth.user?.role === 'super_admin'">
-                    <p class="hidden lg:block text-[9px] font-black text-indigo-300 uppercase px-4 mb-2 tracking-[0.2em] opacity-70">Administración</p>
-                    <div class="space-y-1">
-                        <Link :href="route('dashboard')" 
-                            :class="[route().current('dashboard') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
-                            class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" /></svg>
-                            <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Panel de Control</span>
-                        </Link>
+                        <!-- Operario también ve Caja y Mensualidades -->
                         <Link :href="route('shifts.index')" 
                             :class="[route().current('shifts.index') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
                             class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75l2.25 2.25" /></svg>
                             <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Turnos (Caja)</span>
-                        </Link>
-                        <Link :href="route('shifts.history')" 
-                            :class="[route().current('shifts.history') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
-                            class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                            <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Historial de Turnos</span>
-                        </Link>
-                        <Link :href="route('rates.index')" 
-                            :class="[route().current('rates.index') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
-                            class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                            <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Tarifas</span>
                         </Link>
                         <Link :href="route('memberships.index')" 
                             :class="[route().current('memberships.index') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
@@ -144,21 +118,53 @@ watch(() => page.props.flash, (newFlash) => {
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
                             <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Mensualidades</span>
                         </Link>
+                    </div>
+                </div>
+
+                <!-- MENU SOLO ADMINISTRADOR -->
+                <div v-if="$page.props.auth.user?.role === 'admin' || $page.props.auth.user?.role === 'super_admin'">
+                    <p class="hidden lg:block text-[9px] font-black text-indigo-300 uppercase px-4 mb-2 mt-6 tracking-[0.2em] opacity-70">Administración</p>
+                    <div class="space-y-1">
+                        <Link :href="route('dashboard')" 
+                            :class="[route().current('dashboard') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
+                            class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" /></svg>
+                            <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Panel de Control</span>
+                        </Link>
+                        <Link :href="route('shifts.history')" 
+                            v-if="$page.props.auth.user?.role === 'admin'"
+                            :class="[route().current('shifts.history') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
+                            class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                            <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Historial de Turnos</span>
+                        </Link>
+                        <Link :href="route('rates.index')" 
+                            v-if="$page.props.auth.user?.role === 'admin'"
+                            :class="[route().current('rates.index') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
+                            class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200 relative group"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                            <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Tarifas</span>
+                        </Link>
                         <Link :href="route('users.index')" 
                             v-if="$page.props.auth.user?.role === 'admin'"
                             :class="[route().current('users.index') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
                             class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /></svg>
                             <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Personal</span>
                         </Link>
                         <Link :href="route('reports.index')" 
                             v-if="$page.props.auth.user?.role === 'admin'"
                             :class="[route().current('reports.index') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
-                            class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200"
+                            class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200 relative"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z" /></svg>
                             <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Reportes</span>
+                            <!-- Etiqueta PRO si es Básico -->
+                            <span v-if="$page.props.auth.user?.tenant?.plan === 'basico'" class="absolute right-2 top-2 text-[6px] bg-emerald-500 text-white px-1 rounded font-bold">PRO</span>
                         </Link>
                         <Link :href="route('settings.index')" 
                             v-if="$page.props.auth.user?.role === 'admin'"
@@ -171,7 +177,7 @@ watch(() => page.props.flash, (newFlash) => {
                     </div>
                 </div>
 
-                <!-- Soporte -->
+                <!-- Soporte Técnico para Admin y Super Admin -->
                 <div v-if="$page.props.auth.user?.role === 'admin' || $page.props.auth.user?.role === 'super_admin'">
                     <p class="hidden lg:block text-[9px] font-black text-indigo-300 uppercase px-4 mb-2 mt-6 tracking-[0.2em] opacity-70">Ayuda</p>
                     <div class="space-y-1">
@@ -180,14 +186,14 @@ watch(() => page.props.flash, (newFlash) => {
                             class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.712 4.33a.75.75 0 0 1 .712.755V18a3.375 3.375 0 0 1-3.375 3.375H4.5A3.375 3.375 0 0 1 1.125 18V5.085a.75.75 0 0 1 .712-.755 41.13 41.13 0 0 1 14.875 0Zm0 0A2.25 2.25 0 0 0 14.485 2.13a41.147 41.147 0 0 0-11.22 0A2.25 2.25 0 0 0 1.125 4.33M16.712 4.33V18a3.375 3.375 0 0 1-3.375 3.375H4.5A3.375 3.375 0 0 1 1.125 18V5.085a.75.75 0 0 1 .712-.755m14.875 0A40.867 40.867 0 0 1 22.5 5.25v2.247" /></svg>
-                            <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Soporte técnico</span>
+                            <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Soporte Técnico</span>
                         </Link>
                     </div>
                 </div>
 
-                <!-- Control Maestro (Algorah) -->
+                <!-- CONTROL MAESTRO SOLAMENTE PARA SUPER_ADMIN -->
                 <div v-if="$page.props.auth.user?.role === 'super_admin'">
-                    <p class="hidden lg:block text-[9px] font-black text-sky-300 uppercase px-4 mb-2 mt-6 tracking-[0.2em] opacity-70">Administración Maestro</p>
+                    <p class="hidden lg:block text-[9px] font-black text-sky-300 uppercase px-4 mb-2 mt-6 tracking-[0.2em] opacity-70">Administración Global</p>
                     <div class="space-y-1">
                         <Link :href="route('admin.tenants.index')" 
                             :class="[route().current('admin.tenants.*') ? 'bg-sky-500 text-white shadow-xl' : 'text-sky-300 hover:bg-white/10']"
@@ -198,6 +204,7 @@ watch(() => page.props.flash, (newFlash) => {
                         </Link>
                     </div>
                 </div>
+
             </nav>
 
             <!-- Logout -->
@@ -209,7 +216,7 @@ watch(() => page.props.flash, (newFlash) => {
             </div>
         </aside>
 
-        <!-- Main Content -->
+        <!-- Main Content Area -->
         <main class="flex-1 flex flex-col min-w-0 bg-slate-50 relative">
             <header v-if="$slots.header" class="h-20 bg-white shadow-sm flex items-center px-10 z-40 no-print border-b border-slate-200">
                 <!-- Sync Widget -->
@@ -225,7 +232,7 @@ watch(() => page.props.flash, (newFlash) => {
                 <div class="flex-1">
                     <slot name="header" />
                 </div>
-                <!-- User Profile -->
+                <!-- User Profile Info -->
                 <Link :href="route('profile.edit')" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
                     <div class="text-right hidden sm:block">
                         <p class="text-[10px] font-black text-slate-900 uppercase tracking-widest leading-none">{{ $page.props.auth.user?.name }}</p>
@@ -239,8 +246,9 @@ watch(() => page.props.flash, (newFlash) => {
                 </Link>
             </header>
 
+            <!-- Main Scrollable Section -->
             <div class="flex-1 overflow-hidden p-8 flex flex-col relative">
-                <!-- Toasts -->
+                <!-- Notifications Area -->
                 <div class="fixed top-6 right-6 w-80 z-[100] flex flex-col gap-3 no-print">
                     <transition-group name="toast">
                         <div v-if="$page.props.flash?.success" key="s" class="p-4 bg-white border border-slate-100 text-emerald-600 rounded-2xl flex items-center gap-4 shadow-2xl">

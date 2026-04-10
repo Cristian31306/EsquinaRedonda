@@ -28,23 +28,24 @@ self.addEventListener('fetch', event => {
     // Solo interceptar peticiones GET
     if (event.request.method !== 'GET') return;
 
-    // Estrategia Network First para una App en Tiempo Real
+    const url = new URL(event.request.url);
+
+    // EXCEPCIÓN: Si es una ruta de administración o no es estática, pasar directo a la red.
+    // Esto evita el error "Failed to fetch" en rutas dinámicas como /users o /reports
+    if (!url.pathname.includes('/build/') && !url.pathname.includes('/assets/')) {
+        return; // Dejar que el navegador lo maneje normalmente
+    }
+
+    // Estrategia Network First para recursos estáticos clonados por Vite
     event.respondWith(
         fetch(event.request).then(response => {
-            // Clonar y guardar en cache los recursos estáticos ensamblados por Vite
-            if (event.request.url.includes('/build/') && response.status === 200) {
+            if (response.status === 200) {
                 const responseClone = response.clone();
                 caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseClone));
             }
             return response;
         }).catch(() => {
-            return caches.match(event.request).then(response => {
-                if (response) return response;
-                
-                // Si no hay red ni cache, fallamos de forma que el navegador muestre su error estándar
-                // en lugar de un error de "TypeError" del Service Worker.
-                return fetch(event.request);
-            });
+            return caches.match(event.request);
         })
     );
 });
