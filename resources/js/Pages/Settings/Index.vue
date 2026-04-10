@@ -41,12 +41,8 @@ const submit = () => {
                 <div class="p-10">
                     <div class="flex items-center gap-6 mb-12">
                         <div
-                            class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-3xl flex items-center justify-center shadow-inner">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="w-8 h-8">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615 3.001 3.001 0 0 0 3.75.615 3.001 3.001 0 0 0 3.75-.615 3.001 3.001 0 0 0 3.75.615m-15 0-1.39-1.39a1.5 1.5 0 0 1 0-2.121l1.39-1.39m15 0 1.39-1.39a1.5 1.5 0 0 0 0-2.121l-1.39-1.39" />
-                            </svg>
+                            class="w-16 h-16 bg-white border border-slate-100 rounded-3xl flex items-center justify-center p-3 shadow-sm">
+                            <img src="/favicon.png" alt="Logo" class="w-full h-full object-contain" />
                         </div>
                         <div>
                             <h3 class="text-xl font-black text-slate-900 uppercase tracking-widest">Información
@@ -156,8 +152,17 @@ const submit = () => {
 
                         <div class="flex justify-end pt-4">
                             <button type="submit" :disabled="form.processing"
-                                class="bg-indigo-950 text-white px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-slate-900 active:scale-95 transition-all disabled:opacity-50">
-                                {{ form.processing ? 'Guardando...' : 'Actualizar Identidad Corporativa' }}
+                                class="bg-indigo-950 text-white px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-slate-900 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-wait flex items-center justify-center gap-2">
+                                <template v-if="form.processing">
+                                    <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Guardando...
+                                </template>
+                                <template v-else>
+                                    Actualizar Identidad Corporativa
+                                </template>
                             </button>
                         </div>
                     </form>

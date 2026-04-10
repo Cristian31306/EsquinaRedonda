@@ -24,9 +24,8 @@ watch(() => page.props.flash, (newFlash) => {
             <!-- Brand -->
             <div class="h-20 flex items-center justify-center lg:justify-start lg:px-10 border-b border-indigo-500/30">
                 <Link :href="route('dashboard')" class="flex items-center gap-4 group">
-                    <div class="w-10 h-10 bg-white text-indigo-950 rounded-xl flex items-center justify-center font-black text-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
-                        <template v-if="$page.props.auth.user?.role === 'super_admin'">AL</template>
-                        <template v-else>{{ ($page.props.auth.user?.tenant?.name || 'ParkiApp').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() }}</template>
+                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center p-1.5 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        <img src="/favicon.png" alt="Logo" class="w-full h-full object-contain" />
                     </div>
                     <div class="hidden lg:block">
                         <template v-if="$page.props.auth.user?.role === 'super_admin'">
@@ -172,7 +171,10 @@ watch(() => page.props.flash, (newFlash) => {
                             :class="[route().current('support.*') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
                             class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200 group"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.712 16.035a9 9 0 1 0-9.424 0M16.712 16.035l2.485 2.486m-2.485-2.486a9.043 9.043 0 0 1-4.712 1.435 9.043 9.043 0 0 1-4.712-1.435m0 0-2.486 2.486m2.486-2.486a9 9 0 0 1-1.435-4.712 9 9 0 0 1 1.435-4.712m0 0L3.54 5.34m2.486 2.486a9.043 9.043 0 0 1 4.712-1.435 9.043 9.043 0 0 1 4.712 1.435m0 0 2.486-2.486m-2.486 2.486a9 9 0 0 1 1.435 4.712 9 9 0 0 1-1.435-4.712m0 0 2.486-2.486m-2.486-2.486a9 9 0 0 1-4.712 1.435 9 9 0 0 1-4.712-1.435m0 0L5.34 3.54m2.486 2.486a9.043 9.043 0 0 1 4.712-1.435 9.043 9.043 0 0 1 4.712 1.435m0 0 2.486-2.486" /></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 10.606l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
                             <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Soporte</span>
                         </Link>
                     </div>

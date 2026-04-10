@@ -88,12 +88,15 @@ class ReportController extends Controller
         $totalTickets     = $payments->sum('amount');
         $totalMemberships = $memberships->sum('amount_paid');
 
+        $settings = \App\Models\Setting::getAllCached();
+
         $pdf = PDF::loadView('reports.monthly-pdf', [
             'year'        => $year,
             'month'       => $month,
             'months'      => $this->months,
             'payments'    => $payments,
             'memberships' => $memberships,
+            'settings'    => $settings,
             'summary'     => [
                 'tickets'      => (float) $totalTickets,
                 'memberships'  => (float) $totalMemberships,

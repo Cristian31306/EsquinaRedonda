@@ -50,7 +50,7 @@ class ReportExport implements WithEvents, ShouldAutoSize
                 ]);
 
                 // Intentar insertar logo
-                $logoPath = public_path('LogoGrande.png');
+                $logoPath = public_path('favicon.png');
                 if (file_exists($logoPath)) {
                     $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
                     $drawing->setName('Logo');

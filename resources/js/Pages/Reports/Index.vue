@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 import { onMounted, ref, watch } from 'vue';
 import Chart from 'chart.js/auto';
+import axios from 'axios';
 
 const props = defineProps({
     filters: Object,
@@ -22,6 +23,8 @@ const months = [
 
 const selectedYear = ref(props.filters.year);
 const selectedMonth = ref(props.filters.month);
+const isExportingExcel = ref(false);
+const isExportingPdf = ref(false);
 
 const updateFilters = () => {
     router.get(route('reports.index'), {
@@ -102,18 +105,54 @@ const renderChart = () => {
     });
 };
 
-const handleExportExcel = () => {
-    window.location.href = route('reports.excel', {
-        year: selectedYear.value,
-        month: selectedMonth.value,
-    });
+const handleExportExcel = async () => {
+    if (isExportingExcel.value) return;
+    isExportingExcel.value = true;
+    try {
+        const response = await axios.get(route('reports.excel', {
+            year: selectedYear.value,
+            month: selectedMonth.value,
+        }), { responseType: 'blob' });
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `reporte_${selectedYear.value}_${selectedMonth.value}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Export error:', error);
+        alert('Error al generar el archivo Excel. Por favor intente de nuevo.');
+    } finally {
+        isExportingExcel.value = false;
+    }
 };
 
-const handleExportPdf = () => {
-    window.location.href = route('reports.pdf', {
-        year: selectedYear.value,
-        month: selectedMonth.value,
-    });
+const handleExportPdf = async () => {
+    if (isExportingPdf.value) return;
+    isExportingPdf.value = true;
+    try {
+        const response = await axios.get(route('reports.pdf', {
+            year: selectedYear.value,
+            month: selectedMonth.value,
+        }), { responseType: 'blob' });
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `reporte_${selectedYear.value}_${selectedMonth.value}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Export error:', error);
+        alert('Error al generar el archivo PDF. Por favor intente de nuevo.');
+    } finally {
+        isExportingPdf.value = false;
+    }
 };
 
 const formatCurrency = (val) => {
@@ -145,25 +184,55 @@ const formatCurrency = (val) => {
                     </div>
 
                     <div class="flex gap-2">
-                        <button @click="$page.props.auth.user.tenant?.plan === 'basico' ? null : handleExportExcel()"
-                            :class="[$page.props.auth.user.tenant?.plan === 'basico' ? 'bg-slate-100 text-slate-400 cursor-not-allowed border-slate-200' : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-100']"
-                            class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 border">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                                stroke="currentColor" class="w-4 h-4">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-                            </svg>
-                            Excel
+                        <button 
+                            @click="$page.props.auth.user.tenant?.plan === 'basico' ? null : handleExportExcel()"
+                            :disabled="isExportingExcel || isExportingPdf"
+                            :class="[
+                                $page.props.auth.user.tenant?.plan === 'basico' 
+                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed border-slate-200' 
+                                    : (isExportingExcel ? 'bg-slate-100 text-slate-400 cursor-wait' : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-100')
+                            ]"
+                            class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 border disabled:opacity-50">
+                            <template v-if="isExportingExcel">
+                                <svg class="animate-spin h-4 w-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>Exportando...</span>
+                            </template>
+                            <template v-else>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                                </svg>
+                                <span>Excel</span>
+                            </template>
                         </button>
-                        <button @click="$page.props.auth.user.tenant?.plan === 'basico' ? null : handleExportPdf()"
-                            :class="[$page.props.auth.user.tenant?.plan === 'basico' ? 'bg-slate-100 text-slate-400 cursor-not-allowed border-slate-200' : 'bg-rose-700 text-white hover:bg-rose-800 shadow-rose-100']"
-                            class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 border">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                                stroke="currentColor" class="w-4 h-4">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                            </svg>
-                            PDF
+                        <button 
+                            @click="$page.props.auth.user.tenant?.plan === 'basico' ? null : handleExportPdf()"
+                            :disabled="isExportingExcel || isExportingPdf"
+                            :class="[
+                                $page.props.auth.user.tenant?.plan === 'basico' 
+                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed border-slate-200' 
+                                    : (isExportingPdf ? 'bg-slate-100 text-slate-400 cursor-wait' : 'bg-rose-700 text-white hover:bg-rose-800 shadow-rose-100')
+                            ]"
+                            class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 border disabled:opacity-50">
+                            <template v-if="isExportingPdf">
+                                <svg class="animate-spin h-4 w-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>Exportando...</span>
+                            </template>
+                            <template v-else>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                                    stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                                </svg>
+                                <span>PDF</span>
+                            </template>
                         </button>
                     </div>
                 </div>
