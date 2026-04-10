@@ -135,10 +135,12 @@ watch(() => page.props.flash, (newFlash) => {
                         <Link :href="route('shifts.history')" 
                             v-if="$page.props.auth.user?.role === 'admin'"
                             :class="[route().current('shifts.history') ? 'bg-white text-indigo-950 shadow-lg' : 'text-indigo-100 hover:bg-white/10']"
-                            class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200"
+                            class="flex items-center justify-center lg:justify-start gap-4 p-2.5 rounded-2xl transition-all duration-200 relative"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
                             <span class="hidden lg:block text-xs font-black uppercase tracking-widest">Historial de Turnos</span>
+                            <!-- Etiqueta PRO si es Básico -->
+                            <span v-if="$page.props.auth.user?.tenant?.plan === 'basico'" class="absolute right-2 top-2 text-[6px] bg-emerald-500 text-white px-1 rounded font-bold">PRO</span>
                         </Link>
                         <Link :href="route('rates.index')" 
                             v-if="$page.props.auth.user?.role === 'admin'"
