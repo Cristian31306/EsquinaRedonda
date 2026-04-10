@@ -32,7 +32,7 @@ class RateController extends Controller
 
         foreach ($request->rates as $concept => $value) {
             Rate::updateOrCreate(
-                ['vehicle_type' => $vehicleType, 'concept' => $concept],
+                ['vehicle_type' => $vehicleType, 'concept' => $concept, 'tenant_id' => (string) auth()->user()->tenant_id],
                 ['value' => $value, 'is_active' => $value > 0]
             );
         }

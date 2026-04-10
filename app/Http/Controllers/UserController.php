@@ -62,7 +62,7 @@ class UserController extends Controller
             'email' => $email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
-            'tenant_id' => $tenant->id,
+            'tenant_id' => (string) $tenant->id,
             'is_active' => true,
         ]);
 
