@@ -52,11 +52,6 @@ const displayedInventory = computed(() => {
                     <p class="text-[8px] font-bold text-slate-400 uppercase tracking-[0.4em] mt-1">Control General en
                         Tiempo Real</p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">Sistema
-                        Sincronizado</span>
-                </div>
             </div>
         </template>
 
