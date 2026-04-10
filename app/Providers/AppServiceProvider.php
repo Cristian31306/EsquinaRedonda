@@ -12,7 +12,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Registro dinámico de NativePHP (Seguro para producción/VPS)
+        if (class_exists(\Native\Laravel\NativeServiceProvider::class)) {
+            $this->app->register(\Native\Laravel\NativeServiceProvider::class);
+        }
+
+        if (class_exists(\App\Providers\NativeAppServiceProvider::class)) {
+            $this->app->register(\App\Providers\NativeAppServiceProvider::class);
+        }
     }
 
     /**
