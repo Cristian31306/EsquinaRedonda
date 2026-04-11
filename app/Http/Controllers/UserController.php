@@ -35,14 +35,18 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|max:255',
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => 'required|confirmed|min:6',
             'role' => 'required|in:admin,operator,usuario',
         ]);
 
         $email = $request->email;
         $tenant = auth()->user()->tenant;
 
-        if (!str_contains($email, '@') && $tenant) {
+        if (!$tenant) {
+            return back()->with('error', 'Error: No se encontró una empresa vinculada a tu cuenta de administrador.');
+        }
+
+        if (!str_contains($email, '@')) {
             $domain = str_replace('-', '', $tenant->slug);
             $email .= '@' . $domain . '.com';
         }
