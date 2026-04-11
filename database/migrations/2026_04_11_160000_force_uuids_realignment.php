@@ -45,10 +45,10 @@ return new class extends Migration
         // 2. LIMPIAR DATOS DE TODAS LAS TABLAS DEL SISTEMA (Última vez)
         // Obtenemos todas las tablas de la base de datos para no dejarnos ninguna
         $tables = DB::select("SHOW TABLES");
-        $tableKey = \"Tables_in_\" . $dbName;
+        $tableKey = "Tables_in_" . $dbName;
 
         foreach ($tables as $table) {
-            $tableName = $table->\$tableKey;
+            $tableName = $table->$tableKey;
             
             // Solo truncamos tablas del core que sabemos que deben resetearse para el cambio de UUID
             $coreTables = ['tenants', 'users', 'settings', 'rates', 'tickets', 'payments', 'memberships', 'shifts', 'cash_shifts', 'vehicle_types'];
@@ -76,7 +76,7 @@ return new class extends Migration
 
         // 5. TRANSFORMAR TODA COLUMNA 'tenant_id' DE CUALQUIER TABLA A UUID
         foreach ($tables as $table) {
-            $tableName = $table->\$tableKey;
+            $tableName = $table->$tableKey;
             if (Schema::hasColumn($tableName, 'tenant_id') && $tableName !== 'users') {
                 Schema::table($tableName, function (Blueprint $table) {
                     $table->uuid('tenant_id')->nullable()->change();
