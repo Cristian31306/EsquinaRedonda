@@ -19,44 +19,42 @@ return new class extends Migration
             return;
         }
 
-        // 1. Eliminar CLAVES FORÁNEAS en MySQL antes de cualquier cambio de columna
-        Schema::table('users', function (Blueprint $table) {
-            if (Schema::hasColumn('users', 'tenant_id')) {
-                $table->dropForeign(['tenant_id']);
-            }
-        });
+        Schema::disableForeignKeyConstraints();
 
-        // Repetir para otras tablas que tengan tenant_id como foreign key
-        $withTenant = ['rates', 'tickets', 'payments', 'memberships', 'shifts'];
-        foreach ($withTenant as $tableName) {
-            if (Schema::hasTable($tableName)) {
-                Schema::table($tableName, function (Blueprint $table) use ($tableName) {
-                    // Solo intentar drop si el índice existe en MySQL
-                    try {
-                        $table->dropForeign($tableName . '_tenant_id_foreign');
-                    } catch (\Exception $e) { /* Ignorar si no existe */ }
-                });
+        // 1. ELIMINAR CLAVES FORÁNEAS (De forma segura y tolerante a fallos)
+        $tablesWithTenant = ['users', 'rates', 'tickets', 'payments', 'memberships', 'shifts'];
+        
+        foreach ($tablesWithTenant as $tableName) {
+            if (Schema::hasTable($tableName) && Schema::hasColumn($tableName, 'tenant_id')) {
+                try {
+                    Schema::table($tableName, function (Blueprint $table) {
+                        // Laravel intentará encontrar el nombre correcto de la FK basándose en la columna
+                        $table->dropForeign(['tenant_id']);
+                    });
+                } catch (\Exception $e) {
+                    // Si no existe, ignoramos y seguimos
+                }
             }
         }
 
-        // 2. Ahora sí, limpiar datos y transformar
-        Schema::disableForeignKeyConstraints();
-        $tables = ['tenants', 'users', 'settings', 'rates', 'tickets', 'payments', 'memberships', 'shifts'];
-        foreach ($tables as $table) {
+        // 2. LIMPIAR DATOS (Última vez para asegurar integridad de tipos)
+        $allTables = ['tenants', 'users', 'settings', 'rates', 'tickets', 'payments', 'memberships', 'shifts'];
+        foreach ($allTables as $table) {
             if (Schema::hasTable($table)) {
                 DB::table($table)->truncate();
             }
         }
 
-        // Reconfigurar TENANTS
+        // 3. TRANSFORMAR TENANTS
         Schema::table('tenants', function (Blueprint $table) {
+            // En MySQL, para cambiar un PK auto-increment, a veces es mejor drop y add
             $table->dropColumn('id');
         });
         Schema::table('tenants', function (Blueprint $table) {
             $table->uuid('id')->primary()->first();
         });
 
-        // Reconfigurar USERS
+        // 4. TRANSFORMAR USERS
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn(['id', 'tenant_id']);
         });
@@ -65,8 +63,8 @@ return new class extends Migration
             $table->uuid('tenant_id')->nullable()->after('id');
         });
 
-        // Transformar las demás tablas a UUID para tenant_id
-        foreach ($withTenant as $tableName) {
+        // 5. TRANSFORMAR TABLAS DEPENDIENTES
+        foreach (['rates', 'tickets', 'payments', 'memberships', 'shifts'] as $tableName) {
             if (Schema::hasTable($tableName) && Schema::hasColumn($tableName, 'tenant_id')) {
                 Schema::table($tableName, function (Blueprint $table) {
                     $table->uuid('tenant_id')->nullable()->change();
