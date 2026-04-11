@@ -54,7 +54,7 @@ const submit = () => {
 
         <form @submit.prevent="submit" class="space-y-6" autocomplete="off">
             <div class="space-y-2">
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Usuario</label>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Email o Usuario</label>
                 <input 
                     id="email"
                     type="text"
@@ -64,8 +64,11 @@ const submit = () => {
                     autocomplete="off"
                     name="user_email_field"
                     class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold text-slate-900 focus:border-indigo-950 focus:ring-0 transition-all placeholder:text-slate-300"
-                    placeholder="admin"
+                    :placeholder="typeof window !== 'undefined' && (window.NativePHP || window.process) ? 'ej: cristian' : 'ej: admin@empresa.com'"
                 />
+                <p v-if="typeof window !== 'undefined' && (window.NativePHP || window.process)" class="text-[8px] font-bold text-indigo-500 uppercase tracking-widest px-2">
+                    Tip: En esta terminal solo necesitas tu nombre de usuario.
+                </p>
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 

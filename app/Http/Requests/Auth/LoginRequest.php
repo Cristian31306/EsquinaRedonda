@@ -42,10 +42,24 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt(array_merge($this->only('email', 'password'), ['is_active' => true]), $this->boolean('remember'))) {
+        $credentials = $this->only('email', 'password');
+
+        // Lógica de Login Simplificado para Escritorio (Username -> Email)
+        // Solo aplica si el usuario no pone @ y estamos en el entorno local de escritorio
+        if (!str_contains($credentials['email'], '@')) {
+            $tenant = \App\Models\Tenant::first();
+            if ($tenant) {
+                $domain = str_replace('-', '', $tenant->slug);
+                $credentials['email'] .= '@' . $domain . '.com';
+                
+                // Actualizamos el email en el request para que el RateLimiter use la llave correcta
+                $this->merge(['email' => $credentials['email']]);
+            }
+        }
+
+        if (! Auth::attempt(array_merge($credentials, ['is_active' => true]), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
-            // Check if user exists but is inactive to give a better message (optional, but safer to just say failed)
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
             ]);

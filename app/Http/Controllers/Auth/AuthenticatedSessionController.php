@@ -33,6 +33,18 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Restricción de Acceso Web para Operadores
+        // Solo pueden entrar si el sistema NO es la nube (es decir, tiene conexión nativephp)
+        // o si el rol es mayor a operador.
+        $user = Auth::user();
+        if ($user->role === 'operator' && !config('database.connections.nativephp')) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            
+            return redirect()->route('login')->with('error', 'Los operadores solo pueden acceder desde la aplicación de escritorio instalada.');
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
