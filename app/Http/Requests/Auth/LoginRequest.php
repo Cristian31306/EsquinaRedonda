@@ -47,14 +47,34 @@ class LoginRequest extends FormRequest
         // Lógica de Login Simplificado para Escritorio (Username -> Email)
         // Solo aplica si el usuario no pone @ y estamos en el entorno local de escritorio
         if (!str_contains($credentials['email'], '@')) {
+            $username = $credentials['email'];
             $tenant = \App\Models\Tenant::first();
+            
+            // Intento 1: Autocompletar el email basado en el slug de la empresa
             if ($tenant) {
                 $domain = str_replace('-', '', $tenant->slug);
-                $credentials['email'] .= '@' . $domain . '.com';
+                $fullEmail = $username . '@' . $domain . '.com';
                 
-                // Actualizamos el email en el request para que el RateLimiter use la llave correcta
-                $this->merge(['email' => $credentials['email']]);
+                // Si existe un usuario con este email, lo usamos
+                if (\App\Models\User::where('email', $fullEmail)->exists()) {
+                    $credentials['email'] = $fullEmail;
+                } else {
+                    // Intento 2: Buscar el email real del usuario por su NOMBRE
+                    $user = \App\Models\User::where('name', 'like', $username . '%')->first();
+                    if ($user) {
+                        $credentials['email'] = $user->email;
+                    }
+                }
+            } else {
+                // Si no hay tenant local (primer inicio), intentamos buscar por nombre directo
+                $user = \App\Models\User::where('name', 'like', $username . '%')->first();
+                if ($user) {
+                    $credentials['email'] = $user->email;
+                }
             }
+            
+            // Actualizamos el request para que el RateLimiter y Auth usen la llave correcta
+            $this->merge(['email' => $credentials['email']]);
         }
 
         if (! Auth::attempt(array_merge($credentials, ['is_active' => true]), $this->boolean('remember'))) {

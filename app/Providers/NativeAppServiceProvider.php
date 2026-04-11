@@ -29,12 +29,10 @@ class NativeAppServiceProvider extends ServiceProvider implements ProvidesPhpIni
 
         if (config('database.connections.nativephp') && ! $this->app->runningInConsole()) {
             try {
-                // Optimización de arranque: Usar caché rápida para evitar bloqueos por DB
-                $isConfigured = \Illuminate\Support\Facades\Cache::rememberForever('desktop_configured', function() {
-                    return \Illuminate\Support\Facades\DB::table('settings')->where('key', 'tenant_sync_token')->exists();
-                });
-
-                $initialUrl = $isConfigured ? url('/dashboard') : url('/setup');
+                // 1. Configuración de la Ventana Principal
+                // Abrimos la ventana PRIMERO para que el usuario no sienta que la app no abre
+                $isConfigured = \Illuminate\Support\Facades\DB::table('settings')->where('key', 'tenant_sync_token')->exists();
+                $initialUrl = $isConfigured ? url('/login') : url('/setup');
 
                 Window::open()
                     ->title('ParkiApp - Gestión de Parqueadero')
@@ -42,8 +40,16 @@ class NativeAppServiceProvider extends ServiceProvider implements ProvidesPhpIni
                     ->height(800)
                     ->url($initialUrl)
                     ->showDevTools(true);
+
+                // 2. Sincronización Automática de Arranque (PULL)
+                // Se ejecuta después de abrir la ventana para no bloquear el inicio
+                $token = \Illuminate\Support\Facades\DB::table('settings')->where('key', 'tenant_sync_token')->value('value');
+                if ($token) {
+                    // Lo ejecutamos. Window::open() ya envió la señal a Electron, así que esto corre en paralelo
+                    app(\App\Services\SyncService::class)->pull();
+                }
             } catch (\Exception $e) {
-                logger()->info('NativePHP Window no pudo abrirse: ' . $e->getMessage());
+                logger()->info('Error en arranque de NativePHP: ' . $e->getMessage());
             }
         }
     }

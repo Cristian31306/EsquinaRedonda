@@ -56,6 +56,7 @@ class SyncService
 
         try {
             $response = Http::withToken($this->token)
+                ->withoutVerifying()
                 ->timeout(30)
                 ->post("{$this->baseUrl}/sync/push", $payload);
 
@@ -79,6 +80,7 @@ class SyncService
 
         try {
             $response = Http::withToken($this->token)
+                ->withoutVerifying()
                 ->timeout(30)
                 ->get("{$this->baseUrl}/sync/pull");
 
