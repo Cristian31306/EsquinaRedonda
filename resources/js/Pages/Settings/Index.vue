@@ -3,7 +3,8 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 
 const props = defineProps({
-    settings: Object
+    settings: Object,
+    tenant: Object
 });
 
 const form = useForm({
@@ -20,6 +21,28 @@ const submit = () => {
     form.post(route('settings.update'), {
         preserveScroll: true,
         onSuccess: () => alert('Configuración guardada correctamente'),
+    });
+};
+
+const copyToClipboard = (text) => {
+    if (!navigator.clipboard) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            alert('Token copiado al portapapeles');
+        } catch (err) {
+            console.error('Error al copiar:', err);
+        }
+        document.body.removeChild(textArea);
+        return;
+    }
+    navigator.clipboard.writeText(text).then(() => {
+        alert('Token copiado al portapapeles');
+    }).catch(err => {
+        console.error('Error al copiar:', err);
     });
 };
 </script>
@@ -181,10 +204,7 @@ const submit = () => {
                                             </code>
                                             <button 
                                                 type="button"
-                                                @click="() => {
-                                                    navigator.clipboard.writeText(tenant?.api_token);
-                                                    alert('Token copiado al portapapeles');
-                                                }"
+                                                @click="copyToClipboard(tenant?.api_token)"
                                                 class="shrink-0 bg-white/10 hover:bg-white/20 text-white p-2.5 rounded-xl transition-all active:scale-95"
                                                 title="Copiar Token"
                                             >
