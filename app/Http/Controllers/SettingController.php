@@ -13,7 +13,8 @@ class SettingController extends Controller
         $settings = Setting::getAllCached();
         
         return Inertia::render('Settings/Index', [
-            'settings' => $settings
+            'settings' => $settings,
+            'tenant' => auth()->user()->tenant
         ]);
     }
 

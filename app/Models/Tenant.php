@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Tenant extends Model
 {
@@ -23,7 +24,20 @@ class Tenant extends Model
         'business_hours',
         'welcome_message',
         'disclaimer_message',
+        'api_token',
     ];
+    
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted()
+    {
+        static::creating(function ($tenant) {
+            if (empty($tenant->api_token)) {
+                $tenant->api_token = \Illuminate\Support\Str::random(60);
+            }
+        });
+    }
 
     /**
      * Verifica si el inquilino puede exportar reportes (Solo Plan Pro).

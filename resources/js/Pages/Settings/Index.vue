@@ -150,6 +150,65 @@ const submit = () => {
                             </div>
                         </div>
 
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sincronización de Terminales (Escritorio) -->
+                        <div class="bg-slate-950 rounded-[2.5rem] p-10 border border-white/5 relative overflow-hidden group">
+                            <!-- Efecto de brillo -->
+                            <div class="absolute -top-24 -right-24 w-64 h-64 bg-indigo-600/10 blur-[100px] rounded-full group-hover:bg-indigo-600/20 transition-all duration-700"></div>
+                            
+                            <div class="relative z-10">
+                                <div class="flex items-center gap-6 mb-8">
+                                    <div class="w-14 h-14 bg-indigo-600/20 rounded-2xl flex items-center justify-center text-indigo-400 border border-indigo-500/20 shadow-lg shadow-indigo-500/10">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-black text-white uppercase tracking-widest">Sincronización de Terminal</h3>
+                                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Vincula tu aplicación de escritorio para operación offline</p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-6">
+                                    <p class="text-sm font-medium text-slate-400 leading-relaxed max-w-2xl">
+                                        Utiliza este <span class="text-indigo-400 font-bold">Token de API</span> para vincular esta terminal de escritorio. 
+                                        Esto permitirá que los tickets se sincronicen automáticamente con la nube cuando haya conexión.
+                                    </p>
+
+                                    <div class="flex flex-col sm:flex-row gap-4 items-stretch">
+                                        <div class="flex-1 bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center justify-between group/token overflow-hidden">
+                                            <code class="text-indigo-300 font-mono text-xs truncate mr-4">
+                                                {{ tenant?.api_token || 'Token no generado' }}
+                                            </code>
+                                            <button 
+                                                type="button"
+                                                @click="() => {
+                                                    navigator.clipboard.writeText(tenant?.api_token);
+                                                    alert('Token copiado al portapapeles');
+                                                }"
+                                                class="shrink-0 bg-white/10 hover:bg-white/20 text-white p-2.5 rounded-xl transition-all active:scale-95"
+                                                title="Copiar Token"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 1 1.5.124M9 17.25h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 1 1.5.124M9 17.25h3.375M9 11.25v5.25" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-3 text-[10px] font-black text-rose-500/80 uppercase tracking-widest bg-rose-500/5 border border-rose-500/10 rounded-xl p-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+                                            <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.401 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clip-rule="evenodd" />
+                                        </svg>
+                                        Importante: Mantén este token en secreto. Cualquiera con acceso al token puede sincronizar datos.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="flex justify-end pt-4">
                             <button type="submit" :disabled="form.processing"
                                 class="bg-indigo-950 text-white px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-slate-900 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-wait flex items-center justify-center gap-2">

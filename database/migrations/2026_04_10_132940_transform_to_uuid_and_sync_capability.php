@@ -45,21 +45,138 @@ return new class extends Migration
             // Limpiar datos previos
             DB::table($tableName)->truncate();
 
-            Schema::table($tableName, function (Blueprint $table) {
-                $table->dropColumn('id');
-            });
+            if (DB::getDriverName() === 'sqlite') {
+                // Estrategia para SQLite: Recrear la tabla
+                Schema::dropIfExists($tableName);
 
-            Schema::table($tableName, function (Blueprint $table) use ($foreigns) {
-                $table->uuid('id')->primary()->first();
-                
-                foreach ($foreigns as $foreign) {
-                    $table->uuid($foreign)->nullable()->change();
-                }
+                Schema::create($tableName, function (Blueprint $table) use ($tableName, $foreigns) {
+                    $table->uuid('id')->primary();
 
-                if (!Schema::hasColumn($table->getTable(), 'last_synced_at')) {
+                    // Reconstruir campos específicos según la tabla
+                    switch ($tableName) {
+                        case 'tenants':
+                            $table->string('name');
+                            $table->string('slug')->unique();
+                            $table->enum('status', ['active', 'suspended'])->default('active');
+                            $table->enum('plan', ['vitalicio', 'cloud'])->default('vitalicio');
+                            $table->string('nit')->nullable();
+                            $table->string('address')->nullable();
+                            $table->string('phone')->nullable();
+                            $table->string('social_handle')->nullable();
+                            $table->string('tax_regime')->nullable();
+                            $table->string('business_hours')->nullable();
+                            $table->text('welcome_message')->nullable();
+                            $table->text('disclaimer_message')->nullable();
+                            $table->string('billing_cycle')->nullable();
+                            $table->timestamp('expires_at')->nullable();
+                            break;
+
+                        case 'users':
+                            $table->string('name');
+                            $table->string('email')->unique();
+                            $table->timestamp('email_verified_at')->nullable();
+                            $table->string('password');
+                            $table->string('role')->default('operator');
+                            $table->boolean('is_active')->default(true);
+                            $table->rememberToken();
+                            break;
+
+                        case 'vehicles':
+                            $table->string('plate')->unique();
+                            $table->enum('type', ['carro', 'moto', 'pesado']);
+                            $table->text('observation')->nullable();
+                            break;
+
+                        case 'rates':
+                            $table->string('vehicle_type');
+                            $table->string('concept');
+                            $table->decimal('value', 10, 2);
+                            $table->boolean('is_active')->default(true);
+                            break;
+
+                        case 'cash_shifts':
+                            $table->uuid('user_id'); // Será UUID
+                            $table->timestamp('start_time');
+                            $table->timestamp('end_time')->nullable();
+                            $table->decimal('opening_cash', 15, 2);
+                            $table->decimal('closing_cash_declared', 15, 2)->nullable();
+                            $table->enum('status', ['open', 'closed'])->default('open');
+                            break;
+
+                        case 'tickets':
+                            $table->uuid('vehicle_id');
+                            $table->uuid('user_id');
+                            $table->timestamp('entry_time');
+                            $table->timestamp('exit_time')->nullable();
+                            $table->enum('status', ['active', 'completed', 'cancelled'])->default('active');
+                            $table->string('stay_type')->nullable()->default(null);
+                            break;
+
+                        case 'payments':
+                            $table->uuid('ticket_id');
+                            $table->uuid('cash_shift_id');
+                            $table->decimal('amount', 15, 2);
+                            $table->string('payment_method');
+                            break;
+
+                        case 'memberships':
+                            $table->uuid('vehicle_id');
+                            $table->uuid('cash_shift_id')->nullable();
+                            $table->string('plate');
+                            $table->string('vehicle_type');
+                            $table->date('start_date');
+                            $table->date('end_date');
+                            $table->decimal('amount_paid', 10, 2)->default(0);
+                            $table->string('notes')->nullable();
+                            break;
+
+                        case 'settings':
+                            $table->string('key')->unique();
+                            $table->text('value')->nullable();
+                            break;
+
+                        case 'support_tickets':
+                            $table->uuid('user_id');
+                            $table->string('subject');
+                            $table->enum('priority', ['low', 'medium', 'high'])->default('medium');
+                            $table->enum('status', ['open', 'in_progress', 'closed'])->default('open');
+                            $table->timestamp('last_reply_at')->nullable();
+                            break;
+
+                        case 'support_messages':
+                            $table->uuid('support_ticket_id');
+                            $table->uuid('user_id');
+                            $table->text('message');
+                            $table->string('attachment_path')->nullable();
+                            break;
+                    }
+
+                    // Forzar tenant_id como UUID si aplica
+                    if (in_array('tenant_id', $foreigns)) {
+                        $table->uuid('tenant_id')->nullable();
+                    }
+
+                    $table->timestamps();
                     $table->timestamp('last_synced_at')->nullable();
-                }
-            });
+                });
+            } else {
+                // Estrategia original para MySQL
+                Schema::table($tableName, function (Blueprint $table) {
+                    $table->dropColumn('id');
+                });
+
+                Schema::table($tableName, function (Blueprint $table) use ($foreigns) {
+                    $table->uuid('id')->primary()->first();
+                    
+                    foreach ($foreigns as $foreign) {
+                        $table->uuid($foreign)->nullable()->change();
+                    }
+
+                    if (!Schema::hasColumn($table->getTable(), 'last_synced_at')) {
+                        $table->timestamp('last_synced_at')->nullable();
+                    }
+                });
+            }
         }
 
         // FASE 3: Restaurar llaves foráneas como UUID

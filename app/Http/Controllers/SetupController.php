@@ -37,6 +37,9 @@ class SetupController extends Controller
         $result = $sync->pull();
 
         if ($result['success']) {
+            // Optimización: Marcar en caché que ya estamos configurados
+            \Illuminate\Support\Facades\Cache::forever('desktop_configured', true);
+            
             return redirect()->route('login')->with('success', 'Configuración completada. Ya puedes iniciar sesión.');
         }
 

@@ -16,8 +16,11 @@ class NativeAppServiceProvider extends ServiceProvider implements ProvidesPhpIni
     {
         if (! $this->app->runningInConsole()) {
             try {
-                // Detectar si la app local tiene el token de sincronización
-                $isConfigured = \Illuminate\Support\Facades\DB::table('settings')->where('key', 'tenant_sync_token')->exists();
+                // Optimización de arranque: Usar caché rápida para evitar bloqueos por DB
+                $isConfigured = \Illuminate\Support\Facades\Cache::rememberForever('desktop_configured', function() {
+                    return \Illuminate\Support\Facades\DB::table('settings')->where('key', 'tenant_sync_token')->exists();
+                });
+
                 $initialUrl = $isConfigured ? url('/dashboard') : url('/setup');
 
                 Window::open()
@@ -25,7 +28,7 @@ class NativeAppServiceProvider extends ServiceProvider implements ProvidesPhpIni
                     ->width(1200)
                     ->height(800)
                     ->url($initialUrl)
-                    ->showDevTools(false);
+                    ->showDevTools(true);
             } catch (\Exception $e) {
                 // Silenciamos el error si no estamos en entorno NativePHP
                 // Esto permite que la app funcione en el navegador normal
