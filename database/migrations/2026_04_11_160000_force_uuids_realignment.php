@@ -19,35 +19,46 @@ return new class extends Migration
             return;
         }
 
+        $dbName = config('database.connections.mysql.database');
+
+        // 1. LIMPIEZA DINÁMICA DE CLAVES FORÁNEAS
+        // Buscamos todas las restricciones que apuntan a tenants o users en esta base de datos
+        $foreignKeys = DB::select("
+            SELECT TABLE_NAME, CONSTRAINT_NAME 
+            FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+            WHERE REFERENCED_TABLE_SCHEMA = ? 
+            AND REFERENCED_TABLE_NAME IN ('tenants', 'users')
+        ", [$dbName]);
+
         Schema::disableForeignKeyConstraints();
 
-        // 1. ELIMINAR CLAVES FORÁNEAS (De forma segura y tolerante a fallos)
-        $tablesWithTenant = ['users', 'rates', 'tickets', 'payments', 'memberships', 'shifts'];
-        
-        foreach ($tablesWithTenant as $tableName) {
-            if (Schema::hasTable($tableName) && Schema::hasColumn($tableName, 'tenant_id')) {
-                try {
-                    Schema::table($tableName, function (Blueprint $table) {
-                        // Laravel intentará encontrar el nombre correcto de la FK basándose en la columna
-                        $table->dropForeign(['tenant_id']);
-                    });
-                } catch (\Exception $e) {
-                    // Si no existe, ignoramos y seguimos
-                }
+        foreach ($foreignKeys as $fk) {
+            try {
+                Schema::table($fk->TABLE_NAME, function (Blueprint $table) use ($fk) {
+                    $table->dropForeign($fk->CONSTRAINT_NAME);
+                });
+            } catch (\Exception $e) {
+                // Si falla el borrado de una FK específica, seguimos adelante
             }
         }
 
-        // 2. LIMPIAR DATOS (Última vez para asegurar integridad de tipos)
-        $allTables = ['tenants', 'users', 'settings', 'rates', 'tickets', 'payments', 'memberships', 'shifts'];
-        foreach ($allTables as $table) {
-            if (Schema::hasTable($table)) {
-                DB::table($table)->truncate();
+        // 2. LIMPIAR DATOS DE TODAS LAS TABLAS DEL SISTEMA (Última vez)
+        // Obtenemos todas las tablas de la base de datos para no dejarnos ninguna
+        $tables = DB::select("SHOW TABLES");
+        $tableKey = \"Tables_in_\" . $dbName;
+
+        foreach ($tables as $table) {
+            $tableName = $table->\$tableKey;
+            
+            // Solo truncamos tablas del core que sabemos que deben resetearse para el cambio de UUID
+            $coreTables = ['tenants', 'users', 'settings', 'rates', 'tickets', 'payments', 'memberships', 'shifts', 'cash_shifts', 'vehicle_types'];
+            if (in_array($tableName, $coreTables)) {
+                DB::table($tableName)->truncate();
             }
         }
 
         // 3. TRANSFORMAR TENANTS
         Schema::table('tenants', function (Blueprint $table) {
-            // En MySQL, para cambiar un PK auto-increment, a veces es mejor drop y add
             $table->dropColumn('id');
         });
         Schema::table('tenants', function (Blueprint $table) {
@@ -63,9 +74,10 @@ return new class extends Migration
             $table->uuid('tenant_id')->nullable()->after('id');
         });
 
-        // 5. TRANSFORMAR TABLAS DEPENDIENTES
-        foreach (['rates', 'tickets', 'payments', 'memberships', 'shifts'] as $tableName) {
-            if (Schema::hasTable($tableName) && Schema::hasColumn($tableName, 'tenant_id')) {
+        // 5. TRANSFORMAR TODA COLUMNA 'tenant_id' DE CUALQUIER TABLA A UUID
+        foreach ($tables as $table) {
+            $tableName = $table->\$tableKey;
+            if (Schema::hasColumn($tableName, 'tenant_id') && $tableName !== 'users') {
                 Schema::table($tableName, function (Blueprint $table) {
                     $table->uuid('tenant_id')->nullable()->change();
                 });
