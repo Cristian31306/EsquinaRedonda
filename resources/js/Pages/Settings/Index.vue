@@ -150,10 +150,6 @@ const submit = () => {
                             </div>
                         </div>
 
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Sincronización de Terminales (Escritorio) -->
                         <div class="bg-slate-950 rounded-[2.5rem] p-10 border border-white/5 relative overflow-hidden group">
                             <!-- Efecto de brillo -->
