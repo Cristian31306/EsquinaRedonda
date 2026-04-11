@@ -15,19 +15,10 @@ class NativeAppServiceProvider extends ServiceProvider implements ProvidesPhpIni
      */
     public function boot(): void
     {
-        // Solo ejecutar migraciones nativas si la conexión existe (evita errores en la nube/VPS)
-        if (config('database.connections.nativephp')) {
-            try {
-                Artisan::call('migrate', [
-                    '--force' => true,
-                    '--database' => 'nativephp'
-                ]);
-            } catch (\Exception $e) {
-                logger()->error('Error ejecutando migraciones nativas: ' . $e->getMessage());
-            }
-        }
-
-        if (config('database.connections.nativephp') && ! $this->app->runningInConsole()) {
+        // Unificación: No forzamos conexión 'nativephp'. Usamos la predeterminada (sqlite).
+        // Esto permite que el Login y la Sincro compartan el mismo archivo.
+        
+        if (! $this->app->runningInConsole()) {
             try {
                 // 1. Configuración de la Ventana Principal
                 // Abrimos la ventana PRIMERO para que el usuario no sienta que la app no abre

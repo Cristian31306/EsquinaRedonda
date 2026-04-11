@@ -155,8 +155,8 @@ class SyncService
      */
     protected function filterSchemaData($table, $data)
     {
-        // Determinamos la conexión
-        $connection = config('nativephp.database_path') ? 'nativephp' : config('database.default');
+        // Unificación total: usamos siempre la conexión por defecto del sistema
+        $connection = config('database.default');
         
         $columns = Schema::connection($connection)->getColumnListing($table);
         
