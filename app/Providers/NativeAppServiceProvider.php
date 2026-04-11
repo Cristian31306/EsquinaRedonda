@@ -15,17 +15,19 @@ class NativeAppServiceProvider extends ServiceProvider implements ProvidesPhpIni
      */
     public function boot(): void
     {
-        // Forzar migraciones automáticas en la base de datos nativa al iniciar
-        try {
-            Artisan::call('migrate', [
-                '--force' => true,
-                '--database' => 'nativephp'
-            ]);
-        } catch (\Exception $e) {
-            logger()->error('Error ejecutando migraciones nativas: ' . $e->getMessage());
+        // Solo ejecutar migraciones nativas si la conexión existe (evita errores en la nube/VPS)
+        if (config('database.connections.nativephp')) {
+            try {
+                Artisan::call('migrate', [
+                    '--force' => true,
+                    '--database' => 'nativephp'
+                ]);
+            } catch (\Exception $e) {
+                logger()->error('Error ejecutando migraciones nativas: ' . $e->getMessage());
+            }
         }
 
-        if (! $this->app->runningInConsole()) {
+        if (config('database.connections.nativephp') && ! $this->app->runningInConsole()) {
             try {
                 // Optimización de arranque: Usar caché rápida para evitar bloqueos por DB
                 $isConfigured = \Illuminate\Support\Facades\Cache::rememberForever('desktop_configured', function() {
@@ -41,9 +43,7 @@ class NativeAppServiceProvider extends ServiceProvider implements ProvidesPhpIni
                     ->url($initialUrl)
                     ->showDevTools(true);
             } catch (\Exception $e) {
-                // Silenciamos el error si no estamos en entorno NativePHP
-                // Esto permite que la app funcione en el navegador normal
-                logger()->info('NativePHP Window no pudo abrirse: el servidor local no está activo.');
+                logger()->info('NativePHP Window no pudo abrirse: ' . $e->getMessage());
             }
         }
     }
