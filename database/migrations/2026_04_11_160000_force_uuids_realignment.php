@@ -19,19 +19,36 @@ return new class extends Migration
             return;
         }
 
+        // 1. Eliminar CLAVES FORÁNEAS en MySQL antes de cualquier cambio de columna
+        Schema::table('users', function (Blueprint $table) {
+            if (Schema::hasColumn('users', 'tenant_id')) {
+                $table->dropForeign(['tenant_id']);
+            }
+        });
+
+        // Repetir para otras tablas que tengan tenant_id como foreign key
+        $withTenant = ['rates', 'tickets', 'payments', 'memberships', 'shifts'];
+        foreach ($withTenant as $tableName) {
+            if (Schema::hasTable($tableName)) {
+                Schema::table($tableName, function (Blueprint $table) use ($tableName) {
+                    // Solo intentar drop si el índice existe en MySQL
+                    try {
+                        $table->dropForeign($tableName . '_tenant_id_foreign');
+                    } catch (\Exception $e) { /* Ignorar si no existe */ }
+                });
+            }
+        }
+
+        // 2. Ahora sí, limpiar datos y transformar
         Schema::disableForeignKeyConstraints();
-
         $tables = ['tenants', 'users', 'settings', 'rates', 'tickets', 'payments', 'memberships', 'shifts'];
-
-        // Limpiar datos previos para evitar conflictos de conversión de tipos en IDs
-        // Dado que es un entorno de pruebas/SaaS inicial, priorizamos la integridad del esquema
         foreach ($tables as $table) {
             if (Schema::hasTable($table)) {
                 DB::table($table)->truncate();
             }
         }
 
-        // Reconfigurar TENANTS (La raíz)
+        // Reconfigurar TENANTS
         Schema::table('tenants', function (Blueprint $table) {
             $table->dropColumn('id');
         });
@@ -48,11 +65,10 @@ return new class extends Migration
             $table->uuid('tenant_id')->nullable()->after('id');
         });
 
-        // Reconfigurar OTROS modelos que usan tenant_id
-        $withTenant = ['rates', 'tickets', 'payments', 'memberships', 'shifts'];
+        // Transformar las demás tablas a UUID para tenant_id
         foreach ($withTenant as $tableName) {
-            if (Schema::hasColumn($tableName, 'tenant_id')) {
-                Schema::table($tableName, function (Blueprint $table) use ($tableName) {
+            if (Schema::hasTable($tableName) && Schema::hasColumn($tableName, 'tenant_id')) {
+                Schema::table($tableName, function (Blueprint $table) {
                     $table->uuid('tenant_id')->nullable()->change();
                 });
             }
