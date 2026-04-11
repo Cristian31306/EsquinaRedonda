@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Artisan;
 use Native\Laravel\Facades\Window;
 use Native\Laravel\Contracts\ProvidesPhpIni;
 
@@ -14,6 +15,16 @@ class NativeAppServiceProvider extends ServiceProvider implements ProvidesPhpIni
      */
     public function boot(): void
     {
+        // Forzar migraciones automáticas en la base de datos nativa al iniciar
+        try {
+            Artisan::call('migrate', [
+                '--force' => true,
+                '--database' => 'nativephp'
+            ]);
+        } catch (\Exception $e) {
+            logger()->error('Error ejecutando migraciones nativas: ' . $e->getMessage());
+        }
+
         if (! $this->app->runningInConsole()) {
             try {
                 // Optimización de arranque: Usar caché rápida para evitar bloqueos por DB

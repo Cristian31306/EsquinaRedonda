@@ -58,7 +58,7 @@ return new class extends Migration
                             $table->string('name');
                             $table->string('slug')->unique();
                             $table->enum('status', ['active', 'suspended'])->default('active');
-                            $table->enum('plan', ['vitalicio', 'cloud'])->default('vitalicio');
+                            $table->string('plan')->default('basico');
                             $table->string('nit')->nullable();
                             $table->string('address')->nullable();
                             $table->string('phone')->nullable();

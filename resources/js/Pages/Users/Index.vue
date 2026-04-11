@@ -16,7 +16,7 @@ const form = useForm({
     email: '',
     password: '',
     password_confirmation: '',
-    role: 'usuario',
+    role: 'operator',
 });
 
 const openModal = (user = null) => {
@@ -56,7 +56,7 @@ const toggleStatus = (user) => {
 };
 
 const getRoleLabel = (role) => {
-    return role === 'admin' ? 'Administrador' : 'Usuario';
+    return role === 'admin' ? 'Administrador' : (role === 'operator' || role === 'usuario' ? 'Usuario' : role);
 };
 </script>
 
@@ -190,7 +190,7 @@ const getRoleLabel = (role) => {
                         <div class="space-y-1">
                             <label class="inline-block text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Rol del Sistema</label>
                             <select v-model="form.role" class="w-full bg-slate-50 border-0 rounded-2xl px-5 py-4 text-sm font-black text-slate-900 focus:ring-2 focus:ring-indigo-500/20">
-                                <option value="usuario">Usuario (Acceso General)</option>
+                                <option value="operator">Usuario (Acceso General)</option>
                                 <option value="admin">Administrador (Acceso Total)</option>
                             </select>
                         </div>

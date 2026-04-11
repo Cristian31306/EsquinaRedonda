@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use App\Models\Ticket;
 use App\Models\Vehicle;
 use App\Models\Payment;
@@ -23,6 +24,15 @@ class SyncService
         
         $this->baseUrl = config('app.cloud_url', 'https://parkiapp.algorah.bond/api/v1');
         $this->token = $dbToken ?? config('app.tenant_token');
+    }
+
+    /**
+     * Establece el token de forma dinámica (útil para configuración inicial).
+     */
+    public function setToken($token)
+    {
+        $this->token = $token;
+        return $this;
     }
 
     /**
@@ -79,28 +89,32 @@ class SyncService
                 try {
                     // Actualizar Datos de Empresa
                     if (isset($data['tenant'])) {
-                        DB::table('tenants')->updateOrInsert(['id' => $data['tenant']['id']], $data['tenant']);
+                        $tenantData = $this->filterSchemaData('tenants', $data['tenant']);
+                        unset($tenantData['api_token']); 
+                        DB::table('tenants')->updateOrInsert(['id' => $tenantData['id']], $tenantData);
                     }
 
                     // Actualizar Usuarios (Fundamental para Login Local)
                     if (isset($data['users'])) {
                         foreach ($data['users'] as $user) {
-                            DB::table('users')->updateOrInsert(['id' => $user['id']], $user);
+                            $userData = $this->filterSchemaData('users', $user);
+                            DB::table('users')->updateOrInsert(['id' => $userData['id']], $userData);
                         }
                     }
 
                     // Actualizar Tarifas Locales
                     if (isset($data['rates'])) {
                         foreach ($data['rates'] as $rate) {
-                            DB::table('rates')->updateOrInsert(['id' => $rate['id']], $rate);
+                            $rateData = $this->filterSchemaData('rates', (array)$rate);
+                            DB::table('rates')->updateOrInsert(['id' => $rateData['id']], $rateData);
                         }
                     }
 
                     // Actualizar Ajustes
                     if (isset($data['settings'])) {
                         foreach ($data['settings'] as $setting) {
-                            // No sobreescribir el token local si ya existe (evitar bucle)
-                            DB::table('settings')->updateOrInsert(['id' => $setting['id']], (array)$setting);
+                            $settingData = $this->filterSchemaData('settings', (array)$setting);
+                            DB::table('settings')->updateOrInsert(['id' => $settingData['id']], $settingData);
                         }
                     }
 
@@ -132,5 +146,18 @@ class SyncService
                 ]);
             }
         }
+    }
+
+    /**
+     * Filtra los datos para que solo contengan columnas que existen en la tabla local.
+     */
+    protected function filterSchemaData($table, $data)
+    {
+        // Determinamos la conexión
+        $connection = config('nativephp.database_path') ? 'nativephp' : config('database.default');
+        
+        $columns = Schema::connection($connection)->getColumnListing($table);
+        
+        return array_intersect_key((array)$data, array_flip($columns));
     }
 }

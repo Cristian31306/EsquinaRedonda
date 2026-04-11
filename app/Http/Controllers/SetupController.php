@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\SyncService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class SetupController extends Controller
@@ -27,14 +28,22 @@ class SetupController extends Controller
             'token' => 'required|string|min:20',
         ]);
 
-        // Guardar el token localmente
-        DB::table('settings')->updateOrInsert(
-            ['key' => 'tenant_sync_token'],
-            ['value' => $request->token]
-        );
+        // Guardar el token localmente (Manejo manual de UUID para evitar error de Integridad)
+        $existing = DB::table('settings')->where('key', 'tenant_sync_token')->first();
+        if ($existing) {
+            DB::table('settings')->where('key', 'tenant_sync_token')->update(['value' => $request->token]);
+        } else {
+            DB::table('settings')->insert([
+                'id' => (string) Str::uuid(),
+                'key' => 'tenant_sync_token',
+                'value' => $request->token,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        }
 
         // Disparar sincronización inicial para traer Usuarios y Tarifas
-        $result = $sync->pull();
+        $result = $sync->setToken($request->token)->pull();
 
         if ($result['success']) {
             // Optimización: Marcar en caché que ya estamos configurados

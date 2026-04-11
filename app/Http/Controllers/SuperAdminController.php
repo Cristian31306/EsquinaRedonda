@@ -86,7 +86,7 @@ class SuperAdminController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|max:255',
             'password' => 'required|string|min:6',
-            'role' => 'required|in:admin,user',
+            'role' => 'required|in:admin,operator,user',
         ]);
 
         $email = $request->email;

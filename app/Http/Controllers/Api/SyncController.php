@@ -19,7 +19,7 @@ class SyncController extends Controller
      */
     public function push(Request $request)
     {
-        $tenant = $request->get('current_tenant');
+        $tenant = $request->input('current_tenant');
         $payload = $request->all();
 
         DB::beginTransaction();
