@@ -40,6 +40,16 @@ class Tenant extends Model
     }
 
     /**
+     * Regenera el token de API para sincronización.
+     */
+    public function refreshApiToken(): string
+    {
+        $this->api_token = \Illuminate\Support\Str::random(60);
+        $this->save();
+        return $this->api_token;
+    }
+
+    /**
      * Verifica si el inquilino puede exportar reportes (Solo Plan Pro).
      */
     public function canExportReports(): bool

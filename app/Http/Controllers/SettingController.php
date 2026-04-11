@@ -36,4 +36,12 @@ class SettingController extends Controller
 
         return back()->with('success', 'Configuración actualizada correctamente.');
     }
+
+    public function regenerateToken(Request $request)
+    {
+        $tenant = auth()->user()->tenant;
+        $tenant->refreshApiToken();
+
+        return back()->with('success', 'Nuevo Token de Sincronización generado correctamente.');
+    }
 }

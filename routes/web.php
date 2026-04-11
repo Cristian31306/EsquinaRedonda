@@ -79,6 +79,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Configuración General
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+    Route::post('/settings/token', [SettingController::class, 'regenerateToken'])->name('settings.token.regenerate');
 
     // Perfil de Usuario
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
