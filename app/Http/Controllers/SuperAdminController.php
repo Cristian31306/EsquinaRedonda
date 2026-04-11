@@ -108,16 +108,21 @@ class SuperAdminController extends Controller
             return back()->with('error', 'El correo ' . $email . ' ya está en uso.');
         }
 
-        User::create([
-            'name' => $request->name,
-            'email' => $email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-            'tenant_id' => $tenant->id,
-            'is_active' => true,
-        ]);
+        try {
+            User::create([
+                'name' => $request->name,
+                'email' => $email,
+                'password' => Hash::make($request->password),
+                'role' => $request->role,
+                'tenant_id' => $tenant->id,
+                'is_active' => true,
+            ]);
 
-        return back()->with('success', 'Usuario añadido como ' . $email);
+            return back()->with('success', 'Usuario añadido como ' . $email);
+        } catch (\Exception $e) {
+            logger()->error("Error en SuperAdmin añadiendo usuario: " . $e->getMessage());
+            return back()->with('error', 'Error crítico al crear usuario en la nube: ' . $e->getMessage());
+        }
     }
 
     public function resetUserPassword(User $user, Request $request)

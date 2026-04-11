@@ -57,16 +57,21 @@ class UserController extends Controller
             return back()->with('error', 'El correo ' . $email . ' ya existe.');
         }
 
-        User::create([
-            'name' => $request->name,
-            'email' => $email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-            'tenant_id' => (string) $tenant->id,
-            'is_active' => true,
-        ]);
+        try {
+            User::create([
+                'name' => $request->name,
+                'email' => $email,
+                'password' => Hash::make($request->password),
+                'role' => $request->role,
+                'tenant_id' => (string) $tenant->id,
+                'is_active' => true,
+            ]);
 
-        return redirect()->route('users.index')->with('success', "Usuario creado como {$email}");
+            return redirect()->route('users.index')->with('success', "Usuario creado como {$email}");
+        } catch (\Exception $e) {
+            logger()->error("Error creando usuario: " . $e->getMessage());
+            return back()->with('error', 'Error al guardar el usuario en la nube: ' . $e->getMessage());
+        }
     }
 
     public function update(Request $request, User $user): RedirectResponse
