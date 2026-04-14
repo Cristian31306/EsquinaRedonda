@@ -30,7 +30,7 @@ import { computed } from 'vue';
 const displayedInventory = computed(() => {
     if (!searchQuery.value) return props.inventory.slice(0, 50);
     return props.inventory.filter(t => 
-        t.vehicle.plate.toLowerCase().includes(searchQuery.value.toLowerCase())
+        t.vehicle?.plate?.toLowerCase().includes(searchQuery.value.toLowerCase())
     ).slice(0, 50);
 });
 </script>
@@ -155,10 +155,10 @@ const displayedInventory = computed(() => {
                                     <td class="px-8 py-4">
                                         <div
                                             class="inline-block px-3 py-1 bg-slate-900 text-white rounded-md font-black text-xs tracking-widest">
-                                            {{ ticket.vehicle.plate }}</div>
+                                            {{ ticket.vehicle?.plate || '---' }}</div>
                                     </td>
                                     <td class="px-8 py-4 capitalize text-xs font-bold text-slate-600 tracking-widest">{{
-                                        ticket.vehicle.type }}</td>
+                                        ticket.vehicle?.type || 'N/A' }}</td>
                                     <td class="px-8 py-4 text-right">
                                         <p class="text-xs font-black text-slate-900">{{ new
                                             Date(ticket.entry_time).toLocaleTimeString([], {hour: '2-digit',
@@ -207,17 +207,17 @@ const displayedInventory = computed(() => {
                                 <div class="flex items-center gap-4">
                                     <div
                                         class="w-10 h-10 bg-rose-600 text-white rounded-xl flex items-center justify-center font-black text-[10px] shadow-lg shadow-rose-200">
-                                        {{ alert.vehicle.plate.substring(0, 2) }}
+                                        {{ alert.vehicle?.plate?.substring(0, 2) || '!!' }}
                                     </div>
                                     <div>
                                         <p class="text-lg font-black text-rose-900 tracking-widest leading-none">{{
-                                            alert.vehicle.plate }}</p>
+                                            alert.vehicle?.plate || '---' }}</p>
                                         <p
                                             class="text-[7px] font-bold text-rose-700 uppercase tracking-widest mt-1.5 text-rose-500/80">
                                             Estadía Prolongada (+24h)</p>
                                     </div>
                                 </div>
-                                <Link :href="route('tickets.exit', { plate: alert.vehicle.plate })"
+                                <Link :href="route('tickets.exit', { plate: alert.vehicle?.plate })"
                                     class="px-4 py-2 bg-rose-600 text-white text-[9px] font-black uppercase tracking-widest rounded-lg hover:bg-rose-700 transition-all shadow-md">
                                     Resolver</Link>
                             </div>
