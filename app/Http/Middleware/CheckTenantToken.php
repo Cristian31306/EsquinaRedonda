@@ -18,12 +18,16 @@ class CheckTenantToken
         $token = $request->bearerToken();
 
         if (!$token) {
+            logger()->warning('CheckTenantToken: No se proporcionó token.');
             return response()->json(['message' => 'Token de acceso no proporcionado.'], 401);
         }
 
-        $tenant = \App\Models\Tenant::where('api_token', $token)->first();
+        $tenant = \App\Models\Tenant::where('api_token', $token)
+            ->orWhere('id', $token)
+            ->first();
 
         if (!$tenant) {
+            logger()->warning('CheckTenantToken: Token inválido: ' . $token);
             return response()->json(['message' => 'Token de acceso inválido.'], 401);
         }
 

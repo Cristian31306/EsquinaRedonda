@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\DB;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,6 +26,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Vite::prefetch(concurrency: 3);
+        // Activar modo WAL para SQLite (Mejora brutal de rendimiento concurrente en escritorio)
+        if (config('database.default') === 'sqlite') {
+            try {
+                DB::statement('PRAGMA journal_mode = WAL;');
+            } catch (\Exception $e) {
+                // Silencioso si falla
+            }
+        }
     }
 }

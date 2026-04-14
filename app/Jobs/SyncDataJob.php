@@ -22,6 +22,6 @@ class SyncDataJob implements ShouldQueue
      */
     public function handle(\App\Services\SyncService $syncService): void
     {
-        $syncService->push();
+        $syncService->syncAll();
     }
 }

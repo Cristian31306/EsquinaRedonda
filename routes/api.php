@@ -22,6 +22,11 @@ Route::prefix('v1')->group(function () {
         return response()->json(['status' => 'online', 'version' => '1.0.0']);
     });
 
+    // PING para pruebas de conectividad desde el Frontend
+    Route::get('/ping', function () {
+        return response()->json(['message' => 'pong', 'time' => now()]);
+    });
+
     // Rutas de Sincronización protegidas por Token de Tenant
     Route::middleware([\App\Http\Middleware\CheckTenantToken::class])->group(function () {
         Route::post('/sync/push', [SyncController::class, 'push']);
@@ -33,7 +38,7 @@ Route::prefix('v1')->group(function () {
             $pull = $sync->pull();
             return response()->json([
                 'success' => $push['success'] && $pull['success'],
-                'message' => $push['message'] . ' | ' . $pull['pull_message'] ?? '',
+                'message' => $push['message'] . ' | ' . $pull['message'] ?? '',
                 'synced_at' => now()->format('d/m H:i')
             ]);
         });

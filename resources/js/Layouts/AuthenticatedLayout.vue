@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link, usePage, router } from '@inertiajs/vue3';
 import axios from 'axios';
 
 const page = usePage();
@@ -17,19 +17,26 @@ const runManualSync = async () => {
     try {
         const response = await axios.post('/api/v1/sync/now', {}, {
             headers: {
-                'Authorization': `Bearer ${page.props.auth.user?.tenant?.api_token}`
+                'Authorization': `Bearer ${page.props.auth.user?.tenant?.api_token || page.props.settings?.tenant_sync_token || page.props.auth.user?.tenant_id}`
             }
         });
+        
+        console.log('Sync response:', response.data);
         
         if (response.data.success) {
             lastSync.value = response.data.synced_at;
             localStorage.setItem('last_sync_at', lastSync.value);
             syncStatus.value = 'success';
+            
+            // Recargar datos de la página actual (tarifas, etc)
+            router.reload({ only: page.props.auth.user?.role === 'admin' ? ['rates', 'settings', 'inventory'] : ['inventory'] });
         } else {
+            console.warn('Sync failed according to server:', response.data);
             syncStatus.value = 'error';
         }
     } catch (error) {
         console.error('Sync failed:', error);
+        window.alert('Error de sincronización: ' + (error.response?.data?.message || error.message));
         syncStatus.value = 'error';
     } finally {
         setTimeout(() => syncStatus.value = 'idle', 3000);
@@ -222,7 +229,7 @@ watch(() => page.props.flash, (newFlash) => {
         <main class="flex-1 flex flex-col min-w-0 bg-slate-50 relative">
             <header v-if="$slots.header" class="h-20 bg-white shadow-sm flex items-center px-10 z-40 no-print border-b border-slate-200">
                 <!-- Sync Widget (Solo en Escritorio) -->
-                <div v-if="typeof window !== 'undefined' && (window.NativePHP || window.process)" class="mr-6 hidden md:flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-inner">
+                <div class="mr-6 hidden md:flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-inner">
                     <div class="flex flex-col text-right">
                         <span class="text-[8px] font-black uppercase tracking-widest text-slate-400 leading-none">Última Sincronización</span>
                         <span class="text-[10px] font-bold text-slate-700 mt-0.5">{{ lastSync }}</span>

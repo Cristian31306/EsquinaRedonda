@@ -16,6 +16,7 @@ class SyncService
 {
     protected $baseUrl;
     protected $token;
+    protected $columnCache = [];
 
     public function __construct()
     {
@@ -24,6 +25,22 @@ class SyncService
         
         $this->baseUrl = config('app.cloud_url', 'https://parkiapp.algorah.bond/api/v1');
         $this->token = $dbToken ?? config('app.tenant_token');
+    }
+
+    /**
+     * UNIFICACIÓN: Ejecuta PUSH y PULL de forma secuencial.
+     */
+    public function syncAll()
+    {
+        $push = $this->push();
+        $pull = $this->pull();
+
+        return [
+            'push' => $push,
+            'pull' => $pull,
+            'success' => $push['success'] && $pull['success'],
+            'message' => "Sincronización completa: {$push['message']} | {$pull['message']}"
+        ];
     }
 
     /**
@@ -110,6 +127,8 @@ class SyncService
                             $rateData = $this->filterSchemaData('rates', (array)$rate);
                             DB::table('rates')->updateOrInsert(['id' => $rateData['id']], $rateData);
                         }
+                        
+                        logger()->info('SyncService: PULL exitoso. Datos actualizados localmente.');
                     }
 
                     // Actualizar Ajustes
@@ -120,8 +139,37 @@ class SyncService
                         }
                     }
 
+                    // --- NUEVO: Sincronización de Datos de Negocio ---
+                    
+                    // Actualizar Vehículos
+                    if (isset($data['vehicles'])) {
+                        foreach ($data['vehicles'] as $vehicle) {
+                            $vehicleData = $this->filterSchemaData('vehicles', (array)$vehicle);
+                            $vehicleData['sync_status'] = 'synced'; // Marcamos como sincronizado
+                            DB::table('vehicles')->updateOrInsert(['id' => $vehicleData['id']], $vehicleData);
+                        }
+                    }
+
+                    // Actualizar Tickets (ENTRADAS/SALIDAS)
+                    if (isset($data['tickets'])) {
+                        foreach ($data['tickets'] as $ticket) {
+                            $ticketData = $this->filterSchemaData('tickets', (array)$ticket);
+                            $ticketData['sync_status'] = 'synced';
+                            DB::table('tickets')->updateOrInsert(['id' => $ticketData['id']], $ticketData);
+                        }
+                    }
+
+                    // Actualizar Pagos
+                    if (isset($data['payments'])) {
+                        foreach ($data['payments'] as $payment) {
+                            $paymentData = $this->filterSchemaData('payments', (array)$payment);
+                            $paymentData['sync_status'] = 'synced';
+                            DB::table('payments')->updateOrInsert(['id' => $paymentData['id']], $paymentData);
+                        }
+                    }
+
                     DB::commit();
-                    return ['success' => true, 'message' => 'Sincronización completa: Usuarios, Tarifas y Ajustes actualizados.'];
+                    return ['success' => true, 'message' => 'Sincronización completa: Usuarios, Tarifas y Movimientos actualizados.'];
                 } catch (\Exception $e) {
                     DB::rollBack();
                     return ['success' => false, 'message' => 'Error al guardar datos locales: ' . $e->getMessage()];
@@ -155,11 +203,12 @@ class SyncService
      */
     protected function filterSchemaData($table, $data)
     {
-        // Unificación total: usamos siempre la conexión por defecto del sistema
-        $connection = config('database.default');
+        if (!isset($this->columnCache[$table])) {
+            // Unificación total: usamos siempre la conexión por defecto del sistema
+            $connection = config('database.default');
+            $this->columnCache[$table] = Schema::connection($connection)->getColumnListing($table);
+        }
         
-        $columns = Schema::connection($connection)->getColumnListing($table);
-        
-        return array_intersect_key((array)$data, array_flip($columns));
+        return array_intersect_key((array)$data, array_flip($this->columnCache[$table]));
     }
 }
