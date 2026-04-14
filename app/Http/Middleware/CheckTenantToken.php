@@ -15,10 +15,11 @@ class CheckTenantToken
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $token = trim($request->bearerToken() ?? '');
+        // Buscamos el token en la cabecera Bearer O en el parámetro 'token' de la URL (respaldo)
+        $token = trim($request->bearerToken() ?? $request->query('token') ?? '');
 
         if (!$token) {
-            logger()->warning('CheckTenantToken: No se proporcionó token.');
+            logger()->warning('CheckTenantToken: No se proporcionó token en cabecera ni URL.');
             return response()->json(['message' => 'Token de acceso no proporcionado.'], 401);
         }
 

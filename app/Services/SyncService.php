@@ -85,7 +85,7 @@ class SyncService
             $response = Http::withToken($this->token)
                 ->withoutVerifying()
                 ->timeout(30)
-                ->post("{$this->baseUrl}/sync/push", $payload);
+                ->post("{$this->baseUrl}/sync/push?token={$this->token}", $payload);
 
             if ($response->successful()) {
                 $this->markAsSynced($payload);
@@ -111,7 +111,7 @@ class SyncService
             $response = Http::withToken($this->token)
                 ->withoutVerifying()
                 ->timeout(30)
-                ->get("{$this->baseUrl}/sync/pull");
+                ->get("{$this->baseUrl}/sync/pull?token={$this->token}");
 
             if ($response->successful()) {
                 $data = $response->json();
