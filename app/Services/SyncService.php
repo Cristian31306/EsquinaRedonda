@@ -82,8 +82,10 @@ class SyncService
                 return ['success' => true, 'message' => 'Sincronización exitosa.', 'synced_at' => now()];
             }
 
+            logger()->error('SyncService PUSH falló: ' . $response->body());
             return ['success' => false, 'message' => 'Error del servidor: ' . $response->body()];
         } catch (\Exception $e) {
+            logger()->error('SyncService PUSH excepción: ' . $e->getMessage());
             return ['success' => false, 'message' => 'Fallo de conexión: ' . $e->getMessage()];
         }
     }
@@ -181,12 +183,15 @@ class SyncService
                     return ['success' => true, 'message' => 'Sincronización completa: Usuarios, Tarifas y Movimientos actualizados.'];
                 } catch (\Exception $e) {
                     DB::rollBack();
+                    logger()->error('SyncService PULL error al guardar: ' . $e->getMessage());
                     return ['success' => false, 'message' => 'Error al guardar datos locales: ' . $e->getMessage()];
                 }
             }
 
+            logger()->error('SyncService PULL falló con estado: ' . $response->status());
             return ['success' => false, 'message' => 'Error al descargar datos.'];
         } catch (\Exception $e) {
+            logger()->error('SyncService PULL excepción: ' . $e->getMessage());
             return ['success' => false, 'message' => 'Error de conexión: ' . $e->getMessage()];
         }
     }

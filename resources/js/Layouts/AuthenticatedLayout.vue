@@ -40,7 +40,8 @@ const runManualSync = async () => {
             // Recargar datos de la página actual (tarifas, etc)
             router.reload({ only: page.props.auth.user?.role === 'admin' ? ['rates', 'settings', 'inventory'] : ['inventory'] });
         } else {
-            console.warn('Sync failed according to server:', response.data);
+            console.warn('Fallo de sincronización reportado por el servidor:', response.data);
+            window.alert('Sincronización fallida: ' + (response.data.message || 'Error desconocido en el servidor.'));
             syncStatus.value = 'error';
         }
     } catch (error) {
@@ -240,7 +241,7 @@ watch(() => page.props.flash, (newFlash) => {
                 <!-- Sync Widget (Solo en Escritorio) -->
                 <div class="mr-6 hidden md:flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-inner">
                     <div class="flex flex-col text-right">
-                        <span class="text-[8px] font-black uppercase tracking-widest text-slate-400 leading-none">Última Sincronización</span>
+                        <span class="text-[8px] font-black uppercase tracking-widest text-slate-400 leading-none">Estado de Sync</span>
                         <span class="text-[10px] font-bold text-slate-700 mt-0.5">{{ lastSync }}</span>
                     </div>
                     <button @click="runManualSync" :disabled="syncStatus === 'syncing'" class="p-1.5 rounded-lg transition-all duration-300" :class="[syncStatus === 'syncing' ? 'bg-indigo-100 text-indigo-500 animate-spin' : 'bg-white text-slate-400 hover:text-indigo-600 hover:shadow-md']">

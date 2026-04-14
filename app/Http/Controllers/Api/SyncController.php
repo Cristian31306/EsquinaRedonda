@@ -24,6 +24,9 @@ class SyncController extends Controller
 
         DB::beginTransaction();
         try {
+            // Desactivar temporalmente restricciones de integridad para permitir sincronización masiva
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
             // 1. Sincronizar Vehículos primero (dependencia de tickets)
             if (isset($payload['vehicles'])) {
                 foreach ($payload['vehicles'] as $data) {
@@ -52,11 +55,15 @@ class SyncController extends Controller
                 }
             }
 
+            // Reactivar restricciones de integridad
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+
             DB::commit();
             return response()->json(['message' => 'Sincronización PUSH exitosa.', 'synced_at' => now()]);
 
         } catch (\Exception $e) {
             DB::rollBack();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
             return response()->json(['message' => 'Error en sincronización: ' . $e->getMessage()], 500);
         }
     }
@@ -74,6 +81,13 @@ class SyncController extends Controller
             'memberships' => Membership::where('tenant_id', $tenant->id)->active()->get(),
             'settings'    => DB::table('settings')->where('tenant_id', $tenant->id)->get(),
             'users'       => DB::table('users')->where('tenant_id', $tenant->id)->where('is_active', true)->select('id', 'name', 'email', 'password', 'role', 'tenant_id')->get(),
+            
+            // --- NUEVO: Sincronización de Datos de Negocio ---
+            'vehicles'    => Vehicle::where('tenant_id', $tenant->id)->get(),
+            'tickets'     => Ticket::where('tenant_id', $tenant->id)->latest()->limit(500)->get(),
+            'payments'    => Payment::where('tenant_id', $tenant->id)->latest()->limit(500)->get(),
+            'cash_shifts' => CashShift::where('tenant_id', $tenant->id)->latest()->limit(100)->get(),
+            
             'pulled_at'   => now()
         ]);
     }
