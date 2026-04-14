@@ -28,12 +28,15 @@ class NativeAppServiceProvider extends ServiceProvider implements ProvidesPhpIni
         }
 
         try {
-                // 1. Configuración de la Ventana Principal
-                // Abrimos la ventana PRIMERO para que el usuario no sienta que la app no abre
+                // 1. Configuración de la Ventana Principal (Solo si estamos en NativePHP real)
+                if (! class_exists('Native\Laravel\Facades\Window')) {
+                    return;
+                }
+
                 $isConfigured = \Illuminate\Support\Facades\DB::table('settings')->where('key', 'tenant_sync_token')->exists();
                 $initialUrl = $isConfigured ? url('/login') : url('/setup');
 
-                Window::open()
+                \Native\Laravel\Facades\Window::open()
                     ->title('ParkiApp - Gestión de Parqueadero')
                     ->width(1200)
                     ->height(800)
@@ -41,10 +44,11 @@ class NativeAppServiceProvider extends ServiceProvider implements ProvidesPhpIni
                     ->showDevTools(false);
 
                 // Establecer un menú vacío (oculta File, Edit, etc)
-                Menu::create();
+                if (class_exists('Native\Laravel\Facades\Menu')) {
+                    \Native\Laravel\Facades\Menu::create();
+                }
 
                 // 2. Sincronización Automática de Arranque (PULL)
-                // Se envía a segundo plano mediante un Job para no bloquear la interfaz
                 $token = \Illuminate\Support\Facades\DB::table('settings')->where('key', 'tenant_sync_token')->value('value');
                 if ($token && ! \Illuminate\Support\Facades\Cache::has('startup_sync_done')) {
                     \App\Jobs\SyncDataJob::dispatch();
@@ -53,7 +57,7 @@ class NativeAppServiceProvider extends ServiceProvider implements ProvidesPhpIni
 
                 static::$booted = true;
             } catch (\Exception $e) {
-                logger()->info('Error en arranque de NativePHP: ' . $e->getMessage());
+                logger()->info('Error en arranque de NativePHP detectado (probablemente entorno web): ' . $e->getMessage());
             }
         }
 

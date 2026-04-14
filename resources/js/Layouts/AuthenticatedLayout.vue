@@ -10,18 +10,18 @@ const showingNavigationDropdown = ref(false);
 const lastSync = ref(localStorage.getItem('last_sync_at') || 'Sin datos');
 const syncStatus = ref('idle'); // idle, syncing, success, error
 
+const token = page.props.settings?.tenant_sync_token || page.props.auth.user?.tenant?.api_token;
+const isNative = !!window.process || !!window.isNative;
+const canSync = !!token && isNative;
+
 const runManualSync = async () => {
-    if (syncStatus.value === 'syncing') return;
-    
-    // Diagnóstico: Alerta inmediata para confirmar que el JS capturó el clic
-    window.alert('Iniciando sincronización manual...');
+    if (syncStatus.value === 'syncing' || !canSync) return;
     
     syncStatus.value = 'syncing';
-    const token = page.props.auth.user?.tenant?.api_token || page.props.settings?.tenant_sync_token || page.props.auth.user?.tenant_id;
     
     console.log('--- DIAGNÓSTICO DE SINCRONIZACIÓN ---');
     console.log('URL:', '/api/v1/sync/now');
-    console.log('Token detectado:', token ? 'PRESENTE' : 'AUSENTE');
+    console.log('Token:', token ? 'PRESENTE' : 'AUSENTE');
     
     try {
         const response = await axios.post('/api/v1/sync/now', {}, {
@@ -239,7 +239,8 @@ watch(() => page.props.flash, (newFlash) => {
         <main class="flex-1 flex flex-col min-w-0 bg-slate-50 relative">
             <header v-if="$slots.header" class="h-20 bg-white shadow-sm flex items-center px-10 z-40 no-print border-b border-slate-200">
                 <!-- Sync Widget (Solo en Escritorio) -->
-                <div class="mr-6 hidden md:flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-inner">
+                <!-- Estado de Sync (Solo escritorio) -->
+                <div v-if="canSync" class="mr-6 hidden md:flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-inner">
                     <div class="flex flex-col text-right">
                         <span class="text-[8px] font-black uppercase tracking-widest text-slate-400 leading-none">Estado de Sync</span>
                         <span class="text-[10px] font-bold text-slate-700 mt-0.5">{{ lastSync }}</span>
