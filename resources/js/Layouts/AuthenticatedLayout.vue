@@ -80,7 +80,7 @@ watch(() => page.props.flash, (newFlash) => {
 </script>
 
 <template>
-    <div class="h-screen w-full bg-slate-50 flex overflow-hidden font-sans selection:bg-indigo-100 selection:text-indigo-900 antialiased">
+    <div class="h-screen w-full bg-slate-50 flex overflow-hidden font-sans antialiased">
         <!-- Sidebar -->
         <aside class="w-20 lg:w-72 bg-indigo-950 text-white flex flex-col z-50 shadow-2xl transition-all duration-300 no-print">
             <!-- Brand -->
@@ -247,11 +247,7 @@ watch(() => page.props.flash, (newFlash) => {
             <header v-if="$slots.header" class="h-20 bg-white shadow-sm flex items-center px-10 z-40 no-print border-b border-slate-200">
                 <!-- Sync Widget (Solo en Escritorio) -->
                 <!-- Estado de Sync (Solo escritorio) -->
-                <div v-show="canSync" class="mr-6 hidden md:flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-inner">
-                    <!-- Debugging Info (Oculto en produccion, pero aqui lo dejamos visible un momento) -->
-                    <div class="hidden">
-                        T: {{ !!token }} | N: {{ isNative }} | H: {{ !!page.props.auth?.user }}
-                    </div>
+                <div v-if="canSync" class="mr-6 hidden md:flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-inner">
                     <div class="flex flex-col text-right">
                         <span class="text-[8px] font-black uppercase tracking-widest text-slate-400 leading-none">Estado de Sync</span>
                         <span class="text-[10px] font-bold text-slate-700 mt-0.5">{{ lastSync }}</span>
