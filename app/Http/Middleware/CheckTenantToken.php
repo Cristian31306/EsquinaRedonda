@@ -15,7 +15,7 @@ class CheckTenantToken
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $token = $request->bearerToken();
+        $token = trim($request->bearerToken() ?? '');
 
         if (!$token) {
             logger()->warning('CheckTenantToken: No se proporcionó token.');
@@ -27,8 +27,15 @@ class CheckTenantToken
             ->first();
 
         if (!$tenant) {
-            logger()->warning('CheckTenantToken: Token inválido: ' . $token);
-            return response()->json(['message' => 'Token de acceso inválido.'], 401);
+            $maskedToken = substr($token, 0, 5) . '...' . substr($token, -5);
+            logger()->warning("CheckTenantToken: Token inválido [Len:" . strlen($token) . "]: " . $maskedToken);
+            return response()->json([
+                'message' => 'Token de acceso inválido.',
+                'debug' => [
+                    'received_length' => strlen($token),
+                    'sent_token_mask' => $maskedToken
+                ]
+            ], 401);
         }
 
         if (!$tenant->status) {

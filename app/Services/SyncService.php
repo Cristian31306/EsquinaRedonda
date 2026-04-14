@@ -59,15 +59,25 @@ class SyncService
     {
         if (!$this->token) return ['success' => false, 'message' => 'Token de API no configurado.'];
 
+        $pendingTickets = Ticket::where('sync_status', 'pending')->get();
+        $pendingVehicles = Vehicle::where('sync_status', 'pending')->get();
+        
+        // Integridad: Asegurarnos de que si enviamos un ticket, el vehículo también se envíe
+        // incluso si localmente ya cree estar "synced", por si acaso en la nube no está.
+        $referencedVehicleIds = $pendingTickets->pluck('vehicle_id')->unique();
+        $extraVehicles = Vehicle::whereIn('id', $referencedVehicleIds)
+            ->where('sync_status', '!=', 'pending')
+            ->get();
+
         $payload = [
-            'vehicles'    => Vehicle::where('sync_status', 'pending')->get(),
+            'vehicles'    => $pendingVehicles->merge($extraVehicles),
             'cash_shifts' => CashShift::where('sync_status', 'pending')->get(),
-            'tickets'     => Ticket::where('sync_status', 'pending')->get(),
+            'tickets'     => $pendingTickets,
             'payments'    => Payment::where('sync_status', 'pending')->get(),
         ];
 
         // Si no hay nada que sincronizar, retornamos éxito inmediato
-        if (collect($payload)->flatten()->isEmpty()) {
+        if ($pendingTickets->isEmpty() && $pendingVehicles->isEmpty() && collect($payload)->flatten()->isEmpty()) {
             return ['success' => true, 'message' => 'Todo está al día.'];
         }
 
