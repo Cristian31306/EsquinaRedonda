@@ -41,6 +41,7 @@ class HandleInertiaRequests extends Middleware
                 'printShift' => session('printShift'),
             ],
             'settings' => auth()->check() ? \App\Models\Setting::getAllCached() : collect(),
+            'is_native' => env('NATIVE_PHP_RUNNING', false) || env('NATIVE_PHP_DESKTOP_BUILD', false),
         ];
     }
 }

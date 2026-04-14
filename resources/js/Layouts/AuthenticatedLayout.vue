@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import { Link, usePage, router } from '@inertiajs/vue3';
 import axios from 'axios';
 
@@ -10,23 +10,23 @@ const showingNavigationDropdown = ref(false);
 const lastSync = ref(localStorage.getItem('last_sync_at') || 'Sin datos');
 const syncStatus = ref('idle'); // idle, syncing, success, error
 
-const token = page.props.settings?.tenant_sync_token || page.props.auth.user?.tenant?.api_token;
-const isNative = !!window.process || !!window.isNative;
-const canSync = !!token && isNative;
+const token = computed(() => page.props.settings?.tenant_sync_token || page.props.auth.user?.tenant?.api_token);
+const isNative = computed(() => !!window.process || !!window.isNative || !!page.props.is_native);
+const canSync = computed(() => !!token.value && isNative.value);
 
 const runManualSync = async () => {
-    if (syncStatus.value === 'syncing' || !canSync) return;
+    if (syncStatus.value === 'syncing' || !canSync.value) return;
     
     syncStatus.value = 'syncing';
     
     console.log('--- DIAGNÓSTICO DE SINCRONIZACIÓN ---');
     console.log('URL:', '/api/v1/sync/now');
-    console.log('Token:', token ? 'PRESENTE' : 'AUSENTE');
+    console.log('Token:', token.value ? 'PRESENTE' : 'AUSENTE');
     
     try {
         const response = await axios.post('/api/v1/sync/now', {}, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token.value}`
             }
         });
         
