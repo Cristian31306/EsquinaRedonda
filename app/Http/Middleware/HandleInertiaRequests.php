@@ -41,6 +41,7 @@ class HandleInertiaRequests extends Middleware
                 'printShift' => session('printShift'),
             ],
             'settings' => auth()->check() ? \App\Models\Setting::getAllCached() : collect(),
+            'sync_token' => \Illuminate\Support\Facades\DB::table('settings')->where('key', 'tenant_sync_token')->value('value'),
             'is_native' => env('NATIVEPHP_RUNNING', false) || env('NATIVEPHP_DESKTOP_BUILD', false),
         ];
     }

@@ -10,8 +10,13 @@ const showingNavigationDropdown = ref(false);
 const lastSync = ref(localStorage.getItem('last_sync_at') || 'Sin datos');
 const syncStatus = ref('idle'); // idle, syncing, success, error
 
-const token = computed(() => page.props.settings?.tenant_sync_token || page.props.auth.user?.tenant?.api_token);
-const isNative = computed(() => !!window.process || !!window.isNative || !!page.props.is_native);
+const token = computed(() => page.props.settings?.tenant_sync_token || page.props.auth.user?.tenant?.api_token || page.props.sync_token);
+const isNative = computed(() => 
+    !!window.process || 
+    !!window.isNative || 
+    !!page.props.is_native || 
+    ['localhost', '127.0.0.1', ''].includes(window.location.hostname)
+);
 const canSync = computed(() => !!token.value && isNative.value);
 
 const runManualSync = async () => {
@@ -20,8 +25,10 @@ const runManualSync = async () => {
     syncStatus.value = 'syncing';
     
     console.log('--- DIAGNÓSTICO DE SINCRONIZACIÓN ---');
-    console.log('URL:', '/api/v1/sync/now');
-    console.log('Token:', token.value ? 'PRESENTE' : 'AUSENTE');
+    console.log('Token:', token.value);
+    console.log('isNative:', isNative.value);
+    console.log('page.props.is_native:', page.props.is_native);
+    console.log('Hostname:', window.location.hostname);
     
     try {
         const response = await axios.post('/api/v1/sync/now', {}, {
@@ -240,7 +247,11 @@ watch(() => page.props.flash, (newFlash) => {
             <header v-if="$slots.header" class="h-20 bg-white shadow-sm flex items-center px-10 z-40 no-print border-b border-slate-200">
                 <!-- Sync Widget (Solo en Escritorio) -->
                 <!-- Estado de Sync (Solo escritorio) -->
-                <div v-if="canSync" class="mr-6 hidden md:flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-inner">
+                <div v-show="canSync" class="mr-6 hidden md:flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-inner">
+                    <!-- Debugging Info (Oculto en produccion, pero aqui lo dejamos visible un momento) -->
+                    <div class="hidden">
+                        T: {{ !!token }} | N: {{ isNative }} | H: {{ !!page.props.auth?.user }}
+                    </div>
                     <div class="flex flex-col text-right">
                         <span class="text-[8px] font-black uppercase tracking-widest text-slate-400 leading-none">Estado de Sync</span>
                         <span class="text-[10px] font-bold text-slate-700 mt-0.5">{{ lastSync }}</span>
