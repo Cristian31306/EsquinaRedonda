@@ -168,6 +168,15 @@ class SyncService
                         }
                     }
 
+                    // Actualizar Turnos (Cash Shifts)
+                    if (isset($data['cash_shifts'])) {
+                        foreach ($data['cash_shifts'] as $shift) {
+                            $shiftData = $this->filterSchemaData('cash_shifts', (array)$shift);
+                            $shiftData['sync_status'] = 'synced';
+                            DB::table('cash_shifts')->updateOrInsert(['id' => $shiftData['id']], $shiftData);
+                        }
+                    }
+
                     DB::commit();
                     return ['success' => true, 'message' => 'Sincronización completa: Usuarios, Tarifas y Movimientos actualizados.'];
                 } catch (\Exception $e) {

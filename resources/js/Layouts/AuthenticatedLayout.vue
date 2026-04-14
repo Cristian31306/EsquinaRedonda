@@ -13,15 +13,24 @@ const syncStatus = ref('idle'); // idle, syncing, success, error
 const runManualSync = async () => {
     if (syncStatus.value === 'syncing') return;
     
+    // Diagnóstico: Alerta inmediata para confirmar que el JS capturó el clic
+    window.alert('Iniciando sincronización manual...');
+    
     syncStatus.value = 'syncing';
+    const token = page.props.auth.user?.tenant?.api_token || page.props.settings?.tenant_sync_token || page.props.auth.user?.tenant_id;
+    
+    console.log('--- DIAGNÓSTICO DE SINCRONIZACIÓN ---');
+    console.log('URL:', '/api/v1/sync/now');
+    console.log('Token detectado:', token ? 'PRESENTE' : 'AUSENTE');
+    
     try {
         const response = await axios.post('/api/v1/sync/now', {}, {
             headers: {
-                'Authorization': `Bearer ${page.props.auth.user?.tenant?.api_token || page.props.settings?.tenant_sync_token || page.props.auth.user?.tenant_id}`
+                'Authorization': `Bearer ${token}`
             }
         });
         
-        console.log('Sync response:', response.data);
+        console.log('Respuesta del servidor:', response.data);
         
         if (response.data.success) {
             lastSync.value = response.data.synced_at;
